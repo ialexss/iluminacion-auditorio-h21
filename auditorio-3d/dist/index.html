@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9f9f7">
+  <meta name="description" content="Maqueta interactiva, distribución de luminarias y estudio de cobertura del auditorio.">
+  <title>Iluminación del auditorio</title>
+  <link rel="stylesheet" href="estudio.css">
+  <script defer src="recursos/three.min.js"></script>
+  <script defer src="planta.js"></script>
+  <script defer src="fotometria.js"></script>
+  <script defer src="modelo.js"></script>
+  <script defer src="cobertura-vista.js"></script>
+  <script defer src="exportar-glb.js"></script>
+  <script defer src="editor.js"></script>
+  <script defer src="estudio.js"></script>
+</head>
+<body>
+<a class="skip" href="#maqueta">Ir a la maqueta</a>
+<main class="page">
+  <header class="intro">
+    <div><p class="kicker">Estudio de iluminación</p><h1>Auditorio</h1>
+    <p class="subtitle">El escenario, las dos tarimas de danza y la luz sobre el público.</p></div>
+    <nav class="intro-nav" aria-label="Secciones"><a href="#cobertura">Cobertura</a><a href="#referencias">Fotos y DMX</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
+  </header>
+  <section id="maqueta" aria-label="Maqueta interactiva del auditorio">
+    <div class="inventory-line"><h2>Comparar montaje</h2><div class="segmented" id="inventory" role="group" aria-label="Comparar montaje de iluminación">
+      <button type="button" data-inventory="existing" aria-pressed="false">Solo existentes</button>
+      <button type="button" data-inventory="all" aria-pressed="true">Existentes + nuevas</button>
+      <button type="button" data-inventory="proposed" aria-pressed="false">Solo nuevas</button>
+    </div></div>
+    <div class="viewer" id="viewer">
+      <img class="poster" id="poster" src="recursos/vistas/orbit.webp" alt="Perspectiva general del auditorio y sus luminarias" fetchpriority="high">
+      <div id="canvas-area" tabindex="0" aria-label="Vista 3D. Usa las flechas para girar y los signos más y menos para acercar o alejar."></div>
+      <div id="anchors" aria-hidden="true"></div>
+      <div class="viewer-head"><div><span class="viewer-type">Vista 3D</span><p id="view-name">Perspectiva</p></div>
+        <button class="tool" id="fullscreen" aria-label="Pantalla completa" title="Pantalla completa"><span data-icon="expand"></span></button></div>
+      <div class="viewer-foot"><div class="gesture-tools"><span class="gesture" id="gesture">Arrastra para girar</span><button class="cancel-aim" id="cancel-aim" type="button" hidden>Cancelar</button></div>
+        <div class="camera-tools" aria-label="Zoom y cámara">
+          <button type="button" class="tool" id="zoom-out" aria-label="Alejar" title="Alejar"><span data-icon="minus"></span></button>
+          <button type="button" class="tool" id="zoom-in" aria-label="Acercar" title="Acercar"><span data-icon="plus"></span></button>
+          <button type="button" class="tool" id="reset-camera" aria-label="Restablecer cámara" title="Restablecer cámara"><span data-icon="reset"></span></button>
+        </div></div>
+    </div>
+    <p class="inventory-description" id="inventory-description" aria-live="polite"></p>
+    <div class="scene-line">
+      <div class="scene-set"><h2>Escena</h2><div class="segmented" id="presets" role="group" aria-label="Escena de iluminación"></div></div>
+      <label class="viewer-height" for="viewer-height">Altura de sala <input type="range" id="viewer-height" min="3" max="8" value="4.66" step=".01"><output for="viewer-height" id="viewer-height-value">4,66 m</output></label>
+    </div>
+    <p class="scene-caption" id="scene-caption" aria-live="polite"></p>
+    <div class="edit-bar">
+      <button id="open-editor" type="button" aria-expanded="false" aria-controls="fixture-editor">Mover y orientar luces</button>
+      <button type="button" id="export-glb"><span data-icon="download"></span> Descargar 3D <span class="format">GLB</span></button>
+    </div>
+    <div id="fixture-editor" class="fixture-editor" hidden>
+      <div class="edit-selection"><div><label for="fixture-list">Luminaria</label><select id="fixture-list"></select></div><div class="edit-actions"><button id="focus-fixture" type="button">Ver de cerca</button><button id="drag-fixture" type="button" aria-pressed="false">Mover en planta</button></div></div>
+      <p id="fixture-facts" class="detail-copy"></p>
+      <details id="p2-reference" class="p2-reference" hidden>
+        <summary>Ver el P2 izquierdo en Lightkey <span class="summary-symbol" aria-hidden="true"></span></summary>
+        <figure><img src="recursos/lateral-p2-lightkey.webp" width="1500" height="2000" loading="lazy" alt="Vista de Lightkey con el segundo foco desde la izquierda seleccionado. El menú muestra American DJ COB Cannon Wash DW [1].">
+          <figcaption>En la barra frontal, el P2 izquierdo queda entre el P3 del extremo y el primer P4 del centro.</figcaption>
+        </figure>
+      </details>
+      <p id="fixture-optics" class="detail-copy"></p>
+      <div class="fixture-aim" id="fixture-aim">
+        <div><label for="aim-zone">Apuntar hacia</label><select id="aim-zone"><option value="">Enfoque de referencia</option><option value="stage">Centro del escenario</option><option value="left">Danza izquierda</option><option value="right">Danza derecha</option><option value="banner">Centro del banner</option><option value="seats">Zona de butacas</option><option value="custom" disabled hidden>Punto elegido en el 3D</option></select></div>
+        <button type="button" id="pick-aim" aria-pressed="false">Apuntar en el 3D</button>
+      </div>
+      <div class="edit-coordinates">
+        <label>Posición lateral X (m)<input type="number" id="fixture-x" step=".01" inputmode="decimal"></label>
+        <label>Fondo Z (m)<input type="number" id="fixture-z" step=".01" inputmode="decimal"></label>
+        <button type="button" id="apply-position">Aplicar posición</button>
+      </div>
+      <div class="edit-actions secondary-actions"><button id="add-fixture" type="button">Añadir una igual</button><button id="reset-fixture" type="button">Restablecer posición</button><button id="remove-fixture" type="button" hidden>Quitar añadida</button></div>
+      <p id="edit-status" role="status"></p>
+    </div>
+    <p class="detail-copy export-status" id="export-status" role="status"></p>
+    <div class="view-strip" id="cameras" role="group" aria-label="Ángulos de cámara"></div>
+    <details id="compare-pair" class="compare-pair"><summary>Ver comparación lado a lado <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <div class="image-pair"><figure><figcaption>Solo existentes</figcaption><img id="before-image" alt="Montaje de referencia con las luminarias existentes" width="1120" height="610"></figure><figure><figcaption>Existentes + nuevas</figcaption><img id="after-image" alt="Montaje de referencia con la iluminación propuesta incorporada" width="1120" height="610"></figure></div>
+      <p id="compare-caption" class="detail-copy"></p>
+    </details>
+    <div class="layer-bar"><div class="flags" role="group" aria-label="Capas del visor">
+        <label><input type="checkbox" id="beams" checked>Haces</label><label><input type="checkbox" id="labels">Etiquetas</label>
+        <label><input type="checkbox" id="roof">Techo</label><label><input type="checkbox" id="show-color" checked>Color escénico</label>
+      </div>
+    </div>
+    <details id="controls" class="controls">
+      <summary>Ajustar luminarias <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <div class="control-content">
+        <div class="zone-input"><label for="zone">Grupo de luces</label><select id="zone"></select></div>
+        <div class="level-input"><label for="dimmer">Intensidad <output id="percent" for="dimmer">0 %</output></label><input type="range" min="0" max="100" step="1" id="dimmer"></div>
+        <label class="on-off"><input type="checkbox" id="enabled" role="switch"> Encendido</label>
+        <div id="colors"><label for="palette">Color de sala</label><select id="palette"></select></div>
+        <div id="aim" hidden><label for="aim-choice">Enfoque base de los móviles</label><select id="aim-choice"><option value="dance">Tarimas</option><option value="walls">Muros laterales</option></select></div>
+      </div><p id="group-detail" class="detail-copy"></p>
+    </details>
+    <p class="model-note">Maqueta a partir del recorrido y del croquis de la iglesia. Las posiciones y alturas de montaje son orientativas.</p>
+  </section>
+
+  <section class="technical" id="cobertura" aria-labelledby="coverage-title">
+    <div class="coverage-copy">
+      <p class="kicker">Luz de sala</p><h2 id="coverage-title">Cobertura en butacas</h2>
+      <p>El objetivo es alcanzar 150&nbsp;lux en cada butaca y en los pasillos del público. Compara las distribuciones y cambia la altura para ver dónde llega esa luz.</p>
+      <div class="coverage-fields">
+        <div><h3 class="field-title">Distribución de colgantes</h3><div class="comparison segmented" id="house-count" role="group" aria-label="Distribución de colgantes"></div><p id="layout-note" class="detail-copy"></p></div>
+        <div class="calc-controls">
+          <div><label for="height">Altura de la óptica sobre el piso</label><div class="height-line"><input id="height" type="range" min="3" max="8" value="4.66" step=".01"><output id="height-value" for="height">4,66 m</output></div></div>
+          <div><label for="plane">Plano de cálculo</label><select id="plane"><option value=".75">Lectura · 0,75 m</option><option value="0">Piso · 0 m</option></select></div>
+        </div>
+      </div>
+      <button class="text-link plain-link" id="coverage-plan" type="button">Ver esta distribución en 3D</button>
+    </div>
+    <div class="coverage-graphic">
+      <div class="metric-strip" aria-label="Resultados al umbral de 150 lux">
+        <div><span>Butacas ≥ 150 lx</span><strong id="seat-result">—</strong><small id="seat-percent"></small></div>
+        <div><span>Superficie ≥ 150 lx</span><strong id="area-result">—</strong><small id="area-percent"></small></div>
+        <div><span>Mínimo en la sala</span><strong id="min-result">—</strong><small id="seat-min"></small></div>
+      </div>
+      <figure><div class="map-orientation">Frente del escenario</div>
+        <canvas id="coverage-map" width="1000" height="373" role="img" aria-label="Mapa de iluminancia de la sala"></canvas>
+        <figcaption><span><i class="shade shade-deficit"></i>&lt; 100 lx</span><span><i class="shade shade-low"></i>100–149</span><span><i class="shade shade-mid"></i>150–199</span><span><i class="shade shade-hi"></i>200–299</span><span><i class="shade shade-peak"></i>≥ 300 lx</span><span><i class="seat-symbol"></i>Butaca</span><span><i class="lamp-symbol">+</i>Colgante</span></figcaption>
+      </figure>
+      <p id="comparison-result" class="comparison-result" role="status"></p>
+      <p class="field-observation"><strong>Debajo del entrepiso.</strong> El mapa supone un trayecto libre entre cada colgante y las butacas. Al fondo, el entrepiso intercepta la luz del techo y hay empotrados propios. Para conocer la cobertura real de esa zona faltan la profundidad del voladizo, la altura libre y mediciones de lux. <a href="#foto-entrepiso">Ver foto del fondo</a></p>
+      <details class="method"><summary>Cómo se calcula <span class="summary-symbol" aria-hidden="true"></span></summary>
+        <p>Se suma la luz directa de cada FUZE Pendant Compact en blanco a 3.200 K y al 100 %, con su lente de 45° y un factor de mantenimiento de 0,80. La retícula de 5 cm incluye las filas y los pasillos del croquis. Las escenas de color del visor son ilustrativas.</p>
+        <p>Con esta altura, un colgante tiene una huella de <b id="spot-diameter"></b> de diámetro y <b id="spot-area"></b> m² al 50 % de intensidad. El mapa incluye la luz que se superpone entre equipos.</p>
+        <p>La escala del croquis y la altura del recinto son supuestas. Las medidas del salón, las obstrucciones y las lecturas con luxómetro permitirán confirmar la cobertura. <a href="recursos/informe-tecnico.pdf#page=5">Ver cálculo en el informe técnico</a></p>
+      </details>
+    </div>
+  </section>
+  <section id="referencias" class="references" aria-labelledby="references-title">
+    <h2 id="references-title">Fotos y parche DMX</h2>
+    <div class="reference-photos">
+      <figure><a href="recursos/referencias/barra-frontal.webp"><img src="recursos/referencias/barra-frontal.webp" loading="lazy" alt="Estructura frontal bajo la cubierta metálica, entre paneles blancos suspendidos."></a><figcaption><strong>Barra frontal</strong>Los espacios entre paneles condicionan la ubicación y el enfoque de los equipos.</figcaption></figure>
+      <figure><a href="recursos/referencias/barra-del-publico.webp"><img src="recursos/referencias/barra-del-publico.webp" loading="lazy" alt="Vista oblicua de una barra negra con luminarias sobre el público y del fondo de la sala."></a><figcaption><strong>Segunda barra</strong>Sobre el público, las cuatro cabezas móviles se orientan por separado desde Lightkey.</figcaption></figure>
+      <figure id="foto-entrepiso"><a href="recursos/referencias/entrepiso.webp"><img src="recursos/referencias/entrepiso.webp" loading="lazy" alt="Entrepiso con baranda de vidrio y luminarias blancas encendidas debajo del voladizo."></a><figcaption><strong>Fondo del auditorio</strong>Evaluar las últimas filas y el pasillo bajo el entrepiso con sus empotrados encendidos.</figcaption></figure>
+    </div>
+    <details class="reference-patch"><summary>Ver las 16 luminarias identificadas en Lightkey <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <p>Desde las butacas, la barra frontal sigue el orden <strong>P3 · P2 · P4 · P4 · P4 · P4 · P2 · P3</strong>. En la segunda barra, MH4 a MH7 van de izquierda a derecha. Los cuatro P1 están en el piso del escenario, dos a cada lado, dirigidos hacia el banner.</p>
+      <table><caption>Universo 0 · Art-Net</caption><thead><tr><th scope="col">Etiqueta</th><th scope="col">Cant.</th><th scope="col">Perfil en Lightkey</th><th scope="col">Canales DMX</th></tr></thead><tbody>
+        <tr><th scope="row">P1</th><td>4</td><td>Chauvet SlimPAR Q12BT</td><td>010–017</td></tr>
+        <tr><th scope="row">P2</th><td>2</td><td>American DJ COB Cannon Wash DW</td><td>235–238</td></tr>
+        <tr><th scope="row">P3</th><td>2</td><td>Chauvet EVE F-50Z</td><td>257–259</td></tr>
+        <tr><th scope="row">P4</th><td>4</td><td>U’King LED PAR Light 7 4in1</td><td>225–232</td></tr>
+        <tr><th scope="row">MH4–MH7</th><td>4</td><td>Generic Spot Beam ST</td><td>265–282 · 285–302 · 305–322 · 325–342</td></tr>
+      </tbody></table>
+      <p>Lightkey muestra un bloque compartido por cada grupo P y un bloque por cada móvil. El perfil genérico de los móviles permite identificar sus canales. La marca y el modelo físico se confirman en la etiqueta del equipo.</p>
+      <div class="reference-photos patch-photos">
+        <figure><a href="recursos/referencias/esquema-lightkey.webp"><img src="recursos/referencias/esquema-lightkey.webp" loading="lazy" alt="Esquema de Lightkey con los ocho frontales, los cuatro móviles y los cuatro P1 en dos pares."></a><figcaption>Distribución en Lightkey</figcaption></figure>
+        <figure><a href="recursos/referencias/parche-dmx.webp"><img src="recursos/referencias/parche-dmx.webp" loading="lazy" alt="Parche de Lightkey con los bloques ocupados por cada grupo del universo 0."></a><figcaption>Direcciones del universo 0</figcaption></figure>
+      </div>
+    </details>
+  </section>
+  <section id="informes" class="reports" aria-labelledby="reports-title">
+    <div><p class="kicker">Documentación</p><h2 id="reports-title">Informes</h2></div>
+    <div class="report-list">
+      <div class="report-row"><div><a class="report-title" href="recursos/informe-tecnico.pdf">Informe técnico</a><p>Montaje, tipos de luz, diagramas y cobertura de sala.</p></div><a class="download" href="recursos/informe-tecnico.pdf" download="Auditorio - informe tecnico.pdf" aria-label="Descargar informe técnico en PDF">Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/plan-iluminacion.pdf">Montaje y presupuesto</a><p>Precios en Bolivia para la propuesta inicial de seis colgantes.</p></div><a class="download" href="recursos/plan-iluminacion.pdf" download="Auditorio - montaje y presupuesto.pdf" aria-label="Descargar montaje y presupuesto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/informe.pdf">Resumen del proyecto</a><p>Croquis y propuesta inicial en una página.</p></div><a class="download" href="recursos/informe.pdf" download="Auditorio - resumen.pdf" aria-label="Descargar resumen del proyecto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
+    </div>
+  </section>
+</main>
+</body></html>

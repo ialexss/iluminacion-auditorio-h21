@@ -1,0 +1,12 @@
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+graft/
+
+# El repositorio distribuye únicamente la web y su documentación.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/auditorio-3d/
+/auditorio-3d/*
+!/auditorio-3d/dist/
+.DS_Store
