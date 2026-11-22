@@ -15,6 +15,7 @@ Abre [la maqueta](http://127.0.0.1:8000/) en el navegador. La carpeta [auditorio
 ## Consultar el montaje
 
 - **Comparar montaje** permite alternar entre los equipos existentes, los nuevos y el conjunto. Selecciona una escena y un ángulo para ver qué superficies ilumina cada grupo.
+- **Contraluz de danza** permite comparar cada tarima con y sin el Fresnel posterior. Los dos perfiles delanteros conservan su enfoque.
 - **Mover y orientar luces** muestra el soporte y el perfil de la luminaria seleccionada. Los cambios se aplican a la simulación. **Descargar 3D** exporta la configuración visible.
 - **Cobertura en butacas** calcula la iluminancia directa para distintas alturas y distribuciones. El sector bajo el entrepiso requiere mediciones en el recinto.
 - **Fotos y parche DMX** relaciona las imágenes del auditorio con las 16 luminarias identificadas en Lightkey.

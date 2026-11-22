@@ -15,8 +15,8 @@ const zones = {
   front: ['Frontal existente', 'Dos Fresnel P3 en los extremos, dos COB P2 hacia el interior y cuatro PAR P4 en el centro. El enfoque se ajusta en cada aparato.'],
   top: ['Superior del escenario', 'Tres Fresnel sobre la banda y las voces distribuyen el blanco a lo ancho del escenario.'],
   back: ['Contraluz', 'Tres PAR detrás de los intérpretes perfilan las siluetas contra el fondo.'],
-  left: ['Danza izquierda', 'Dos perfiles en los extremos del truss cruzan sus haces sobre la tarima izquierda. Un Fresnel central suaviza las sombras.'],
-  right: ['Danza derecha', 'La tarima derecha tiene su propio truss con dos perfiles y un Fresnel de relleno, junto al acceso al backstage.'],
+  left: ['Danza izquierda', 'Dos perfiles frontales cruzados iluminan las caras. Un Fresnel alto detrás de la tarima izquierda dibuja el contorno de brazos y hombros.'],
+  right: ['Danza derecha', 'La tarima derecha replica el montaje junto a su escalera lateral. Dos perfiles dan luz frontal y un Fresnel entra en diagonal desde atrás.'],
   moving: ['Móviles MH4–MH7', 'Cuatro móviles sobre el público se orientan hacia las tarimas o hacia los muros.'],
   bars: ['Barras de piso', 'Las barras lineales de la base del banner distribuyen color de abajo hacia arriba.'],
   par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.']
@@ -24,7 +24,7 @@ const zones = {
 const presets = {
   dance: {name:'Danza', levels:[16,30,20,60,100,100,78,85,72], color:'#599dff', aim:'dance',
     scenicColors:{back:'#18baba',moving:'#49e4ff',bars:'#244dff',par:'#2cd2e2'},
-    description:'Los perfiles cruzan luz cálida sobre las dos tarimas. Los móviles las acompañan en cian y el banner queda azul.'},
+    description:'Los perfiles iluminan las caras en ambas tarimas y los Fresnel posteriores dibujan los hombros. Los móviles añaden un acento cian.'},
   sermon:{name:'Prédica', levels:[24,100,48,18,0,0,0,40,26], color:'#ffe3b5', aim:'dance',
     scenicColors:{back:'#ffa257',moving:'#ffe3b5',bars:'#e59a51',par:'#ffcf84'},
     description:'El blanco cálido concentra la atención en el púlpito. El fondo queda ámbar y las tarimas se apagan.'},
@@ -55,7 +55,7 @@ let inventory = 'all';
 const inventoryNotes = {
   existing:'Ocho frontales P2, P3 y P4, cuatro móviles MH4–MH7 sobre el público y cuatro PAR LED de piso. La cantidad de barras de piso es aproximada.',
   all:'El montaje completo reúne las luces instaladas y la propuesta para danza, escenario y público.',
-  proposed:'Las dos barras de danza, el superior y el contraluz del escenario, y los colgantes de sala.'
+  proposed:'Cada tarima tiene un truss frontal y un soporte posterior. Se añaden luces superiores y de contraluz en el escenario y colgantes en sala.'
 };
 const soloDescriptions = {
   existing:{
@@ -66,7 +66,7 @@ const soloDescriptions = {
     hall:'Los colgantes de sala son parte de la propuesta. El alumbrado general actual carece de fotometría en el modelo.'
   },
   proposed:{
-    dance:'En cada tarima se cruzan dos perfiles y un Fresnel rellena las sombras. El contraluz del escenario es turquesa.',
+    dance:'Dos perfiles se cruzan delante de cada tarima. Desde el lado de la escalera, un Fresnel posterior ilumina hombros y brazos.',
     sermon:'Los Fresnel superiores refuerzan el escenario y los colgantes dan luz tenue a las butacas.',
     event:'El contraluz baña las siluetas en magenta y la sala toma un tono violeta.',
     work:'Blanco para trabajar en las tarimas, el escenario y la sala.',
@@ -136,6 +136,8 @@ function sync() {
   byId('dimmer').value = state.on[selected] ? state.level[selected] : 0;
   byId('percent').textContent = byId('dimmer').value+' %';
   byId('group-detail').textContent = zones[selected][1];
+  byId('dance-rim').checked = state.danceRim!==false;
+  byId('dance-rim').disabled = !model || inventory==='existing';
   byId('colors').hidden = selected !== 'house';
   byId('palette').value = state.color;
   byId('aim').hidden = selected !== 'moving';
@@ -151,6 +153,7 @@ function selectZone(key) {
 }
 function applyPreset(key) {
   const preset = presets[key];
+  state.danceRim = true;
   state.scene = key; state.color = preset.color; state.aim = preset.aim;
   state.scenicColors = preset.scenicColors;
   if (lastPreset !== key) {
@@ -186,6 +189,7 @@ byId('palette').onchange = e => { state.color = e.target.value; state.monochrome
 byId('aim-choice').onchange = e => { state.aim = e.target.value; customize(); };
 byId('show-color').onchange = e => { state.monochrome = !e.target.checked; sync(); };
 byId('beams').onchange = e => model?.beams(e.target.checked);
+byId('dance-rim').onchange = e => {state.danceRim=e.target.checked;customize();};
 byId('labels').onchange = e => model?.labels(e.target.checked);
 byId('roof').onchange = e => model?.roof(e.target.checked);
 byId('zoom-in').onclick = () => model?.zoomBy(1.15);
@@ -241,6 +245,8 @@ if (new URLSearchParams(location.search).get('comparar') === '1') {
 }
 
 const query = new URLSearchParams(location.search);
+const requestedCamera = query.get('vista');
+if (Object.hasOwn(cameras,requestedCamera)) setCamera(requestedCamera);
 const aimOnOpen = query.get('orientar');
 const detailOnOpen = query.get('luz');
 if (editor && aimOnOpen) editor.orient(aimOnOpen);

@@ -176,11 +176,15 @@ function crearAuditorio(host, onPick, onCameraChange) {
   rod(v(-4.86,railY,railZ),v(4.86,railY,railZ),.062,m.metal,supports.moving);
   for(const x of [-4.35,4.35])suspension(x,railY,railZ,supports.moving);
   const barrasDanza=pads.map(([x,z])=>({x,z:z+2.25,y:4.08}));
+  const soportesTraseros=pads.map(([x,z])=>({x:x-Math.sign(x)*.95,z:z-1.40,y:4.08}));
   const danceDepth=.29;
   for(const [i,{x,y,z}] of barrasDanza.entries()){
     const root=i?supports.right:supports.left;
     truss(x,y,z,2,danceDepth,6,root);
     for(const dx of [-.80,.80])suspension(x+dx,y+danceDepth,z+danceDepth/2,root);
+    const rear=soportesTraseros[i];
+    rod(v(rear.x-.43,rear.y,rear.z),v(rear.x+.43,rear.y,rear.z),.045,m.metal,root);
+    for(const dx of [-.30,.30])suspension(rear.x+dx,rear.y,rear.z,root);
   }
   const stageRailY=4.96;
   for(const [i,z] of [-5.60,-3.28].entries()){
@@ -362,9 +366,10 @@ function crearAuditorio(host, onPick, onCameraChange) {
   }
   for(const [i,[x,z]] of pads.entries()){
     const g=i?'right':'left',barra=barrasDanza[i],altura=barra.y-.32,frente=barra.z+danceDepth/2;
-    lamp(g,[x-.79,altura,frente],[x+.31,.86,z],'#ffd6a5',.245,60,'profile',barra.y);
-    lamp(g,[x+.79,altura,frente],[x-.31,.86,z],'#ffedc5',.245,60,'profile',barra.y);
-    lamp(g,[x,altura,frente],[x,.70,z-.15],'#ffe6bd',.35,42,'fresnel',barra.y);
+    lamp(g,[x-.79,altura,frente],[x+.31,1.45,z],'#ffd6a5',.245,60,'profile',barra.y);
+    lamp(g,[x+.79,altura,frente],[x-.31,1.45,z],'#ffedc5',.245,60,'profile',barra.y);
+    const rear=soportesTraseros[i];
+    lamp(g,[rear.x,rear.y-.32,rear.z],[x,1.54,z],'#fff1da',.33,54,'fresnel',rear.y);
   }
   for(const [i,x] of plan.cannonX.entries()){
     const [tx,tz]=pads[x<0?0:1];
@@ -506,7 +511,8 @@ function crearAuditorio(host, onPick, onCameraChange) {
     const support=i?'right':'left',view=[support];
     tag('Truss propuesto · 2 m',v(x,y+danceDepth+.23,z),view,support);
     tag('Perfil',v(x-.79,y-.53,z),view,support);
-    tag('Fresnel',v(x,y-.57,z+.05),view,support);
+    const rear=soportesTraseros[i];
+    tag('Fresnel posterior',v(rear.x,rear.y-.50,rear.z),view,support);
     tag('Perfil',v(x+.79,y-.53,z),view,support);
     tag('Tarima de danza',v(x,.36,pads[i][1]),view);
     tag('Muro de backstage',v(i?8.5:-8.4,2.7,i?-4:-3.3),view);
@@ -597,7 +603,8 @@ function crearAuditorio(host, onPick, onCameraChange) {
     fillLight.intensity=.19+active*.66;key.intensity=.17+active*.94;rim.intensity=.20+active*.64;
     for(const l of lights){
       const present=inInventory(l);l.fixtureRoot.visible=present;l.light.visible=present;
-      const level=present&&state.on[l.group]?state.level[l.group]/100:0;
+      const rearDance=(l.group==='left'||l.group==='right')&&l.type==='fresnel';
+      const level=present&&state.on[l.group]&&(!rearDance||state.danceRim!==false)?state.level[l.group]/100:0;
       l.indicator.visible=present&&(selectedFixture?l.id===selectedFixture:l.group===marked)&&mode!=='fixture';
       const c=new T.Color(neutral?'#ffffff':l.group==='house'?state.color:scenic[l.group]||l.color);
       l.light.color.copy(c);l.light.intensity=level*l.power*(l.group==='top'||l.group==='front'?.61:.85);
@@ -622,7 +629,9 @@ function crearAuditorio(host, onPick, onCameraChange) {
     const types={profile:'Perfil LED',fresnel:'Fresnel LED',wash:'PAR LED',parFloor:'PAR LED',moving:'Cabeza móvil',strip:'Barra LED',pendant:'Colgante RGBWL'};
     let mount,rangeX,rangeZ=null;
     if(group==='left'||group==='right'){
-      const rack=barrasDanza[group==='left'?0:1];mount='Truss de danza';rangeX=[rack.x-.85,rack.x+.85];
+      const rear=type==='fresnel',i=group==='left'?0:1,rack=rear?soportesTraseros[i]:barrasDanza[i];
+      const half=rear?.32:.85;
+      mount=rear?'Barra posterior de danza':'Truss frontal de danza';rangeX=[rack.x-half,rack.x+half];
     }else if(group==='front'){mount='Truss frontal';rangeX=[-6.3,6.3];}
     else if(group==='top'||group==='back'){mount=group==='top'?'Barra superior':'Barra de contraluz';rangeX=[-4.97,4.97];}
     else if(group==='moving'){mount='Segunda barra';rangeX=[-4.57,4.57];}

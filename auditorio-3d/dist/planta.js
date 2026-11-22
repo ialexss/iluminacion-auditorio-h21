@@ -15,7 +15,8 @@ const plantaAuditorio = (() => {
     ...lateralIzq.slice().reverse(),[-10.02,-5.62]];
   return {
     contorno, izquierda, derecha, lateralIzq, lateralDer,
-    danza:[{x:-9.15,z:-.38,w:2.05,d:2.62},{x:9.40,z:-2.02,w:2.04,d:1.92}],
+    // Dos tarimas simétricas junto a las escaleras laterales. Las cotas son orientativas.
+    danza:[-1,1].map(lado=>({x:lado*7.93,z:-2.22,w:2.18,d:1.56})),
     ingreso:{x:11.28,z:2.1,ancho:1.66},
     // Hipótesis dimensional de fotometría, en metros. Haz completo al 50 %.
     sala:{altura:4.66,planoLectura:.75,haz:41,

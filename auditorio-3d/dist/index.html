@@ -21,7 +21,7 @@
 <main class="page">
   <header class="intro">
     <div><p class="kicker">Estudio de iluminación</p><h1>Auditorio</h1>
-    <p class="subtitle">El escenario, las dos tarimas de danza y la luz sobre el público.</p></div>
+    <p class="subtitle">Dos tarimas simétricas junto a las escaleras del escenario, frente a las pantallas laterales.</p></div>
     <nav class="intro-nav" aria-label="Secciones"><a href="#cobertura">Cobertura</a><a href="#referencias">Fotos y DMX</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
   </header>
   <section id="maqueta" aria-label="Maqueta interactiva del auditorio">
@@ -83,6 +83,7 @@
     </details>
     <div class="layer-bar"><div class="flags" role="group" aria-label="Capas del visor">
         <label><input type="checkbox" id="beams" checked>Haces</label><label><input type="checkbox" id="labels">Etiquetas</label>
+        <label><input type="checkbox" id="dance-rim" checked>Contraluz de danza</label>
         <label><input type="checkbox" id="roof">Techo</label><label><input type="checkbox" id="show-color" checked>Color escénico</label>
       </div>
     </div>
@@ -96,7 +97,7 @@
         <div id="aim" hidden><label for="aim-choice">Enfoque base de los móviles</label><select id="aim-choice"><option value="dance">Tarimas</option><option value="walls">Muros laterales</option></select></div>
       </div><p id="group-detail" class="detail-copy"></p>
     </details>
-    <p class="model-note">Maqueta a partir del recorrido y del croquis de la iglesia. Las posiciones y alturas de montaje son orientativas.</p>
+    <p class="model-note">Las fotos sitúan las dos tarimas junto a las escaleras y pantallas laterales. Las distancias y alturas de la maqueta son orientativas. <a href="#danza">Comparar con las fotos</a></p>
   </section>
 
   <section class="technical" id="cobertura" aria-labelledby="coverage-title">
@@ -133,6 +134,25 @@
   </section>
   <section id="referencias" class="references" aria-labelledby="references-title">
     <h2 id="references-title">Fotos y parche DMX</h2>
+    <div id="danza" class="reference-photos dance-photos">
+      <figure><a href="recursos/referencias/danza-7720.webp"><img src="recursos/referencias/danza-7720.webp" loading="lazy" alt="Tarima negra izquierda junto al muro de la pantalla, con la escalera a la derecha."></a><figcaption><strong>Izquierda desde las butacas</strong>La tarima se acercó al escenario. La pantalla queda detrás y la escalera en el borde interior.</figcaption></figure>
+      <figure><a href="recursos/referencias/danza-7724.webp"><img src="recursos/referencias/danza-7724.webp" loading="lazy" alt="Tarima negra derecha con la pantalla detrás y la escalera hacia el escenario a su izquierda."></a><figcaption><strong>Derecha desde las butacas</strong>Se repite la posición al otro lado del escenario. Ambas tarimas quedan a la misma profundidad en la planta.</figcaption></figure>
+      <figure><a href="recursos/referencias/planta-danza.png"><img class="dance-plan" src="recursos/referencias/planta-danza.png" loading="lazy" alt="Planta de las dos tarimas con dos perfiles por delante y un Fresnel por detrás de cada una."></a><figcaption><strong>Distribución propuesta</strong>Dos perfiles en el truss delantero y un Fresnel en un soporte posterior por lado. Las distancias son orientativas.</figcaption></figure>
+    </div>
+    <details class="reference-patch"><summary>Ver las otras cuatro fotos del recinto <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <div class="reference-photos extra-photos">
+        <figure><a href="recursos/referencias/danza-7721.webp"><img src="recursos/referencias/danza-7721.webp" loading="lazy" alt="Vista abierta de la tarima izquierda, pantalla y acceso al escenario."></a><figcaption>Acceso lateral izquierdo</figcaption></figure>
+        <figure><a href="recursos/referencias/danza-7722.webp"><img src="recursos/referencias/danza-7722.webp" loading="lazy" alt="Paneles y estructura sobre el muro de la pantalla izquierda."></a><figcaption>Techo sobre la pantalla</figcaption></figure>
+        <figure><a href="recursos/referencias/danza-7723.webp"><img src="recursos/referencias/danza-7723.webp" loading="lazy" alt="Vista abierta de la escalera derecha y la tarima junto al escenario."></a><figcaption>Acceso lateral derecho</figcaption></figure>
+        <figure><a href="recursos/referencias/danza-7725.webp"><img src="recursos/referencias/danza-7725.webp" loading="lazy" alt="Escenario y bloques de butacas vistos desde un lateral de la sala."></a><figcaption>Vista desde el público</figcaption></figure>
+      </div>
+    </details>
+    <details class="reference-patch"><summary>Qué luces usar y qué añadir más adelante <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <p><strong>Danza · 6 luces funcionales.</strong> En cada tarima, dos perfiles LED fijos dan luz principal y relleno cruzado a las caras. Sus cuchillas limitan el haz cerca de la pantalla y los escalones. Un Fresnel blanco alto, detrás y hacia el lado del escenario, dibuja hombros y brazos en los giros. Usa las viseras para contener el derrame. En la escena <b>Danza</b>, alterna <b>Contraluz de danza</b> para comparar. <a href="https://blog.etcconnect.com/stage-lighting-design-part-5">Ángulos escénicos según ETC</a></p>
+      <p><strong>Escenario y público · 23 luces funcionales propuestas.</strong> Tres Fresnel superiores complementan los ocho frontales existentes y tres PAR posteriores separan banda y voces del banner. Los 17 colgantes regulables sirven para lectura en blanco y ambiente en color. Medir aparte el sector bajo el entrepiso.</p>
+      <p><strong>Color y movimiento · equipos existentes.</strong> Las barras lineales y cuatro PAR de piso colorean el banner. Los cuatro móviles MH4–MH7 de la segunda barra sirven para acentos en una canción o alabanza. Guardar posiciones de danza y muros en Lightkey y cambiar de posición con el dimmer cerrado. Para la prédica, mantener fijos los rostros y bajar el fondo hasta que el texto de las pantallas se lea desde las butacas. <a href="https://www.lightkeyapp.com/en/specs">Control de posición en Lightkey</a></p>
+      <p><strong>Ampliación por necesidad.</strong> Si la cámara pierde las caras al salir del púlpito, añadir 2 perfiles blancos regulables para posiciones de palabra. Si la alabanza alterna con frecuencia entre banda y danza y los móviles actuales dan un haz demasiado estrecho, probar 2 cabezas móviles de baño con zoom en los laterales posteriores. Para color arquitectónico, ensayar 2 bañadores asimétricos sobre paños libres de pantallas. Estas seis unidades opcionales se evalúan por separado de las 29 propuestas.</p>
+    </details>
     <div class="reference-photos">
       <figure><a href="recursos/referencias/barra-frontal.webp"><img src="recursos/referencias/barra-frontal.webp" loading="lazy" alt="Estructura frontal bajo la cubierta metálica, entre paneles blancos suspendidos."></a><figcaption><strong>Barra frontal</strong>Los espacios entre paneles condicionan la ubicación y el enfoque de los equipos.</figcaption></figure>
       <figure><a href="recursos/referencias/barra-del-publico.webp"><img src="recursos/referencias/barra-del-publico.webp" loading="lazy" alt="Vista oblicua de una barra negra con luminarias sobre el público y del fondo de la sala."></a><figcaption><strong>Segunda barra</strong>Sobre el público, las cuatro cabezas móviles se orientan por separado desde Lightkey.</figcaption></figure>
@@ -158,8 +178,8 @@
     <div><p class="kicker">Documentación</p><h2 id="reports-title">Informes</h2></div>
     <div class="report-list">
       <div class="report-row"><div><a class="report-title" href="recursos/informe-tecnico.pdf">Informe técnico</a><p>Montaje, tipos de luz, diagramas y cobertura de sala.</p></div><a class="download" href="recursos/informe-tecnico.pdf" download="Auditorio - informe tecnico.pdf" aria-label="Descargar informe técnico en PDF">Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/plan-iluminacion.pdf">Montaje y presupuesto</a><p>Precios en Bolivia para la propuesta inicial de seis colgantes.</p></div><a class="download" href="recursos/plan-iluminacion.pdf" download="Auditorio - montaje y presupuesto.pdf" aria-label="Descargar montaje y presupuesto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/informe.pdf">Resumen del proyecto</a><p>Croquis y propuesta inicial en una página.</p></div><a class="download" href="recursos/informe.pdf" download="Auditorio - resumen.pdf" aria-label="Descargar resumen del proyecto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/plan-iluminacion.pdf">Presupuesto inicial</a><p>Referencia histórica para seis colgantes y el montaje anterior de danza. Los dos soportes posteriores requieren cotización.</p></div><a class="download" href="recursos/plan-iluminacion.pdf" download="Auditorio - montaje y presupuesto.pdf" aria-label="Descargar montaje y presupuesto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/informe.pdf">Resumen del proyecto</a><p>Planta actualizada, cantidades y criterio de uso en una página.</p></div><a class="download" href="recursos/informe.pdf" download="Auditorio - resumen.pdf" aria-label="Descargar resumen del proyecto en PDF">Descargar PDF <span data-icon="download"></span></a></div>
     </div>
   </section>
 </main>
