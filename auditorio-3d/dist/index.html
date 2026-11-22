@@ -22,7 +22,7 @@
   <header class="intro">
     <div><p class="kicker">Estudio de iluminación</p><h1>Auditorio</h1>
     <p class="subtitle">Dos tarimas simétricas junto a las escaleras del escenario, frente a las pantallas laterales.</p></div>
-    <nav class="intro-nav" aria-label="Secciones"><a href="#cobertura">Cobertura</a><a href="#referencias">Fotos y DMX</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
+    <nav class="intro-nav" aria-label="Secciones"><a href="#referencias">Montaje</a><a href="#cobertura">Cobertura</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
   </header>
   <section id="maqueta" aria-label="Maqueta interactiva del auditorio">
     <div class="inventory-line"><h2>Comparar montaje</h2><div class="segmented" id="inventory" role="group" aria-label="Comparar montaje de iluminación">
@@ -97,7 +97,44 @@
         <div id="aim" hidden><label for="aim-choice">Enfoque base de los móviles</label><select id="aim-choice"><option value="dance">Tarimas</option><option value="walls">Muros laterales</option></select></div>
       </div><p id="group-detail" class="detail-copy"></p>
     </details>
-    <p class="model-note">Las fotos sitúan las dos tarimas junto a las escaleras y pantallas laterales. Las distancias y alturas de la maqueta son orientativas. <a href="#danza">Comparar con las fotos</a></p>
+    <p class="model-note">Geometría lateral según la planta baja. Tarimas y luminarias a escala de referencia. <a href="#referencias">Plano de puntos de montaje</a></p>
+  </section>
+
+  <section id="referencias" class="mounting" aria-labelledby="mount-title">
+    <header class="mount-head">
+      <h2 id="mount-title">Plano de iluminación</h2>
+      <div id="mount-switch" class="segmented" role="group" aria-label="Instalación en el plano">
+        <button type="button" data-sheet="existente" aria-pressed="false" aria-controls="sheet-existente">Equipos existentes</button>
+        <button type="button" data-sheet="propuesto" aria-pressed="true" aria-controls="sheet-propuesto">Equipos nuevos</button>
+      </div>
+    </header>
+    <div id="sheet-propuesto" class="mount-sheet">
+      <figure class="mount-plan"><a href="recursos/montaje/plano-propuesto.webp"><img src="recursos/montaje/plano-propuesto.webp" alt="Puntos nuevos en planta. Los perfiles y dos Fresnel flanquean el escenario. Los demás Fresnel y PAR están sobre el escenario y los colgantes cubren tres filas en sala." width="1220" height="920" loading="lazy"></a><figcaption>29 luminarias propuestas · Vista desde arriba · Proporciones de planta baja</figcaption></figure>
+      <ol class="fixture-key" aria-label="Luminarias nuevas por tipo">
+        <li><img src="recursos/montaje/perfil.webp" alt="Perfil LED con óptica de recorte" loading="lazy"><div><h3><span>1</span> Perfiles de recorte <small>4 uds.</small></h3><p>Dos por tarima. El cruce ilumina las caras y las cuchillas delimitan el haz frente a las pantallas.</p><a href="https://www.chauvetdj.com/products/eve-e-50z/">Chauvet DJ EVE E-50Z</a> · <a href="?luz=left-1#maqueta">Ver punto en 3D</a></div></li>
+        <li><img src="recursos/montaje/fresnel.webp" alt="Fresnel LED con viseras" loading="lazy"><div><h3><span>2</span> Fresnel <small>5 uds.</small></h3><p>Dos contraluces diagonales dibujan hombros y brazos en danza. Tres superiores iluminan banda y voces.</p><a href="https://www.chauvetdj.com/products/eve-f-50z/">Chauvet DJ EVE F-50Z</a> · <a href="?luz=right-3#maqueta">Danza</a> · <a href="?luz=top-2#maqueta">Escenario</a></div></li>
+        <li><img src="recursos/montaje/par.webp" alt="Proyector PAR LED" loading="lazy"><div><h3><span>3</span> PAR de contraluz <small>3 uds.</small></h3><p>Uno por tercio de la barra posterior. El contorno de luz separa a los músicos del banner.</p><a href="https://www.chauvetdj.com/products/slimpar-pro-h-usb/">Chauvet DJ SlimPAR Pro H USB</a> · <a href="?luz=back-2#maqueta">Ver punto en 3D</a></div></li>
+        <li><img src="recursos/montaje/colgante.webp" alt="Luminaria colgante de sala" loading="lazy"><div><h3><span>4</span> Colgantes de sala <small>17 uds.</small></h3><p>Tres filas de 6, 5 y 6. Blanco regulable para lectura y color ambiental para las celebraciones.</p><a href="https://www.elationlighting.com/products/fuze-pendant-compact">Elation FUZE Pendant Compact</a> · <a href="?luz=house-1#maqueta">Ver punto en 3D</a></div></li>
+      </ol>
+    </div>
+    <div id="sheet-existente" class="mount-sheet" hidden>
+      <figure class="mount-plan"><a href="recursos/montaje/plano-existente.webp"><img src="recursos/montaje/plano-existente.webp" alt="Equipos instalados en planta. Los P1 flanquean el banner desde el piso. Los P2, P3 y P4 están en el truss frontal y MH4 a MH7 en la segunda barra sobre el público." width="1220" height="920" loading="lazy"></a><figcaption>16 equipos identificados en Lightkey · Barras lineales de piso adicionales</figcaption></figure>
+      <dl class="installed-key">
+        <div><dt>P1 <span>4 uds.</span></dt><dd><strong>PAR de piso</strong><p>Dos a cada lado del escenario, dirigidos al banner.</p><a href="https://www.chauvetdj.com/products/slimpar-q12-bt/">Chauvet DJ SlimPAR Q12BT</a> · <a href="?luz=par-1#maqueta">Ver punto</a></dd></div>
+        <div><dt>P2 <span>2 uds.</span></dt><dd><strong>Frontal blanco</strong><p>Segundo equipo desde cada extremo del truss frontal.</p><a href="https://www.adj.com/products/cob-cannon-wash-dw">ADJ COB Cannon Wash DW</a> · <a href="?luz=front-2#maqueta">Ver punto</a></dd></div>
+        <div><dt>P3 <span>2 uds.</span></dt><dd><strong>Fresnel de los extremos</strong><p>Luz frontal de borde suave sobre el escenario.</p><a href="https://www.chauvetdj.com/products/eve-f-50z/">Chauvet DJ EVE F-50Z</a> · <a href="?luz=front-1#maqueta">Ver punto</a></dd></div>
+        <div><dt>P4 <span>4 uds.</span></dt><dd><strong>PAR del tramo central</strong><p>U’King LED PAR Light 7 4in1. Refuerzo frontal en cuatro posiciones.</p><a href="?luz=front-3#maqueta">Ver punto</a></dd></div>
+        <div><dt>MH4–MH7 <span>4 uds.</span></dt><dd><strong>Cabezas móviles</strong><p>Segunda barra sobre el público. Perfil de control Generic Spot Beam ST para acentos de danza y muros.</p><a href="?luz=moving-1#maqueta">Ver punto</a></dd></div>
+        <div><dt>Barras LED</dt><dd><strong>Baño del banner</strong><p>Luz ascendente desde el piso. Cantidad por verificar en sala.</p><a href="?luz=bars-1#maqueta">Ver punto</a></dd></div>
+      </dl>
+    </div>
+    <details class="wings" id="danza"><summary>Tarimas, escaleras y muros laterales <span class="summary-symbol" aria-hidden="true"></span></summary>
+      <div class="wing-photos">
+        <figure><a href="recursos/referencias/danza-7720.webp"><img src="recursos/referencias/danza-7720.webp" loading="lazy" alt="Tarima izquierda bajo la pantalla con la escalera hacia el escenario en el borde interior."></a><figcaption>Tarima izquierda · Acceso al escenario por la derecha</figcaption></figure>
+        <figure><a href="recursos/referencias/planta-danza.png"><img class="room-plan" src="recursos/referencias/planta-danza.png" loading="lazy" alt="Detalle de ambas tarimas con los tramos rectos de muro, el giro lateral y los enfoques de los perfiles y los Fresnel."></a><figcaption>Detalle de danza · <a href="recursos/montaje/detalle-planta-baja.webp">Consultar el trazado original de planta baja</a></figcaption></figure>
+        <figure><a href="recursos/referencias/danza-7724.webp"><img src="recursos/referencias/danza-7724.webp" loading="lazy" alt="Tarima derecha bajo la pantalla, con los escalones hacia su izquierda."></a><figcaption>Tarima derecha · Acceso al escenario por la izquierda</figcaption></figure>
+      </div>
+    </details>
   </section>
 
   <section class="technical" id="cobertura" aria-labelledby="coverage-title">
@@ -124,55 +161,13 @@
         <figcaption><span><i class="shade shade-deficit"></i>&lt; 100 lx</span><span><i class="shade shade-low"></i>100–149</span><span><i class="shade shade-mid"></i>150–199</span><span><i class="shade shade-hi"></i>200–299</span><span><i class="shade shade-peak"></i>≥ 300 lx</span><span><i class="seat-symbol"></i>Butaca</span><span><i class="lamp-symbol">+</i>Colgante</span></figcaption>
       </figure>
       <p id="comparison-result" class="comparison-result" role="status"></p>
-      <p class="field-observation"><strong>Debajo del entrepiso.</strong> El mapa supone un trayecto libre entre cada colgante y las butacas. Al fondo, el entrepiso intercepta la luz del techo y hay empotrados propios. Para conocer la cobertura real de esa zona faltan la profundidad del voladizo, la altura libre y mediciones de lux. <a href="#foto-entrepiso">Ver foto del fondo</a></p>
+      <p class="field-observation"><strong>Debajo del entrepiso.</strong> El mapa supone un trayecto libre entre cada colgante y las butacas. Al fondo, el entrepiso intercepta la luz del techo y hay empotrados propios. Para conocer la cobertura real de esa zona faltan la profundidad del voladizo, la altura libre y mediciones de lux. <a href="recursos/referencias/entrepiso.webp">Fotografía del entrepiso</a></p>
       <details class="method"><summary>Cómo se calcula <span class="summary-symbol" aria-hidden="true"></span></summary>
         <p>Se suma la luz directa de cada FUZE Pendant Compact en blanco a 3.200 K y al 100 %, con su lente de 45° y un factor de mantenimiento de 0,80. La retícula de 5 cm incluye las filas y los pasillos del croquis. Las escenas de color del visor son ilustrativas.</p>
         <p>Con esta altura, un colgante tiene una huella de <b id="spot-diameter"></b> de diámetro y <b id="spot-area"></b> m² al 50 % de intensidad. El mapa incluye la luz que se superpone entre equipos.</p>
         <p>La escala del croquis y la altura del recinto son supuestas. Las medidas del salón, las obstrucciones y las lecturas con luxómetro permitirán confirmar la cobertura. <a href="recursos/informe-tecnico.pdf#page=5">Ver cálculo en el informe técnico</a></p>
       </details>
     </div>
-  </section>
-  <section id="referencias" class="references" aria-labelledby="references-title">
-    <h2 id="references-title">Fotos y parche DMX</h2>
-    <div id="danza" class="reference-photos dance-photos">
-      <figure><a href="recursos/referencias/danza-7720.webp"><img src="recursos/referencias/danza-7720.webp" loading="lazy" alt="Tarima negra izquierda junto al muro de la pantalla, con la escalera a la derecha."></a><figcaption><strong>Izquierda desde las butacas</strong>La tarima se acercó al escenario. La pantalla queda detrás y la escalera en el borde interior.</figcaption></figure>
-      <figure><a href="recursos/referencias/danza-7724.webp"><img src="recursos/referencias/danza-7724.webp" loading="lazy" alt="Tarima negra derecha con la pantalla detrás y la escalera hacia el escenario a su izquierda."></a><figcaption><strong>Derecha desde las butacas</strong>Se repite la posición al otro lado del escenario. Ambas tarimas quedan a la misma profundidad en la planta.</figcaption></figure>
-      <figure><a href="recursos/referencias/planta-danza.png"><img class="dance-plan" src="recursos/referencias/planta-danza.png" loading="lazy" alt="Planta de las dos tarimas con dos perfiles por delante y un Fresnel por detrás de cada una."></a><figcaption><strong>Distribución propuesta</strong>Dos perfiles en el truss delantero y un Fresnel en un soporte posterior por lado. Las distancias son orientativas.</figcaption></figure>
-    </div>
-    <details class="reference-patch"><summary>Ver las otras cuatro fotos del recinto <span class="summary-symbol" aria-hidden="true"></span></summary>
-      <div class="reference-photos extra-photos">
-        <figure><a href="recursos/referencias/danza-7721.webp"><img src="recursos/referencias/danza-7721.webp" loading="lazy" alt="Vista abierta de la tarima izquierda, pantalla y acceso al escenario."></a><figcaption>Acceso lateral izquierdo</figcaption></figure>
-        <figure><a href="recursos/referencias/danza-7722.webp"><img src="recursos/referencias/danza-7722.webp" loading="lazy" alt="Paneles y estructura sobre el muro de la pantalla izquierda."></a><figcaption>Techo sobre la pantalla</figcaption></figure>
-        <figure><a href="recursos/referencias/danza-7723.webp"><img src="recursos/referencias/danza-7723.webp" loading="lazy" alt="Vista abierta de la escalera derecha y la tarima junto al escenario."></a><figcaption>Acceso lateral derecho</figcaption></figure>
-        <figure><a href="recursos/referencias/danza-7725.webp"><img src="recursos/referencias/danza-7725.webp" loading="lazy" alt="Escenario y bloques de butacas vistos desde un lateral de la sala."></a><figcaption>Vista desde el público</figcaption></figure>
-      </div>
-    </details>
-    <details class="reference-patch"><summary>Qué luces usar y qué añadir más adelante <span class="summary-symbol" aria-hidden="true"></span></summary>
-      <p><strong>Danza · 6 luces funcionales.</strong> En cada tarima, dos perfiles LED fijos dan luz principal y relleno cruzado a las caras. Sus cuchillas limitan el haz cerca de la pantalla y los escalones. Un Fresnel blanco alto, detrás y hacia el lado del escenario, dibuja hombros y brazos en los giros. Usa las viseras para contener el derrame. En la escena <b>Danza</b>, alterna <b>Contraluz de danza</b> para comparar. <a href="https://blog.etcconnect.com/stage-lighting-design-part-5">Ángulos escénicos según ETC</a></p>
-      <p><strong>Escenario y público · 23 luces funcionales propuestas.</strong> Tres Fresnel superiores complementan los ocho frontales existentes y tres PAR posteriores separan banda y voces del banner. Los 17 colgantes regulables sirven para lectura en blanco y ambiente en color. Medir aparte el sector bajo el entrepiso.</p>
-      <p><strong>Color y movimiento · equipos existentes.</strong> Las barras lineales y cuatro PAR de piso colorean el banner. Los cuatro móviles MH4–MH7 de la segunda barra sirven para acentos en una canción o alabanza. Guardar posiciones de danza y muros en Lightkey y cambiar de posición con el dimmer cerrado. Para la prédica, mantener fijos los rostros y bajar el fondo hasta que el texto de las pantallas se lea desde las butacas. <a href="https://www.lightkeyapp.com/en/specs">Control de posición en Lightkey</a></p>
-      <p><strong>Ampliación por necesidad.</strong> Si la cámara pierde las caras al salir del púlpito, añadir 2 perfiles blancos regulables para posiciones de palabra. Si la alabanza alterna con frecuencia entre banda y danza y los móviles actuales dan un haz demasiado estrecho, probar 2 cabezas móviles de baño con zoom en los laterales posteriores. Para color arquitectónico, ensayar 2 bañadores asimétricos sobre paños libres de pantallas. Estas seis unidades opcionales se evalúan por separado de las 29 propuestas.</p>
-    </details>
-    <div class="reference-photos">
-      <figure><a href="recursos/referencias/barra-frontal.webp"><img src="recursos/referencias/barra-frontal.webp" loading="lazy" alt="Estructura frontal bajo la cubierta metálica, entre paneles blancos suspendidos."></a><figcaption><strong>Barra frontal</strong>Los espacios entre paneles condicionan la ubicación y el enfoque de los equipos.</figcaption></figure>
-      <figure><a href="recursos/referencias/barra-del-publico.webp"><img src="recursos/referencias/barra-del-publico.webp" loading="lazy" alt="Vista oblicua de una barra negra con luminarias sobre el público y del fondo de la sala."></a><figcaption><strong>Segunda barra</strong>Sobre el público, las cuatro cabezas móviles se orientan por separado desde Lightkey.</figcaption></figure>
-      <figure id="foto-entrepiso"><a href="recursos/referencias/entrepiso.webp"><img src="recursos/referencias/entrepiso.webp" loading="lazy" alt="Entrepiso con baranda de vidrio y luminarias blancas encendidas debajo del voladizo."></a><figcaption><strong>Fondo del auditorio</strong>Evaluar las últimas filas y el pasillo bajo el entrepiso con sus empotrados encendidos.</figcaption></figure>
-    </div>
-    <details class="reference-patch"><summary>Ver las 16 luminarias identificadas en Lightkey <span class="summary-symbol" aria-hidden="true"></span></summary>
-      <p>Desde las butacas, la barra frontal sigue el orden <strong>P3 · P2 · P4 · P4 · P4 · P4 · P2 · P3</strong>. En la segunda barra, MH4 a MH7 van de izquierda a derecha. Los cuatro P1 están en el piso del escenario, dos a cada lado, dirigidos hacia el banner.</p>
-      <table><caption>Universo 0 · Art-Net</caption><thead><tr><th scope="col">Etiqueta</th><th scope="col">Cant.</th><th scope="col">Perfil en Lightkey</th><th scope="col">Canales DMX</th></tr></thead><tbody>
-        <tr><th scope="row">P1</th><td>4</td><td>Chauvet SlimPAR Q12BT</td><td>010–017</td></tr>
-        <tr><th scope="row">P2</th><td>2</td><td>American DJ COB Cannon Wash DW</td><td>235–238</td></tr>
-        <tr><th scope="row">P3</th><td>2</td><td>Chauvet EVE F-50Z</td><td>257–259</td></tr>
-        <tr><th scope="row">P4</th><td>4</td><td>U’King LED PAR Light 7 4in1</td><td>225–232</td></tr>
-        <tr><th scope="row">MH4–MH7</th><td>4</td><td>Generic Spot Beam ST</td><td>265–282 · 285–302 · 305–322 · 325–342</td></tr>
-      </tbody></table>
-      <p>Lightkey muestra un bloque compartido por cada grupo P y un bloque por cada móvil. El perfil genérico de los móviles permite identificar sus canales. La marca y el modelo físico se confirman en la etiqueta del equipo.</p>
-      <div class="reference-photos patch-photos">
-        <figure><a href="recursos/referencias/esquema-lightkey.webp"><img src="recursos/referencias/esquema-lightkey.webp" loading="lazy" alt="Esquema de Lightkey con los ocho frontales, los cuatro móviles y los cuatro P1 en dos pares."></a><figcaption>Distribución en Lightkey</figcaption></figure>
-        <figure><a href="recursos/referencias/parche-dmx.webp"><img src="recursos/referencias/parche-dmx.webp" loading="lazy" alt="Parche de Lightkey con los bloques ocupados por cada grupo del universo 0."></a><figcaption>Direcciones del universo 0</figcaption></figure>
-      </div>
-    </details>
   </section>
   <section id="informes" class="reports" aria-labelledby="reports-title">
     <div><p class="kicker">Documentación</p><h2 id="reports-title">Informes</h2></div>

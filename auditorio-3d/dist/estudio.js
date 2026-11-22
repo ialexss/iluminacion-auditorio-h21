@@ -254,3 +254,27 @@ else if (editor && detailOnOpen && model.fixtures().some(f => f.id === detailOnO
   editor.pick(detailOnOpen);
   model.focusFixture(detailOnOpen);
 }
+
+const sheetButtons = document.querySelectorAll('#mount-switch button');
+for (const button of sheetButtons) {
+  button.addEventListener('click', () => {
+    for (const option of sheetButtons) {
+      const active = option === button;
+      option.setAttribute('aria-pressed', String(active));
+      byId('sheet-' + option.dataset.sheet).hidden = !active;
+    }
+  });
+}
+for (const link of document.querySelectorAll('.mount-sheet a[href^="?luz="]')) {
+  link.addEventListener('click', event => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (!editor) return;
+    event.preventDefault();
+    const id = new URL(link.href).searchParams.get('luz');
+    const mode = link.closest('.mount-sheet').id === 'sheet-existente' ? 'existing' : 'proposed';
+    changeInventory(mode);
+    if (!model.fixtures().some(f => f.id === id)) return;
+    editor.pick(id); model.focusFixture(id);
+    byId('maqueta').scrollIntoView({block:'start'});
+  });
+}

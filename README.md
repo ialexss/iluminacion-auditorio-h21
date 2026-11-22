@@ -18,6 +18,6 @@ Abre [la maqueta](http://127.0.0.1:8000/) en el navegador. La carpeta [auditorio
 - **Contraluz de danza** permite comparar cada tarima con y sin el Fresnel posterior. Los dos perfiles delanteros conservan su enfoque.
 - **Mover y orientar luces** muestra el soporte y el perfil de la luminaria seleccionada. Los cambios se aplican a la simulación. **Descargar 3D** exporta la configuración visible.
 - **Cobertura en butacas** calcula la iluminancia directa para distintas alturas y distribuciones. El sector bajo el entrepiso requiere mediciones en el recinto.
-- **Fotos y parche DMX** relaciona las imágenes del auditorio con las 16 luminarias identificadas en Lightkey.
+- **Plano de iluminación** ubica las luminarias existentes y propuestas sobre la planta baja. Las referencias de equipo enlazan con el punto correspondiente en la maqueta.
 
 El [informe técnico](auditorio-3d/dist/recursos/informe-tecnico.pdf) reúne las cantidades propuestas, los diagramas de montaje, la fotometría y el inventario existente. El [presupuesto preliminar](auditorio-3d/dist/recursos/plan-iluminacion.pdf) corresponde a la propuesta inicial de seis colgantes de sala.

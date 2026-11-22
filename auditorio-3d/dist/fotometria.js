@@ -35,9 +35,9 @@ window.Fotometria = (() => {
     6: plan.sala.posiciones,
     8: [...plan.sala.posiciones, ...plan.sala.ampliacion],
     17: [
-      [-10.3, .1], [-6.05, .13], [-1.8, .25], [2.2, .25], [6.2, .25], [10.2, -.22],
-      [-9.5, 3.65], [-4.8, 3.55], [.1, 3.55], [5.1, 3.55], [10.1, 3.65],
-      [-9.3, 6.55], [-5.8, 6.95], [-1.8, 6.95], [2.2, 6.95], [6.2, 6.95], [9.9, 6.6]
+      [-10.3, .1], [-6.05, .13], [-1.8, .25], [2.2, .25], [6.2, .25], [10.42, -.22],
+      [-9.66, 3.65], [-4.8, 3.55], [.1, 3.55], [5.1, 3.55], [10.32, 3.65],
+      [-9.46, 6.55], [-5.8, 6.95], [-1.8, 6.95], [2.2, 6.95], [6.2, 6.95], [9.9, 6.6]
     ]
   };
   const seats = [];
@@ -56,7 +56,9 @@ window.Fotometria = (() => {
   }
 
   // Centros de celdas de 5 cm. La región incluye butacas y pasillos desde z = -0,60.
-  const step = .05, width = 461, height = 166, x0 = -11.475, z0 = -.575;
+  const step = .05, height = 166, z0 = -.575;
+  const x0 = (Math.floor(plan.ladoIzq / step) + .5) * step;
+  const width = Math.ceil((plan.ladoDer - x0) / step);
   function publicFloor(x, z) {
     let inside = false;
     const vertices = plan.contorno;

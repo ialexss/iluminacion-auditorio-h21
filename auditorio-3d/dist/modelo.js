@@ -54,12 +54,12 @@ function crearAuditorio(host, onPick, onCameraChange) {
     for(let i=1;i<points.length;i++)wall(points[i-1],points[i],height);
   }
   wall(footprint[0],footprint[1],5.3);
-  walls([footprint[1],footprint[2],plan.derecha.at(-1)],4.45);
-  walls([footprint[0],footprint.at(-1),plan.izquierda.at(-1)],4.45);
-  walls(plan.lateralIzq,.27);walls(plan.lateralDer,.27);
-  wall(plan.lateralIzq.at(-1),[-10.84,5.85],.27);
+  wall(footprint[0],plan.izquierda.at(-1),4.45);
+  wall(footprint[1],plan.derecha.at(-1),4.45);
   const entrada=plan.ingreso, jambA=entrada.z-entrada.ancho/2, jambB=entrada.z+entrada.ancho/2;
-  wall([entrada.x,jambB],[entrada.x,6.77],.27);
+  wall(plan.izquierda.at(-1),footprint.at(-1),.27);
+  wall(plan.derecha.at(-1),[entrada.x,jambA],.27);
+  wall([entrada.x,jambB],footprint[2],.27);
   const doorGlass=new T.MeshPhongMaterial({color:0xcccccc,transparent:true,opacity:.22,depthWrite:false});
   for(const z of [jambA,entrada.z,jambB])box(entrada.x,1.14,z,.10,2.28,.055,m.metal);
   box(entrada.x,2.27,entrada.z,.1,.08,entrada.ancho,m.metal);
@@ -68,11 +68,11 @@ function crearAuditorio(host, onPick, onCameraChange) {
   // The curved partitions face the dancers. Each wing opens directly onto the stage.
   for(const [side,curve] of [[-1,plan.izquierda],[1,plan.derecha]]){
     const x=side*6.1;
-    const vertices=[...curve,[curve.at(-1)[0],-5.62],[side*6.42,-7.15],[x,-6.64]];
+    const vertices=[...curve,[curve.at(-1)[0],plan.fondo],[x,plan.fondo]];
     slab(new T.Shape(vertices.map(([px,pz])=>new T.Vector2(px,-pz))),.02,.64,m.edge);
     walls(curve,4.18);
-    wall([x,-6.69],[x,-6.28],4.18);wall([x,-4.94],[x,curve[0][1]],4.18);
-    box(x,3.63,-5.61,.13,1.1,1.34,m.wall);
+    wall([x,plan.fondo],[x,-6.80],4.18);wall([x,-5.46],curve[0],4.18);
+    box(x,3.63,-6.13,.13,1.1,1.34,m.wall);
   }
   const deck=new T.Shape();deck.moveTo(-6.1,6.6);deck.lineTo(6.1,6.6);deck.lineTo(6.1,3.0);
   deck.quadraticCurveTo(0,-.35,-6.1,3.0);deck.closePath();slab(deck,.015,.655,m.fascia);
@@ -111,7 +111,7 @@ function crearAuditorio(host, onPick, onCameraChange) {
   }
   display(0,3.87,-6.06,3.65,1.91,0);
   for(const curve of [plan.izquierda,plan.derecha]){
-    const a=curve[3],b=curve[5],c=curve[4],yaw=-Math.atan((b[1]-a[1])/(b[0]-a[0]));
+    const [a,b]=curve, c=[(a[0]+b[0])/2,(a[1]+b[1])/2],yaw=-Math.atan((b[1]-a[1])/(b[0]-a[0]));
     display(c[0]+.14*Math.sin(yaw),2.45,c[1]+.14*Math.cos(yaw),1.58,.89,yaw);
   }
   // Matte faceted scenic banner, below and behind the projection screen.
@@ -176,7 +176,7 @@ function crearAuditorio(host, onPick, onCameraChange) {
   rod(v(-4.86,railY,railZ),v(4.86,railY,railZ),.062,m.metal,supports.moving);
   for(const x of [-4.35,4.35])suspension(x,railY,railZ,supports.moving);
   const barrasDanza=pads.map(([x,z])=>({x,z:z+2.25,y:4.08}));
-  const soportesTraseros=pads.map(([x,z])=>({x:x-Math.sign(x)*.95,z:z-1.40,y:4.08}));
+  const soportesTraseros=pads.map(([x,z])=>({x:x-Math.sign(x)*.95,z:z-1.18,y:4.08}));
   const danceDepth=.29;
   for(const [i,{x,y,z}] of barrasDanza.entries()){
     const root=i?supports.right:supports.left;
@@ -515,11 +515,12 @@ function crearAuditorio(host, onPick, onCameraChange) {
     tag('Fresnel posterior',v(rear.x,rear.y-.50,rear.z),view,support);
     tag('Perfil',v(x+.79,y-.53,z),view,support);
     tag('Tarima de danza',v(x,.36,pads[i][1]),view);
-    tag('Muro de backstage',v(i?8.5:-8.4,2.7,i?-4:-3.3),view);
+    const giro=(i?plan.derecha:plan.izquierda)[1];
+    tag('Muro de backstage',v(giro[0],2.7,giro[1]),view);
   }
   const cameraTarget=v(0,1.94,.12);
   const bounds=footprint.map(([x,z])=>v(x,-.40,z));
-  for(const [x,z] of [[-6.42,-7.15],[6.42,-7.15],[-9.95,-5.62],[10.34,-5.62]])bounds.push(v(x,5.3,z));
+  for(const [x,z] of [footprint[0],footprint[1],plan.izquierda.at(-1),plan.derecha.at(-1)])bounds.push(v(x,5.3,z));
   for(const {x,z} of barrasDanza)for(const dx of [-1,1])bounds.push(v(x+dx,5.9,z));
   for(const x of [-5.63,5.63])bounds.push(v(x,5.90,railZ));
   function ortho(eye,target,halfHeight,aspect,near=.1){
@@ -612,7 +613,7 @@ function crearAuditorio(host, onPick, onCameraChange) {
       l.shader.uniforms.tint.value.copy(c);l.shader.uniforms.level.value=level*(l.group==='house'?.065:.095);
       l.cone.visible=showBeams&&level>.001&&(!['left','right'].includes(mode)||l.group===mode||l.id===selectedFixture);
       const dest=l.manualAim||(l.group==='moving'&&state.aim==='walls'
-        ? v(Math.sign(l.source.x)*8.17,2.13,l.source.x<0?-3.34:-4.03) : l.dest);
+        ? v(Math.sign(l.source.x)*8.17,2.13,(l.source.x<0?plan.izquierda:plan.derecha)[1][1]+.08) : l.dest);
       if(!l.light.target.position.equals(dest))point(l,dest);
     }
     drawAimGuide();refresh();

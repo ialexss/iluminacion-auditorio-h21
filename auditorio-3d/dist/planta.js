@@ -6,18 +6,17 @@ const plantaAuditorio = (() => {
       return a.map((n,k)=>u**3*n+3*u*u*t*b[k]+3*u*t*t*c[k]+t**3*d[k]);
     });
   }
-  const izquierda=curva([-6.1,-4.15],[-7.68,-4.25],[-9.15,-3.15],[-10.02,-1.90]);
-  const derecha=curva([6.1,-4.18],[7.86,-4.32],[9.47,-4.46],[10.34,-3.04]);
-  const lateralIzq=curva(izquierda.at(-1),[-10.73,-.89],[-10.82,.4],[-10.84,2.17]);
-  const lateralDer=curva(derecha.at(-1),[11.14,-1.94],[11.28,.46],[11.28,1.25]);
-  const contorno=[[-6.42,-7.15],[6.42,-7.15],[10.34,-5.62],...lateralDer,
-    [11.28,6.77],[10.96,7.2],[8.45,7.67],[-8.4,7.67],[-10.84,5.85],
-    ...lateralIzq.slice().reverse(),[-10.02,-5.62]];
+  // Planta baja y detalles PB. El ancho de escena de la maqueta (12,20) fija
+  // la escala relativa. Cada muro tiene un tramo recto antes del giro a sala.
+  const izquierda=[[-6.10,-5.05],...curva([-8.62,-5.08],[-10.04,-4.65],[-11.13,-3.34],[-11.20,-1.68])];
+  const derecha=[[6.10,-4.90],...curva([8.50,-4.91],[10.14,-4.90],[11.50,-3.77],[11.55,-2.51])];
+  const fondo=-7.90, ladoIzq=izquierda.at(-1)[0], ladoDer=derecha.at(-1)[0];
+  const contorno=[[ladoIzq,fondo],[ladoDer,fondo],[ladoDer,6.77],[10.96,7.2],
+    [8.45,7.67],[-8.4,7.67],[ladoIzq,5.85]];
   return {
-    contorno, izquierda, derecha, lateralIzq, lateralDer,
-    // Dos tarimas simétricas junto a las escaleras laterales. Las cotas son orientativas.
-    danza:[-1,1].map(lado=>({x:lado*7.93,z:-2.22,w:2.18,d:1.56})),
-    ingreso:{x:11.28,z:2.1,ancho:1.66},
+    contorno, izquierda, derecha, fondo, ladoIzq, ladoDer,
+    danza:[-1,1].map(lado=>({x:lado*8.45,z:-3.35,w:2.18,d:1.56})),
+    ingreso:{x:ladoDer,z:2.1,ancho:1.66},
     // Hipótesis dimensional de fotometría, en metros. Haz completo al 50 %.
     sala:{altura:4.66,planoLectura:.75,haz:41,
       posiciones:[[-7.2,1.1],[7.2,1.1],[-2.6,1.32],[2.6,1.32],[-3.1,4.85],[3.1,4.85]],
