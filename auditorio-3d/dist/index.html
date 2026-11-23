@@ -7,7 +7,6 @@
   <meta name="description" content="Maqueta interactiva, distribución de luminarias y estudio de cobertura del auditorio.">
   <title>Iluminación del auditorio</title>
   <link rel="stylesheet" href="estudio.css">
-  <script defer src="recursos/three.min.js"></script>
   <script defer src="planta.js"></script>
   <script defer src="fotometria.js"></script>
   <script defer src="modelo.js"></script>
@@ -30,7 +29,7 @@
       <button type="button" data-inventory="all" aria-pressed="true">Existentes + nuevas</button>
       <button type="button" data-inventory="proposed" aria-pressed="false">Solo nuevas</button>
     </div></div>
-    <div class="viewer" id="viewer">
+    <div class="viewer static" id="viewer">
       <img class="poster" id="poster" src="recursos/vistas/orbit.webp" alt="Perspectiva general del auditorio y sus luminarias" fetchpriority="high">
       <div id="canvas-area" tabindex="0" aria-label="Vista 3D. Usa las flechas para girar y los signos más y menos para acercar o alejar."></div>
       <div id="anchors" aria-hidden="true"></div>

@@ -31,8 +31,6 @@ const presets = {
   event: {name:'Evento', levels:[35,50,35,80,12,12,95,100,95], color:'#aa7bfa', aim:'walls',
     scenicColors:{back:'#ff539e',moving:'#3ce2f4',bars:'#8a35fa',par:'#ff4098'},
     description:'El violeta y el magenta bañan el banner. Los cuatro móviles dirigen haces cian hacia los muros laterales.'},
-  work:  {name:'Trabajo', levels:[100,80,100,0,85,85,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
-    description:'Luz blanca sobre el escenario, ambas tarimas y las butacas para ensayos y montaje.'},
   hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
     description:'Solo se encienden los colgantes del público. Esta escena corresponde al cálculo de cobertura en blanco al 100 %.'}
 };
@@ -62,14 +60,12 @@ const soloDescriptions = {
     dance:'Los móviles apuntan a las tarimas. El banner recibe azul y cian desde el piso.',
     sermon:'Los frontales iluminan a quien predica y las luces de piso dan un fondo ámbar.',
     event:'Los móviles pasan a los muros laterales y el banner combina violeta y magenta.',
-    work:'Los frontales aportan blanco al escenario.',
     hall:'Los colgantes de sala son parte de la propuesta. El alumbrado general actual carece de fotometría en el modelo.'
   },
   proposed:{
     dance:'Dos perfiles se cruzan delante de cada tarima. Desde el lado de la escalera, un Fresnel posterior ilumina hombros y brazos.',
     sermon:'Los Fresnel superiores refuerzan el escenario y los colgantes dan luz tenue a las butacas.',
     event:'El contraluz baña las siluetas en magenta y la sala toma un tono violeta.',
-    work:'Blanco para trabajar en las tarimas, el escenario y la sala.',
     hall:'Los colgantes iluminan el público en blanco al 100 %, como en el mapa de cobertura.'
   }
 };
@@ -117,6 +113,7 @@ for (const [key, [name]] of Object.entries(cameras)) {
   button.type = 'button'; button.dataset.camera = key; button.className = 'angle';
   const thumb = document.createElement('img');
   thumb.alt = ''; thumb.src = previewUrl(key).replace('recursos/vistas/','recursos/miniaturas/'); thumb.decoding = 'async';
+  thumb.loading = 'lazy';
   thumb.width = 192; thumb.height = 78;
   const caption = document.createElement('span'); caption.textContent = name;
   button.append(thumb, caption); button.addEventListener('click', () => setCamera(key));
@@ -223,36 +220,76 @@ byId('coverage-plan').onclick = () => {
 };
 applyPreset('dance');
 setViewLabel('orbit');
-try {
-  model = crearAuditorio(byId('canvas-area'), (key,id) => { if (editor && id) editor.pick(id); else selectZone(key); }, setViewLabel);
-  sync(); model.labels(false);
-  // Conservar la vista previa hasta que se haya dibujado el primer fotograma.
-  requestAnimationFrame(() => requestAnimationFrame(() => { byId('poster').hidden = true; }));
-} catch {
-  viewer.classList.add('static'); byId('canvas-area').hidden = true;
-  byId('gesture').textContent = 'Vista fija a 4,66 m · Elige escena y ángulo';
-  viewer.querySelector('.viewer-type').textContent = 'Maqueta';
-  document.querySelectorAll('.flags input,#controls select,#controls input,.camera-tools button,#viewer-height,#coverage-plan,#open-editor,#export-glb').forEach(el => el.disabled = true);
-}
-const coverage = iniciarCobertura((positions,height) => { model?.houseLayout(positions,height); editor?.refresh(); });
-if (model) editor = iniciarEditor(model,coverage,key => { selected = key; sync(); },() => currentCamera,
-  () => { if (inventory === 'existing') changeInventory('all'); },actualizarDescripcion);
+const interactiveControls = document.querySelectorAll('.flags input,#controls select,#controls input,.camera-tools button,#viewer-height,#open-editor,#export-glb');
+interactiveControls.forEach(el => { el.disabled = true; });
+let roomLayout;
+const coverage = iniciarCobertura((positions,height) => {
+  roomLayout = [positions,height];
+  model?.houseLayout(...roomLayout);
+  editor?.refresh();
+});
 changeInventory('all');
-if (new URLSearchParams(location.search).get('comparar') === '1') {
+const query = new URLSearchParams(location.search);
+if (query.get('comparar') === '1') {
   setCamera('seats');
   byId('compare-pair').open = true;
   updatePair();
 }
 
-const query = new URLSearchParams(location.search);
 const requestedCamera = query.get('vista');
 if (Object.hasOwn(cameras,requestedCamera)) setCamera(requestedCamera);
-const aimOnOpen = query.get('orientar');
-const detailOnOpen = query.get('luz');
-if (editor && aimOnOpen) editor.orient(aimOnOpen);
-else if (editor && detailOnOpen && model.fixtures().some(f => f.id === detailOnOpen)) {
-  editor.pick(detailOnOpen);
-  model.focusFixture(detailOnOpen);
+
+function startViewer() {
+  const script = document.createElement('script');
+  const host = byId('canvas-area');
+  script.src = 'recursos/three.min.js';
+  byId('gesture').textContent = 'Cargando vista 3D…';
+  function usePreview() {
+    host.hidden = true;
+    byId('gesture').textContent = 'Vista fija a 4,66 m · Elige escena y ángulo';
+    viewer.querySelector('.viewer-type').textContent = 'Maqueta';
+  }
+  script.onerror = usePreview;
+  script.onload = () => {
+    try {
+      model = crearAuditorio(host, (key,id) => { if (editor && id) editor.pick(id); else selectZone(key); }, setViewLabel, () => {
+        viewer.classList.remove('static');
+        byId('poster').hidden = true;
+      });
+    } catch {
+      usePreview();
+      return;
+    }
+    model.houseLayout(...roomLayout);
+    model.inventory(inventory);
+    model.beams(byId('beams').checked);
+    model.labels(byId('labels').checked);
+    model.cameraMode(currentCamera);
+    editor = iniciarEditor(model,coverage,key => { selected = key; sync(); },() => currentCamera,
+      () => { if (inventory === 'existing') changeInventory('all'); },actualizarDescripcion);
+    interactiveControls.forEach(el => { el.disabled = false; });
+    byId('gesture').textContent = 'Arrastra para girar';
+    sync();
+
+    const aimOnOpen = query.get('orientar');
+    const detailOnOpen = query.get('luz');
+    if (aimOnOpen) editor.orient(aimOnOpen);
+    else if (detailOnOpen && model.fixtures().some(f => f.id === detailOnOpen)) {
+      editor.pick(detailOnOpen);
+      model.focusFixture(detailOnOpen);
+    }
+  };
+  document.head.append(script);
+}
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    observer.disconnect();
+    startViewer();
+  }, {rootMargin:'160px'});
+  observer.observe(viewer);
+} else {
+  startViewer();
 }
 
 const sheetButtons = document.querySelectorAll('#mount-switch button');

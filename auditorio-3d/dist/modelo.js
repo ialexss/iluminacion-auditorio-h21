@@ -1,8 +1,7 @@
 /* Maqueta conceptual. X recorre el ancho, Y la altura y Z avanza hacia las butacas. */
-function crearAuditorio(host, onPick, onCameraChange) {
+function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   const T = THREE, v = (x,y,z) => new T.Vector3(x,y,z);
-  const renderer = new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,1.5));
+  const renderer = new T.WebGLRenderer({antialias:true,alpha:true});
   renderer.toneMapping=T.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.16;
   host.appendChild(renderer.domElement);
@@ -421,12 +420,14 @@ function crearAuditorio(host, onPick, onCameraChange) {
   // Intensity and colour are uniforms, independent of the number of pendants.
   function rebuildWash(points,height){
     const h=height-plan.sala.planoLectura,coefficient=.80/(h*h);
+    const gridScale=100/h;
     let k=0;
     for(let row=0;row<mapDepth;row++)for(let col=0;col<mapWidth;col++){
       const x=(col+.5)*26/mapWidth-13,z=(row+.5)*18/mapDepth-9;
       let lux=0;
       for(const [cx,cz] of points){
-        const i=Math.min(400,Math.round(Math.hypot(x-cx,z-cz)*100/h));
+        const dx=x-cx,dz=z-cz;
+        const i=Math.min(400,Math.round(Math.sqrt(dx*dx+dz*dz)*gridScale));
         lux+=falloff[i]*coefficient;
       }
       field[k]=Math.min(255,Math.round(255*Math.sqrt(lux/1300)));
@@ -578,8 +579,33 @@ function crearAuditorio(host, onPick, onCameraChange) {
       if(!el.hidden){el.style.left=px+'px';el.style.top=py+'px';placed.push([px,py])}
     }
   }
-  function render(){frame=0;if(!dirty)return;dirty=false;setCamera();renderer.render(scene,camera)}
-  function refresh(){dirty=true;if(!frame)frame=requestAnimationFrame(render)}
+  let inView=true,firstFrame=true,motionTimer=0;
+  let bufferWidth=0,bufferHeight=0,bufferScale=0;
+  function render(){
+    frame=0;
+    if(!dirty||!inView)return;
+    dirty=false;
+    const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);
+    // Limit the shaded pixels on large or Retina screens, especially while moving.
+    const pixelBudget=motionTimer?300_000:1_200_000;
+    const scale=Math.min(window.devicePixelRatio||1,motionTimer?1:1.5,Math.sqrt(pixelBudget/(width*height)));
+    if(width!==bufferWidth||height!==bufferHeight||scale!==bufferScale){
+      renderer.setDrawingBufferSize(width,height,scale);
+      bufferWidth=width;bufferHeight=height;bufferScale=scale;
+    }
+    setCamera();
+    renderer.render(scene,camera);
+    if(firstFrame){firstFrame=false;onFirstFrame?.()}
+  }
+  function refresh(){
+    dirty=true;
+    if(inView&&!frame)frame=requestAnimationFrame(render);
+  }
+  function refreshMotion(){
+    clearTimeout(motionTimer);
+    motionTimer=setTimeout(()=>{motionTimer=0;refresh()},160);
+    refresh();
+  }
   function update(state){
     layerState=state;
     if(typeof state.monochrome==='boolean')neutral=state.monochrome;
@@ -603,9 +629,10 @@ function crearAuditorio(host, onPick, onCameraChange) {
     const active=lights.reduce((max,l)=>Math.max(max,inInventory(l)&&state.on[l.group]?state.level[l.group]/100:0),0);
     fillLight.intensity=.19+active*.66;key.intensity=.17+active*.94;rim.intensity=.20+active*.64;
     for(const l of lights){
-      const present=inInventory(l);l.fixtureRoot.visible=present;l.light.visible=present;
+      const present=inInventory(l);l.fixtureRoot.visible=present;
       const rearDance=(l.group==='left'||l.group==='right')&&l.type==='fresnel';
       const level=present&&state.on[l.group]&&(!rearDance||state.danceRim!==false)?state.level[l.group]/100:0;
+      l.light.visible=level>0;
       l.indicator.visible=present&&(selectedFixture?l.id===selectedFixture:l.group===marked)&&mode!=='fixture';
       const c=new T.Color(neutral?'#ffffff':l.group==='house'?state.color:scenic[l.group]||l.color);
       l.light.color.copy(c);l.light.intensity=level*l.power*(l.group==='top'||l.group==='front'?.61:.85);
@@ -623,8 +650,8 @@ function crearAuditorio(host, onPick, onCameraChange) {
     mode=which;yaw=.29;pitch=.49;zoom=1;onCameraChange(mode);
     if(layerState)update(layerState);else refresh();
   }
-  function zoomBy(step){zoom=T.MathUtils.clamp(zoom*step,.68,mode==='seats'?1.45:2.05);refresh()}
-  function orbit(dx,dy){if(mode!=='orbit'){pitch=mode==='top'?1.31:.32;mode='orbit';onCameraChange(mode);if(layerState)update(layerState)}yaw-=dx*.007;pitch=T.MathUtils.clamp(pitch+dy*.006,.09,1.49);refresh()}
+  function zoomBy(step){zoom=T.MathUtils.clamp(zoom*step,.68,mode==='seats'?1.45:2.05);refreshMotion()}
+  function orbit(dx,dy){if(mode!=='orbit'){pitch=mode==='top'?1.31:.32;mode='orbit';onCameraChange(mode);if(layerState)update(layerState)}yaw-=dx*.007;pitch=T.MathUtils.clamp(pitch+dy*.006,.09,1.49);refreshMotion()}
   function fixtureInfo(l){
     const {group,type,source}=l;
     const types={profile:'Perfil LED',fresnel:'Fresnel LED',wash:'PAR LED',parFloor:'PAR LED',moving:'Cabeza móvil',strip:'Barra LED',pendant:'Colgante RGBWL'};
@@ -726,7 +753,7 @@ function crearAuditorio(host, onPick, onCameraChange) {
   function deliverDrag(){
     dragFrame=0;
     if(dragId&&dragHandler&&dragPoint){
-      const [x,z]=dragPoint;dragPoint=null;dragHandler(dragId,x,z);
+      const [x,z]=dragPoint;dragPoint=null;dragHandler(dragId,x,z);refreshMotion();
     }
   }
   function inventory(which){
@@ -795,7 +822,14 @@ function crearAuditorio(host, onPick, onCameraChange) {
   host.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-Math.sign(e.deltaY)*.07))},{passive:false});
   host.addEventListener('keydown',e=>{const moves={ArrowLeft:[18,0],ArrowRight:[-18,0],ArrowUp:[0,14],ArrowDown:[0,-14]};
     if(moves[e.key]){e.preventDefault();orbit(...moves[e.key])}else if(['+','=','-'].includes(e.key)){e.preventDefault();zoomBy(e.key==='-'?.9:1.1)}});
-  new ResizeObserver(()=>{renderer.setSize(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight),false);refresh()}).observe(host);
+  new ResizeObserver(refresh).observe(host);
+  window.addEventListener('resize',refresh);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(([entry])=>{
+      inView=entry.isIntersecting;
+      if(inView&&dirty)refresh();
+    }).observe(host);
+  }
   houseLayout(plan.sala.posiciones,plan.sala.altura);
   return {
     setAim,pickAim(handler){aimPick=handler;},update,cameraMode,zoomBy,houseLayout,inventory,fixtures,focusFixture,selectFixture,moveFixture,resetFixture,addFixture,removeFixture,dragFixture,exportScene,
