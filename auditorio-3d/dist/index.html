@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#f9f9f7">
   <meta name="description" content="Maqueta interactiva, distribución de luminarias y estudio de cobertura del auditorio.">
   <title>Iluminación del auditorio</title>
-  <link rel="stylesheet" href="estudio.css">
+  <link rel="stylesheet" href="estudio.css?v=ampliacion">
   <script defer src="planta.js"></script>
   <script defer src="fotometria.js"></script>
-  <script defer src="modelo.js"></script>
+  <script defer src="modelo.js?v=ampliacion"></script>
   <script defer src="cobertura-vista.js"></script>
   <script defer src="exportar-glb.js"></script>
-  <script defer src="editor.js"></script>
-  <script defer src="estudio.js"></script>
+  <script defer src="editor.js?v=ampliacion"></script>
+  <script defer src="estudio.js?v=ampliacion"></script>
 </head>
 <body>
 <a class="skip" href="#maqueta">Ir a la maqueta</a>
@@ -21,25 +21,32 @@
   <header class="intro">
     <div><p class="kicker">Estudio de iluminación</p><h1>Auditorio</h1>
     <p class="subtitle">Dos tarimas simétricas junto a las escaleras del escenario, frente a las pantallas laterales.</p></div>
-    <nav class="intro-nav" aria-label="Secciones"><a href="#referencias">Montaje</a><a href="#cobertura">Cobertura</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
+    <nav class="intro-nav" aria-label="Secciones"><a href="#referencias">Montaje</a><a href="#cobertura">Cobertura</a><a href="#ampliacion">Ampliación</a><a href="#informes">Informes <span aria-hidden="true">↘</span></a></nav>
   </header>
   <section id="maqueta" aria-label="Maqueta interactiva del auditorio">
     <div class="inventory-line"><h2>Comparar montaje</h2><div class="segmented" id="inventory" role="group" aria-label="Comparar montaje de iluminación">
       <button type="button" data-inventory="existing" aria-pressed="false">Solo existentes</button>
       <button type="button" data-inventory="all" aria-pressed="true">Existentes + nuevas</button>
       <button type="button" data-inventory="proposed" aria-pressed="false">Solo nuevas</button>
+      <button type="button" data-inventory="future" aria-pressed="false">Con ampliación futura</button>
     </div></div>
     <div class="viewer static" id="viewer">
       <img class="poster" id="poster" src="recursos/vistas/orbit.webp" alt="Perspectiva general del auditorio y sus luminarias" fetchpriority="high">
-      <div id="canvas-area" tabindex="0" aria-label="Vista 3D. Usa las flechas para girar y los signos más y menos para acercar o alejar."></div>
+      <div id="canvas-area" tabindex="0" aria-label="Vista 3D. Usa las flechas para mover la vista y los signos más y menos para acercar o alejar."></div>
       <div id="anchors" aria-hidden="true"></div>
       <div class="viewer-head"><div><span class="viewer-type">Vista 3D</span><p id="view-name">Perspectiva</p></div>
-        <button class="tool" id="fullscreen" aria-label="Pantalla completa" title="Pantalla completa"><span data-icon="expand"></span></button></div>
-      <div class="viewer-foot"><div class="gesture-tools"><span class="gesture" id="gesture">Arrastra para girar</span><button class="cancel-aim" id="cancel-aim" type="button" hidden>Cancelar</button></div>
+        <div class="viewer-options">
+          <label class="quality-control" for="viewer-quality">Calidad <select id="viewer-quality">
+            <option value="high">Alta</option><option value="auto">Automática</option><option value="low">Baja</option>
+          </select></label>
+          <button class="tool" id="fullscreen" aria-label="Pantalla completa" title="Pantalla completa"><span data-icon="expand"></span></button>
+        </div>
+      </div>
+        <div class="viewer-foot"><div class="gesture-tools"><span class="gesture" id="gesture">Arrastra para mover la vista</span><button class="cancel-aim" id="cancel-aim" type="button" hidden>Cancelar</button></div>
         <div class="camera-tools" aria-label="Zoom y cámara">
           <button type="button" class="tool" id="zoom-out" aria-label="Alejar" title="Alejar"><span data-icon="minus"></span></button>
           <button type="button" class="tool" id="zoom-in" aria-label="Acercar" title="Acercar"><span data-icon="plus"></span></button>
-          <button type="button" class="tool" id="reset-camera" aria-label="Restablecer cámara" title="Restablecer cámara"><span data-icon="reset"></span></button>
+          <button type="button" class="tool" id="reset-camera" aria-label="Restablecer esta vista" title="Restablecer esta vista"><span data-icon="reset"></span></button>
         </div></div>
     </div>
     <p class="inventory-description" id="inventory-description" aria-live="polite"></p>
@@ -48,6 +55,14 @@
       <label class="viewer-height" for="viewer-height">Altura de sala <input type="range" id="viewer-height" min="3" max="8" value="4.66" step=".01"><output for="viewer-height" id="viewer-height-value">4,66 m</output></label>
     </div>
     <p class="scene-caption" id="scene-caption" aria-live="polite"></p>
+    <div class="ambient-strip">
+      <div class="ambient-copy"><label for="room-look">Ambiente RGB</label><span id="room-look-note">Color de los colgantes del público.</span></div>
+      <select id="room-look" aria-describedby="room-look-note">
+        <option value="scene">Según escena</option><option value="off">Apagado</option><option value="#fff0d6">Blanco cálido</option>
+        <option value="#4c85ff">Azul</option><option value="#26ded1">Cian</option><option value="#b065ff">Violeta</option><option value="#ffad5b">Ámbar</option>
+      </select>
+      <button id="play-motion" type="button" aria-pressed="false" hidden>Animar móviles</button>
+    </div>
     <div class="edit-bar">
       <button id="open-editor" type="button" aria-expanded="false" aria-controls="fixture-editor">Mover y orientar luces</button>
       <button type="button" id="export-glb"><span data-icon="download"></span> Descargar 3D <span class="format">GLB</span></button>
@@ -96,7 +111,7 @@
         <div id="aim" hidden><label for="aim-choice">Enfoque base de los móviles</label><select id="aim-choice"><option value="dance">Tarimas</option><option value="walls">Muros laterales</option></select></div>
       </div><p id="group-detail" class="detail-copy"></p>
     </details>
-    <p class="model-note">Geometría lateral según la planta baja. Tarimas y luminarias a escala de referencia. <a href="#referencias">Plano de puntos de montaje</a></p>
+    <p class="model-note">Tarimas y luminarias a escala de referencia. El entrepiso de la vista desde el escenario es esquemático. <a href="#referencias">Plano de puntos de montaje</a></p>
   </section>
 
   <section id="referencias" class="mounting" aria-labelledby="mount-title">
@@ -167,6 +182,31 @@
         <p>La escala del croquis y la altura del recinto son supuestas. Las medidas del salón, las obstrucciones y las lecturas con luxómetro permitirán confirmar la cobertura. <a href="recursos/informe-tecnico.pdf#page=5">Ver cálculo en el informe técnico</a></p>
       </details>
     </div>
+  </section>
+  <section id="ampliacion" class="future-section" aria-labelledby="future-title">
+    <header class="future-intro">
+      <div><p class="kicker">Fase futura · 10 luminarias</p><h2 id="future-title">Luz para música y ambiente</h2>
+      <p>Una ampliación para bañar los muros laterales, dar profundidad al fondo y acompañar la música. La maqueta la suma al montaje base cuando eliges «Con ampliación futura».</p></div>
+      <div class="future-demo">
+        <p class="kicker">Probar en la maqueta</p>
+        <a href="?montaje=future&amp;escena=mellow&amp;vista=seats#maqueta" data-demo="mellow"><span class="cue-swatch warm"></span><span><strong>Adoración íntima</strong><small>Azul suave y detalles ámbar</small></span><span aria-hidden="true">↗</span></a>
+        <a href="?montaje=future&amp;escena=music&amp;vista=seats#maqueta" data-demo="music"><span class="cue-swatch cool"></span><span><strong>Alabanza</strong><small>Violeta, cian y móviles en el fondo</small></span><span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+    <figure class="future-preview">
+      <img src="recursos/ampliacion/alabanza.webp" alt="Maqueta de la escena Alabanza vista desde las butacas, con muros violetas, cuatro barras verticales cian y contraluz sobre el escenario." width="1531" height="688" loading="lazy">
+      <figcaption>Alabanza desde las butacas · Baño violeta, barras cian y contraluz en el escenario</figcaption>
+    </figure>
+    <dl class="future-equipment">
+      <div><dt><span>4 uds.</span> Bañadores RGBW</dt><dd>Dos por lateral, junto al frente de la sala. Óptica abierta orientada al muro, con soportes bajos fuera de pasos y viseras si hay luz directa a las butacas.</dd><dd><a href="https://chauvetprofessional.com/product/colordash-par-h12x-ip/">Ficha de referencia · COLORdash PAR H12X IP</a></dd></div>
+      <div><dt><span>4 uds.</span> Barras de píxeles</dt><dd>Dos barras verticales por lado del banner, sobre bases o perfiles firmes. Dibujan el fondo sin apuntar a la pantalla; se pueden agrupar para transiciones o controlar por segmentos en Lightkey.</dd><dd><a href="https://chauvetprofessional.com/product/colordash-batten-h12x-ip/">Ficha de referencia · COLORdash Batten H12X IP</a></dd></div>
+      <div><dt><span>2 uds.</span> Cabezas móviles wash</dt><dd>En la barra posterior propuesta, una a cada lado. Usar zoom amplio para contraluz suave y limitar el giro al escenario. Confirmar carga, anclajes y retención secundaria antes de colgar.</dd><dd><a href="https://chauvetprofessional.com/product/rogue-r1x-wash/">Ficha de referencia · Rogue R1X Wash</a></dd></div>
+    </dl>
+    <div class="future-notes">
+      <p><strong>Orden de compra.</strong> Después del montaje base, probar un bañador y una barra en el recinto. Completar los laterales y el fondo antes de sumar los móviles. En Lightkey, separar <em>Ambiente RGB</em>, <em>Barras de fondo</em> y <em>Móviles de música</em>. Confirmar los modos DMX y los canales disponibles con los equipos seleccionados. <a href="https://www.lightkeyapp.com/en/specs">Funciones de Lightkey</a></p>
+      <p><strong>Referencias de montaje.</strong> Para Hillsong Cape Town, el equipo de producción usó móviles y baños de color para enmarcar el fondo. Grace Bible Church combinó baños lineales en el muro posterior, móviles wash y luz frontal pensada para cámara. En H21 se mantienen los blancos de escenario y se añade color por zonas. <a href="https://dwrdistribution.co.za/hillsong-use-over-170-fixtures-for-beautiful-show/">Caso Hillsong Cape Town</a> · <a href="https://chauvetprofessional.com/news/csd-group-completes-grace-bibles-new-campus-with-chauvet-professional/">Caso Grace Bible Church</a></p>
+    </div>
+    <p class="detail-copy future-caption">Cantidades para cotización. El color y el movimiento del visor son ilustrativos. El alumbrado blanco, los pasillos y la evacuación se diseñan por separado.</p>
   </section>
   <section id="informes" class="reports" aria-labelledby="reports-title">
     <div><p class="kicker">Documentación</p><h2 id="reports-title">Informes</h2></div>

@@ -3,12 +3,13 @@
 const byId = id => document.getElementById(id);
 const cameras = {
   orbit: ['Perspectiva', 'Perspectiva general'],
-  front: ['Escenario', 'Frente del escenario'],
+  front: ['Frente', 'Frente del escenario'],
+  stage: ['Desde escenario', 'Desde el escenario hacia la sala'],
   left: ['Danza izquierda', 'Tarima izquierda'],
   right: ['Danza derecha', 'Tarima derecha'],
   top: ['Planta', 'Distribución en planta'],
   side: ['Corte lateral', 'Corte longitudinal'],
-  seats: ['Butacas', 'Desde las butacas']
+  seats: ['Desde butacas', 'Desde las butacas']
 };
 const zones = {
   house: ['Sala RGBW', 'Colgantes sobre las butacas, con blanco regulable para lectura y color para eventos.'],
@@ -19,20 +20,30 @@ const zones = {
   right: ['Danza derecha', 'La tarima derecha replica el montaje junto a su escalera lateral. Dos perfiles dan luz frontal y un Fresnel entra en diagonal desde atrás.'],
   moving: ['Móviles MH4–MH7', 'Cuatro móviles sobre el público se orientan hacia las tarimas o hacia los muros.'],
   bars: ['Barras de piso', 'Las barras lineales de la base del banner distribuyen color de abajo hacia arriba.'],
-  par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.']
+  par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.'],
+  ambient: ['Bañadores laterales', 'Cuatro bañadores RGB proyectan color en los muros junto a las tarimas.'],
+  pixels: ['Barras de píxeles', 'Cuatro barras verticales enmarcan el banner.'],
+  music: ['Móviles de música', 'Dos cabezas wash en la barra posterior se orientan dentro del escenario.']
 };
+const futureZones = new Set(['ambient','pixels','music']);
 const presets = {
-  dance: {name:'Danza', levels:[16,30,20,60,100,100,78,85,72], color:'#599dff', aim:'dance',
-    scenicColors:{back:'#18baba',moving:'#49e4ff',bars:'#244dff',par:'#2cd2e2'},
+  dance: {name:'Danza', levels:[16,30,20,60,100,100,78,85,72,68,52,35], color:'#599dff', aim:'dance',
+    scenicColors:{back:'#18baba',moving:'#49e4ff',bars:'#244dff',par:'#2cd2e2',ambient:'#4d77ff',pixels:'#46d9ff',music:'#5ec5ff'},
     description:'Los perfiles iluminan las caras en ambas tarimas y los Fresnel posteriores dibujan los hombros. Los móviles añaden un acento cian.'},
-  sermon:{name:'Prédica', levels:[24,100,48,18,0,0,0,40,26], color:'#ffe3b5', aim:'dance',
-    scenicColors:{back:'#ffa257',moving:'#ffe3b5',bars:'#e59a51',par:'#ffcf84'},
+  sermon:{name:'Prédica', levels:[24,100,48,18,0,0,0,40,26,24,0,0], color:'#ffe3b5', aim:'dance',
+    scenicColors:{back:'#ffa257',moving:'#ffe3b5',bars:'#e59a51',par:'#ffcf84',ambient:'#ffc590'},
     description:'El blanco cálido concentra la atención en el púlpito. El fondo queda ámbar y las tarimas se apagan.'},
-  event: {name:'Evento', levels:[35,50,35,80,12,12,95,100,95], color:'#aa7bfa', aim:'walls',
-    scenicColors:{back:'#ff539e',moving:'#3ce2f4',bars:'#8a35fa',par:'#ff4098'},
+  event: {name:'Evento', levels:[35,50,35,80,12,12,95,100,95,77,70,60], color:'#aa7bfa', aim:'walls',
+    scenicColors:{back:'#ff539e',moving:'#3ce2f4',bars:'#8a35fa',par:'#ff4098',ambient:'#b05cff',pixels:'#ff77d7',music:'#42ccff'},
     description:'El violeta y el magenta bañan el banner. Los cuatro móviles dirigen haces cian hacia los muros laterales.'},
-  hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
-    description:'Solo se encienden los colgantes del público. Esta escena corresponde al cálculo de cobertura en blanco al 100 %.'}
+  hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
+    description:'Solo se encienden los colgantes del público. En blanco al 100 %, esta escena corresponde al cálculo de cobertura.'},
+  mellow:{name:'Adoración íntima', future:true, levels:[24,64,37,25,12,12,0,38,32,43,52,24], color:'#5784df', aim:'dance',
+    scenicColors:{back:'#699cff',bars:'#233fa9',par:'#7388fa',ambient:'#4268f2',pixels:'#ffac56',music:'#ffe1bb'},
+    description:'Azul suave en la sala, barras ámbar junto al banner y blanco cálido sobre las voces.'},
+  music:{name:'Alabanza', future:true, levels:[36,66,44,62,35,35,24,64,72,78,92,83], color:'#986aff', aim:'dance',
+    scenicColors:{back:'#7c7aff',moving:'#2bc8ff',bars:'#3f2cdb',par:'#586dff',ambient:'#bd5aff',pixels:'#52e5ff',music:'#4ae5fa'},
+    description:'Violeta en los laterales, barras cian en el fondo y dos móviles posteriores. Activa su movimiento para probar el efecto.'}
 };
 const palette = {'#fff4da':'Blanco', '#ffe3b5':'Ámbar', '#599dff':'Azul', '#aa7bfa':'Violeta'};
 const icons = {
@@ -49,11 +60,14 @@ let selected = 'house';
 let model, editor;
 let currentCamera = 'orbit';
 let lastPreset = 'dance';
+let lastBasePreset = 'dance';
 let inventory = 'all';
+let playing = false;
 const inventoryNotes = {
   existing:'Ocho frontales P2, P3 y P4, cuatro móviles MH4–MH7 sobre el público y cuatro PAR LED de piso. La cantidad de barras de piso es aproximada.',
   all:'El montaje completo reúne las luces instaladas y la propuesta para danza, escenario y público.',
-  proposed:'Cada tarima tiene un truss frontal y un soporte posterior. Se añaden luces superiores y de contraluz en el escenario y colgantes en sala.'
+  proposed:'Cada tarima tiene un truss frontal y un soporte posterior. Se añaden luces superiores y de contraluz en el escenario y colgantes en sala.',
+  future:'El montaje completo incorpora 10 luminarias futuras. Incluye bañadores de muro, barras de fondo y dos móviles de música.'
 };
 const soloDescriptions = {
   existing:{
@@ -70,7 +84,10 @@ const soloDescriptions = {
   }
 };
 function previewUrl(camera, mode=inventory) {
-  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (lastPreset === 'dance' ? '' : lastPreset + '/') + camera + '.webp';
+  if (camera === 'stage') return 'recursos/ampliacion/desde-escenario.webp';
+  if (mode === 'future' && lastPreset === 'music' && camera === 'seats') return 'recursos/ampliacion/alabanza.webp';
+  const reference = mode === 'future' ? 'all' : mode;
+  return 'recursos/vistas/' + (reference === 'all' ? '' : reference + '/') + (lastBasePreset === 'dance' ? '' : lastBasePreset + '/') + camera + '.webp';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));
@@ -79,15 +96,30 @@ function refreshPreviews() {
 }
 function updatePair() {
   if (!byId('compare-pair').open) return;
-  const camera = cameras[currentCamera] ? currentCamera : 'orbit';
+  const camera = currentCamera === 'stage' ? 'seats' : cameras[currentCamera] ? currentCamera : 'orbit';
   byId('before-image').src = previewUrl(camera,'existing');
   byId('after-image').src = previewUrl(camera,'all');
-  byId('compare-caption').textContent = 'Montaje de referencia a 4,66 m · '+presets[lastPreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva de arriba incorpora tus ajustes.';
+  byId('compare-caption').textContent = 'Montaje base a 4,66 m · '+presets[lastBasePreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
+}
+function playMotion(value) {
+  playing = value;
+  byId('play-motion').setAttribute('aria-pressed',String(playing));
+  byId('play-motion').textContent = playing ? 'Pausar móviles' : 'Animar móviles';
+  model?.playMotion(playing);
 }
 function changeInventory(mode) {
   inventory = mode;
   model?.inventory(mode);
+  if (mode !== 'future') {
+    playMotion(false);
+    if (presets[lastPreset].future) applyPreset(lastBasePreset);
+    if (futureZones.has(selected)) selected = 'house';
+  }
   byId('inventory').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.inventory === mode)));
+  byId('presets').querySelectorAll('[data-future]').forEach(b => { b.hidden = mode !== 'future'; });
+  for (const option of byId('zone').options) option.hidden = futureZones.has(option.value) && mode !== 'future';
+  byId('play-motion').hidden = mode !== 'future';
+  byId('room-look-note').textContent = mode === 'future' ? 'Color de colgantes y bañadores de muro.' : 'Color de los colgantes del público.';
   byId('inventory-description').textContent = inventoryNotes[mode];
   refreshPreviews(); sync(); editor?.refresh();
 }
@@ -135,6 +167,9 @@ function sync() {
   byId('group-detail').textContent = zones[selected][1];
   byId('dance-rim').checked = state.danceRim!==false;
   byId('dance-rim').disabled = !model || inventory==='existing';
+  byId('room-look').disabled = !model || inventory==='existing';
+  if (playing && !state.on.music) playMotion(false);
+  byId('play-motion').disabled = !model || !state.on.music;
   byId('colors').hidden = selected !== 'house';
   byId('palette').value = state.color;
   byId('aim').hidden = selected !== 'moving';
@@ -150,13 +185,15 @@ function selectZone(key) {
 }
 function applyPreset(key) {
   const preset = presets[key];
+  playMotion(false);
+  byId('room-look').value = 'scene';
+  state.roomColor = null; state.roomOff = false;
   state.danceRim = true;
   state.scene = key; state.color = preset.color; state.aim = preset.aim;
   state.scenicColors = preset.scenicColors;
-  if (lastPreset !== key) {
-    lastPreset = key;
-    refreshPreviews();
-  }
+  lastPreset = key;
+  if (!preset.future) lastBasePreset = key;
+  refreshPreviews();
   Object.keys(zones).forEach((g, i) => {
     state.level[g] = preset.levels[i]; state.on[g] = preset.levels[i] > 0;
   });
@@ -167,6 +204,7 @@ function customize() { state.scene = null; sync(); }
 for (const [key, preset] of Object.entries(presets)) {
   const b = document.createElement('button'); b.type = 'button';
   b.dataset.key = key; b.textContent = preset.name;
+  if (preset.future) { b.dataset.future = ''; b.hidden = true; }
   b.addEventListener('click', () => applyPreset(key));
   byId('presets').append(b);
 }
@@ -183,6 +221,14 @@ byId('enabled').onchange = e => {
   customize();
 };
 byId('palette').onchange = e => { state.color = e.target.value; state.monochrome = false; customize(); };
+byId('room-look').onchange = e => {
+  const look = e.target.value;
+  state.roomColor = look.startsWith('#') ? look : null;
+  state.roomOff = look === 'off';
+  state.monochrome = false;
+  sync();
+};
+byId('play-motion').onclick = () => playMotion(!playing);
 byId('aim-choice').onchange = e => { state.aim = e.target.value; customize(); };
 byId('show-color').onchange = e => { state.monochrome = !e.target.checked; sync(); };
 byId('beams').onchange = e => model?.beams(e.target.checked);
@@ -191,7 +237,16 @@ byId('labels').onchange = e => model?.labels(e.target.checked);
 byId('roof').onchange = e => model?.roof(e.target.checked);
 byId('zoom-in').onclick = () => model?.zoomBy(1.15);
 byId('zoom-out').onclick = () => model?.zoomBy(1/1.15);
-byId('reset-camera').onclick = () => setCamera('orbit');
+byId('reset-camera').onclick = () => setCamera(currentCamera);
+const qualityInput = byId('viewer-quality');
+try {
+  const saved = localStorage.getItem('h21-viewer-quality');
+  if (['high','auto','low'].includes(saved)) qualityInput.value = saved;
+} catch { /* La calidad se puede cambiar aunque el navegador bloquee el almacenamiento. */ }
+qualityInput.onchange = () => {
+  model?.setQuality(qualityInput.value);
+  try { localStorage.setItem('h21-viewer-quality',qualityInput.value); } catch { /* Preferencia de esta visita. */ }
+};
 
 const viewer = byId('viewer');
 function fullscreenLabel() {
@@ -220,7 +275,7 @@ byId('coverage-plan').onclick = () => {
 };
 applyPreset('dance');
 setViewLabel('orbit');
-const interactiveControls = document.querySelectorAll('.flags input,#controls select,#controls input,.camera-tools button,#viewer-height,#open-editor,#export-glb');
+const interactiveControls = document.querySelectorAll('.flags input,#controls select,#controls input,.camera-tools button,#viewer-height,#open-editor,#export-glb,#viewer-quality,#room-look,#play-motion');
 interactiveControls.forEach(el => { el.disabled = true; });
 let roomLayout;
 const coverage = iniciarCobertura((positions,height) => {
@@ -228,8 +283,10 @@ const coverage = iniciarCobertura((positions,height) => {
   model?.houseLayout(...roomLayout);
   editor?.refresh();
 });
-changeInventory('all');
 const query = new URLSearchParams(location.search);
+changeInventory(query.get('montaje') === 'future' ? 'future' : 'all');
+const requestedPreset = query.get('escena');
+if (Object.hasOwn(presets,requestedPreset) && (!presets[requestedPreset].future || inventory === 'future')) applyPreset(requestedPreset);
 if (query.get('comparar') === '1') {
   setCamera('seats');
   byId('compare-pair').open = true;
@@ -262,13 +319,14 @@ function startViewer() {
     }
     model.houseLayout(...roomLayout);
     model.inventory(inventory);
+    model.setQuality(qualityInput.value);
     model.beams(byId('beams').checked);
     model.labels(byId('labels').checked);
     model.cameraMode(currentCamera);
     editor = iniciarEditor(model,coverage,key => { selected = key; sync(); },() => currentCamera,
       () => { if (inventory === 'existing') changeInventory('all'); },actualizarDescripcion);
     interactiveControls.forEach(el => { el.disabled = false; });
-    byId('gesture').textContent = 'Arrastra para girar';
+    byId('gesture').textContent = 'Arrastra para mover la vista';
     sync();
 
     const aimOnOpen = query.get('orientar');
@@ -290,6 +348,18 @@ if ('IntersectionObserver' in window) {
   observer.observe(viewer);
 } else {
   startViewer();
+}
+
+for (const link of document.querySelectorAll('[data-demo]')) {
+  link.addEventListener('click', event => {
+    if (!model || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    changeInventory('future');
+    state.monochrome = false;
+    applyPreset(link.dataset.demo);
+    setCamera('seats');
+    byId('maqueta').scrollIntoView({block:'start'});
+  });
 }
 
 const sheetButtons = document.querySelectorAll('#mount-switch button');

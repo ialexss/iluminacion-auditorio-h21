@@ -13,7 +13,8 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
     seats:{x:0,y:plan.sala.planoLectura,z:3.5}
   };
   const names = {front:'Frontal',top:'Superior',back:'Contraluz',left:'Danza izquierda',right:'Danza derecha',
-    moving:'Cabezas móviles',bars:'Barras de piso',par:'PAR de piso',house:'Sala'};
+    moving:'Cabezas móviles',bars:'Barras de piso',par:'PAR de piso',house:'Sala',
+    ambient:'Bañadores laterales',pixels:'Barras de píxeles',music:'Móviles de música'};
   const fmt = n => Number(n).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
   const indexOf = id => Number(id.split('-').pop())-1;
   const p2Positions = {'front-2':'Segunda desde la izquierda','front-7':'Segunda desde la derecha'};
@@ -23,10 +24,15 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
   const say = message => { el('edit-status').textContent = message; };
   function updateOptics(f=current()) {
     if (!f) return;
-    const target = {left:'tarima izquierda', right:'tarima derecha', front:'rostros en el escenario', top:'escenario', back:'intérpretes desde atrás', house:'butacas y pasillos', bars:'banner trasero', par:'banner trasero', moving: f.aim.y > 1 ? 'muros laterales' : 'tarimas de danza'};
+    const target = {left:'tarima izquierda', right:'tarima derecha', front:'rostros en el escenario', top:'escenario', back:'intérpretes desde atrás', house:'butacas y pasillos', bars:'banner trasero', par:'banner trasero', moving: f.aim.y > 1 ? 'muros laterales' : 'tarimas de danza', ambient:'muro lateral',music:'escenario'};
+    const power=f.enabled ? 'Encendida' : 'Apagada';
+    if(f.group==='pixels'){
+      el('fixture-optics').textContent=power+' · Barra vertical visible desde las butacas.';
+      return;
+    }
     const zone=el('aim-zone');zone.value=f.aimLabel||'';
     const focus=f.aimLabel ? zone.selectedOptions[0].textContent+' (X '+fmt(f.aim.x)+' · Y '+fmt(f.aim.y)+' · Z '+fmt(f.aim.z)+' m)' : target[f.group];
-    el('fixture-optics').textContent = (f.enabled ? 'Encendida' : 'Apagada') + ' · Haz representado de ' + Math.round(f.beamAngle) + '° · Dirigida hacia ' + focus + '.';
+    el('fixture-optics').textContent = power + ' · Haz representado de ' + Math.round(f.beamAngle) + '° · Dirigida hacia ' + focus + '.';
   }
   function syncFields(f) {
     if (!f) return;
@@ -35,14 +41,14 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
       input.value = f[axis].toFixed(2);
       if (range) { input.min = range[0]; input.max = range[1]; }
     }
-    el('fixture-aim').hidden=f.group==='house';
+    el('fixture-aim').hidden=f.group==='house'||f.group==='pixels';
     const position = p2Positions[f.id];
     el('p2-reference').hidden = !position;
     if (!position) el('p2-reference').open = false;
-    const origin = isAdded(f) ? 'Añadida en esta sesión' : f.origin === 'existing' ? 'Existente' : 'Propuesta';
+    const origin = isAdded(f) ? 'Añadida en esta sesión' : {existing:'Existente',proposed:'Propuesta base',future:'Ampliación futura'}[f.origin];
     el('fixture-facts').textContent = (f.profile ? f.profile.key+' · '+f.profile.name+' · '+(f.added?'copia':'U0 '+f.profile.channels) : f.type)+' · '+origin+' · '+f.mount+' · '+fmt(f.y)+' m sobre el piso. '+
       (position ? position+' en el montaje de referencia, visto desde las butacas. ' : '')+
-      (!f.rangeZ ? 'Se desplaza a lo largo de su barra.' : f.group === 'house' ? 'Su eje es vertical. Mover este colgante recalcula el mapa de lux.' : 'Se desplaza sobre el piso del escenario.');
+      (!f.rangeZ ? 'Se desplaza a lo largo de su barra.' : f.group === 'house' ? 'Su eje es vertical. Mover este colgante recalcula el mapa de lux.' : 'Se desplaza dentro de su zona de montaje.');
     updateOptics(f);
     el('remove-fixture').hidden = !isAdded(f);
     el('reset-fixture').hidden = f.group === 'house' && isAdded(f);
@@ -78,7 +84,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
     el('cancel-aim').hidden=true; el('canvas-area').classList.remove('aiming');
     el('drag-fixture').setAttribute('aria-pressed','false');
     el('canvas-area').classList.remove('editing');
-    el('gesture').textContent = 'Arrastra para girar';
+    el('gesture').textContent = 'Arrastra para mover la vista';
   }
   function setDetailName() {
     const f = current();
@@ -204,7 +210,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
   refresh();
   return {
     refresh,
-    orient(id){if(!fixtures().some(f=>f.id===id&&f.group!=='house'))return;open(true);choose(id);startAim();},
+    orient(id){if(!fixtures().some(f=>f.id===id&&f.group!=='house'&&f.group!=='pixels'))return;open(true);choose(id);startAim();},
     updateOptics() { if (opened) updateOptics(); },
     pick(id) { if (!id) return; if (!opened) open(true);choose(id); },
     cameraChanged(key) { if (dragging && key !== 'top') stopDrag(); if (key === 'fixture') setDetailName(); }

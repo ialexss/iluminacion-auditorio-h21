@@ -13,6 +13,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   const key=new T.DirectionalLight(0xffffff,1.5); key.position.set(-5,13,9); scene.add(key);
   const rim=new T.DirectionalLight(0xe5e5e5,1.1); rim.position.set(8,8,-9); scene.add(rim);
   const stage=new T.Group(), ceiling=new T.Group(); scene.add(stage,ceiling);ceiling.visible=false;
+  const rearGallery=new T.Group();scene.add(rearGallery);rearGallery.visible=false;
   const batches=new Map(), geometries={
     box:new T.BoxGeometry(1,1,1),tube:new T.CylinderGeometry(1,1,1,12),
     ball:new T.SphereGeometry(1,14,10),disc:new T.CylinderGeometry(1,1,1,36)
@@ -63,6 +64,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   for(const z of [jambA,entrada.z,jambB])box(entrada.x,1.14,z,.10,2.28,.055,m.metal);
   box(entrada.x,2.27,entrada.z,.1,.08,entrada.ancho,m.metal);
   for(const s of [-1,1])box(entrada.x,1.13,entrada.z+s*entrada.ancho/4,.04,2.18,entrada.ancho/2-.06,doorGlass);
+  // The rear gallery is schematic and closes the cutaway in the view from the stage.
+  box(.025,2.55,7.65,16.85,5.10,.14,m.wall,0,rearGallery);
+  box(.025,2.73,6.91,16.85,.34,1.48,m.edge,0,rearGallery);
+  box(.025,3.75,6.19,16.85,.05,.06,m.metal,0,rearGallery);
+  box(.025,3.32,6.20,16.78,.79,.04,doorGlass,0,rearGallery);
+  for(let i=0;i<=12;i++){
+    const x=-8.37+i*1.40;
+    box(x,3.32,6.19,.038,.86,.06,m.metal,0,rearGallery);
+    if(i%3===0)box(x,1.31,6.38,.13,2.62,.13,m.metal,0,rearGallery);
+  }
 
   // The curved partitions face the dancers. Each wing opens directly onto the stage.
   for(const [side,curve] of [[-1,plan.izquierda],[1,plan.derecha]]){
@@ -243,9 +254,14 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   const fixtureIndex=new Map(),serial={};
   const preexistingGroups=new Set(['front','moving','bars','par']);
+  const futureGroups=new Set(['ambient','pixels','music']);
   let inventoryMode='all';
-  const originOf=l=>!l.added&&preexistingGroups.has(l.group)?'existing':'proposed';
-  const inInventory=l=>!!l&&l.installed&&(inventoryMode==='all'||originOf(l)===inventoryMode);
+  const originOf=l=>futureGroups.has(l.group)?'future':!l.added&&preexistingGroups.has(l.group)?'existing':'proposed';
+  function inInventory(l){
+    if(!l?.installed)return false;
+    const origin=originOf(l);
+    return inventoryMode==='future'||(inventoryMode==='all'?origin!=='future':origin===inventoryMode);
+  }
   function lamp(group,position,target,color,angle,power,type,railHeight,added=false){
     const pivot=v(...position),dest=v(...target),axis=aiming(pivot,dest);
     const id=group+'-'+(serial[group]=(serial[group]||0)+1);
@@ -283,6 +299,9 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
         mounted(mountYaw,[dx,.695-pivot.y,0],[.10,.046,.16]);
         shaft(mountYaw,[dx,(.70-pivot.y)/2,0],.015,pivot.y-.70);
       }
+    }else if(type==='pixel'){
+      bodyGeo=geometries.box;bodyScale=[.095,.07,1.26];bodyY=0;depth=.042;
+      mounted(fixtureRoot,[0,.72-pivot.y,0],[.30,.045,.25]);
     }else if(type==='moving'){
       bodyGeo=geometries.ball;bodyScale=[.176,.185,.16];bodyY=0;depth=.166;radius=.102;
       const baseY=railHeight-.104;
@@ -321,10 +340,18 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const housing=new T.Mesh(bodyGeo,m.iron);housing.position.y=bodyY;housing.scale.set(...bodyScale);holder.add(housing);
     housing.userData={group,fixtureId:id};pickables.push(housing);
     const lensMat=new T.MeshBasicMaterial({color,toneMapped:false});
-    const lens=new T.Mesh(type==='strip'?geometries.box:geometries.disc,lensMat);
-    lens.scale.copy(type==='strip'?v(1.04,.015,.070):v(radius,.014,radius));
-    lens.position.y=-depth;holder.add(lens);lens.userData={group,fixtureId:id};pickables.push(lens);
-    const reach=type==='strip'?3.15:group==='par'?3.65:25;
+    if(type==='pixel'){
+      const pixels=new T.InstancedMesh(geometries.box,lensMat,12);
+      for(let i=0;i<12;i++){
+        pixels.setMatrixAt(i,new T.Matrix4().compose(v(0,-depth,(i-5.5)*.10),identity,v(.064,.015,.086)));
+      }
+      holder.add(pixels);
+    }else{
+      const lens=new T.Mesh(type==='strip'?geometries.box:geometries.disc,lensMat);
+      lens.scale.copy(type==='strip'?v(1.04,.015,.070):v(radius,.014,radius));
+      lens.position.y=-depth;holder.add(lens);lens.userData={group,fixtureId:id};pickables.push(lens);
+    }
+    const reach=type==='strip'?3.15:group==='par'?3.65:group==='ambient'?4.6:type==='pixel'?2:25;
     const light=new T.SpotLight(color,0,reach,angle,type==='profile'?.10:.46,1.65);
     light.name=group;light.userData.fixtureId=id;light.target.position.copy(dest);scene.add(light,light.target);
     // Architectural wash uses the shared photometric field below. Excluding
@@ -381,6 +408,17 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const targetX=Math.sign(x)*(i%2===0?3.07:4.00);
     const unit=lamp('par',[x,.85,banner.z+.78],[targetX,2.41,banner.z+.035],'#558ffb',.34,48,'parFloor');
     unit.profile={key:'P1',name:'Chauvet SlimPAR Q12BT',channels:'010–017'};
+  }
+  // Future fixtures stay outside the base inventory and the photometric calculation.
+  for(const side of [-1,1]){
+    const wallX=side<0?plan.ladoIzq:plan.ladoDer;
+    lamp('ambient',[side*9.15,.24,-3.77],[side*9.22,2.50,-4.95],'#4da7ff',.45,84,'wash');
+    lamp('ambient',[wallX-side*.85,.24,-2.95],[wallX-side*.08,2.78,-3.33],'#4da7ff',.48,105,'wash');
+    for(const offset of [3.38,4.02]){
+      const x=side*offset,y=offset<3.5?1.39:1.58;
+      lamp('pixels',[x,y,-6.05],[x,y,-4.90],'#4db8ff',.80,0,'pixel');
+    }
+    lamp('music',[side*2.47,stageRailY-.42,-5.60],[side*1.48,1.24,-3.05],'#98bbff',.34,82,'moving',stageRailY);
   }
   const houseLamps=[];
   // Shared intensity field on the reading plane. The samples are candela at
@@ -491,7 +529,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     aimPath.computeLineDistances();aimEnd.position.copy(b);
   }
   let dragId=null,dragHandler=null,dragPointer=null,dragFrame=0,dragPoint=null;
-  let dirty=true,frame=0,mode='orbit',yaw=.29,pitch=.49,zoom=1;
+  let dirty=true,frame=0,mode='orbit',yaw=0,pitch=0,zoom=1,quality='high';
   const tags=document.getElementById('anchors');
   const labels=[];
   function tag(name,pos,views,support){
@@ -528,11 +566,32 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     camera=overhead;
     const half=halfHeight/zoom;
     overhead.left=-half*aspect;overhead.right=half*aspect;overhead.top=half;overhead.bottom=-half;
-    overhead.up.set(0,mode==='top'?0:1,mode==='top'?-1:0);overhead.near=near;
-    overhead.position.copy(eye);overhead.lookAt(target);
+    overhead.near=near;
+    overhead.up.set(0,1,0);
+    if(mode==='top'){
+      // Keep north up at the starting point and avoid the pole when tilting.
+      overhead.position.set(target.x+28*Math.sin(pitch)*Math.sin(yaw),target.y+28*Math.cos(pitch),target.z+28*Math.sin(pitch)*Math.cos(yaw));
+      overhead.up.set(-Math.sin(yaw),0,-Math.cos(yaw));
+    }else{
+      const offset=new T.Spherical().setFromVector3(eye.clone().sub(target));
+      offset.theta+=yaw;
+      offset.phi=T.MathUtils.clamp(offset.phi+pitch,.12,1.83);
+      overhead.position.setFromSpherical(offset).add(target);
+    }
+    overhead.lookAt(target);
+  }
+  function fromEye(eye,look,aspect,maxFov){
+    const direction=new T.Spherical().setFromVector3(look.sub(eye));
+    direction.theta+=yaw;
+    direction.phi=T.MathUtils.clamp(direction.phi+pitch,.32,2.86);
+    perspective.aspect=aspect;
+    perspective.position.copy(eye);
+    perspective.lookAt(new T.Vector3().setFromSpherical(direction).add(eye));
+    perspective.fov=Math.min(maxFov,Math.max(44,T.MathUtils.radToDeg(2*Math.atan(1.27/aspect))))/zoom;
   }
   function setCamera(){
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight),aspect=w/h;
+    rearGallery.visible=mode==='stage';
     camera=perspective;
     if(mode==='top'){
       ortho(v(.15,28,.2),v(.15,0,.2),Math.max(8.25,12.5/aspect),aspect);
@@ -555,11 +614,13 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       const extent=l.type==='strip'?.84:.72;
       ortho(eye,target,Math.max(extent*.86,extent/aspect),aspect,.15);
     }else if(mode==='seats'){
-      perspective.aspect=aspect;perspective.position.set(0,1.58,7.20);perspective.lookAt(0,2.49,-4.0);
-      perspective.fov=Math.min(140,Math.max(44,T.MathUtils.radToDeg(2*Math.atan(1.27/aspect))))/zoom;
+      fromEye(v(0,1.58,7.20),v(0,2.49,-4.0),aspect,140);
+    }else if(mode==='stage'){
+      fromEye(v(.15,2.28,-2.44),v(.15,1.47,4.0),aspect,125);
     }else{
-      const outward=v(Math.cos(pitch)*Math.sin(yaw),Math.sin(pitch),Math.cos(pitch)*Math.cos(yaw));
-      const across=v(Math.cos(yaw),0,-Math.sin(yaw)),up=new T.Vector3().crossVectors(outward,across);
+      const angle=.29+yaw, elevation=T.MathUtils.clamp(.49-pitch,.09,1.49);
+      const outward=v(Math.cos(elevation)*Math.sin(angle),Math.sin(elevation),Math.cos(elevation)*Math.cos(angle));
+      const across=v(Math.cos(angle),0,-Math.sin(angle)),up=new T.Vector3().crossVectors(outward,across);
       const tangent=Math.tan(T.MathUtils.degToRad(37/2));
       let fit=1;
       for(const pt of bounds){
@@ -580,28 +641,45 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     }
   }
   let inView=true,firstFrame=true,motionTimer=0;
+  let showMotion=false,motionStart=0;
   let bufferWidth=0,bufferHeight=0,bufferScale=0;
-  function render(){
+  function render(time){
     frame=0;
     if(!dirty||!inView)return;
     dirty=false;
     const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);
     // Limit the shaded pixels on large or Retina screens, especially while moving.
-    const pixelBudget=motionTimer?300_000:1_200_000;
-    const scale=Math.min(window.devicePixelRatio||1,motionTimer?1:1.5,Math.sqrt(pixelBudget/(width*height)));
+    const dpr=window.devicePixelRatio||1;
+    let scale=Math.min(dpr,1.5);
+    if(quality!=='high'){
+      const pixelBudget=quality==='low'?300_000:motionTimer||showMotion?460_000:1_200_000;
+      scale=Math.min(scale,Math.sqrt(pixelBudget/(width*height)));
+    }
     if(width!==bufferWidth||height!==bufferHeight||scale!==bufferScale){
       renderer.setDrawingBufferSize(width,height,scale);
       bufferWidth=width;bufferHeight=height;bufferScale=scale;
     }
+    if(showMotion){
+      motionStart ||= time;
+      const phase=(time-motionStart)/1000;
+      for(const l of lights){
+        if(l.group!=='music'||!l.light.visible||l.manualAim)continue;
+        const side=Math.sign(l.home.x);
+        const sweep=Math.sin(phase*(layerState.scene==='mellow'?.50:1.1)+side*.85);
+        point(l,v(l.dest.x+1.15*sweep,l.dest.y+.43*Math.cos(phase+side),l.dest.z+.25*sweep));
+      }
+    }
     setCamera();
     renderer.render(scene,camera);
     if(firstFrame){firstFrame=false;onFirstFrame?.()}
+    if(showMotion)refresh();
   }
   function refresh(){
     dirty=true;
     if(inView&&!frame)frame=requestAnimationFrame(render);
   }
   function refreshMotion(){
+    if(quality!=='auto'){refresh();return}
     clearTimeout(motionTimer);
     motionTimer=setTimeout(()=>{motionTimer=0;refresh()},160);
     refresh();
@@ -622,39 +700,65 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const bars=state.on.bars?state.level.bars*nBars/(100*plan.barrasX.length):0;
     const pars=state.on.par?state.level.par*nPar/(100*plan.parX.length):0;
     const scenic=state.scenicColors||{};
-    houseUniform.tint.value.set(neutral?'#ffffff':state.color).multiplyScalar(inventoryMode!=='existing'&&state.on.house?state.level.house*.066:0);
+    const roomColor=state.roomColor||state.color;
+    const houseLevel=state.roomOff?0:state.level.house;
+    houseUniform.tint.value.set(neutral?'#ffffff':roomColor).multiplyScalar(inventoryMode!=='existing'&&state.on.house?houseLevel*.066:0);
     reflected.intensity=2.2*bars+1.1*pars;
     reflected.color.set(neutral?'#ffffff':scenic.bars||'#38dcd8');
     if(!neutral)reflected.color.lerp(new T.Color(scenic.par||'#558ffb'),pars/(bars+pars||1));
-    const active=lights.reduce((max,l)=>Math.max(max,inInventory(l)&&state.on[l.group]?state.level[l.group]/100:0),0);
-    fillLight.intensity=.19+active*.66;key.intensity=.17+active*.94;rim.intensity=.20+active*.64;
+    let active=0;
     for(const l of lights){
       const present=inInventory(l);l.fixtureRoot.visible=present;
       const rearDance=(l.group==='left'||l.group==='right')&&l.type==='fresnel';
-      const level=present&&state.on[l.group]&&(!rearDance||state.danceRim!==false)?state.level[l.group]/100:0;
-      l.light.visible=level>0;
+      const roomFixture=l.group==='house'||l.group==='ambient';
+      const level=present&&state.on[l.group]&&(!rearDance||state.danceRim!==false)&&!(roomFixture&&state.roomOff)?state.level[l.group]/100:0;
+      l.level=level;
+      active=Math.max(active,level);
+      l.light.visible=level>0&&l.power>0;
       l.indicator.visible=present&&(selectedFixture?l.id===selectedFixture:l.group===marked)&&mode!=='fixture';
-      const c=new T.Color(neutral?'#ffffff':l.group==='house'?state.color:scenic[l.group]||l.color);
+      const tint=l.group==='house'?roomColor:l.group==='ambient'?(state.roomColor||scenic.ambient||roomColor):scenic[l.group]||l.color;
+      const c=new T.Color(neutral?'#ffffff':tint);
       l.light.color.copy(c);l.light.intensity=level*l.power*(l.group==='top'||l.group==='front'?.61:.85);
       l.lensMat.color.copy(c).multiplyScalar(.06+level*1.45);
       l.shader.uniforms.tint.value.copy(c);l.shader.uniforms.level.value=level*(l.group==='house'?.065:.095);
-      l.cone.visible=showBeams&&level>.001&&(!['left','right'].includes(mode)||l.group===mode||l.id===selectedFixture);
+      l.cone.visible=showBeams&&level>.001&&l.power>0&&(!['left','right'].includes(mode)||l.group===mode||l.id===selectedFixture);
       const dest=l.manualAim||(l.group==='moving'&&state.aim==='walls'
         ? v(Math.sign(l.source.x)*8.17,2.13,(l.source.x<0?plan.izquierda:plan.derecha)[1][1]+.08) : l.dest);
       if(!l.light.target.position.equals(dest))point(l,dest);
     }
+    fillLight.intensity=.19+active*.66;key.intensity=.17+active*.94;rim.intensity=.20+active*.64;
     drawAimGuide();refresh();
   }
   function cameraMode(which){
-    if(mode!==which||which!=='top')dragFixture(null);
-    mode=which;yaw=.29;pitch=.49;zoom=1;onCameraChange(mode);
+    if(mode!==which)dragFixture(null);
+    mode=which;yaw=0;pitch=0;zoom=1;onCameraChange(mode);
     if(layerState)update(layerState);else refresh();
   }
-  function zoomBy(step){zoom=T.MathUtils.clamp(zoom*step,.68,mode==='seats'?1.45:2.05);refreshMotion()}
-  function orbit(dx,dy){if(mode!=='orbit'){pitch=mode==='top'?1.31:.32;mode='orbit';onCameraChange(mode);if(layerState)update(layerState)}yaw-=dx*.007;pitch=T.MathUtils.clamp(pitch+dy*.006,.09,1.49);refreshMotion()}
+  function zoomBy(step){
+    const eyeLevel=mode==='seats'||mode==='stage';
+    zoom=T.MathUtils.clamp(zoom*step,eyeLevel?.80:.68,eyeLevel?1.75:2.05);
+    refreshMotion();
+  }
+  function orbit(dx,dy){
+    if(dragId&&mode==='top')return;
+    yaw-=dx*.007;
+    pitch=T.MathUtils.clamp(pitch+dy*.006,-1.12,1.36);
+    refreshMotion();
+  }
+  function setQuality(value){
+    if(!['high','auto','low'].includes(value))return;
+    quality=value;
+    clearTimeout(motionTimer);motionTimer=0;
+    refresh();
+  }
+  function playMotion(value){
+    showMotion=value&&inventoryMode==='future';
+    motionStart=0;
+    if(layerState)update(layerState);
+  }
   function fixtureInfo(l){
     const {group,type,source}=l;
-    const types={profile:'Perfil LED',fresnel:'Fresnel LED',wash:'PAR LED',parFloor:'PAR LED',moving:'Cabeza móvil',strip:'Barra LED',pendant:'Colgante RGBWL'};
+    const types={profile:'Perfil LED',fresnel:'Fresnel LED',wash:'PAR LED',parFloor:'PAR LED',moving:'Cabeza móvil',strip:'Barra LED',pixel:'Barra de píxeles',pendant:'Colgante RGBWL'};
     let mount,rangeX,rangeZ=null;
     if(group==='left'||group==='right'){
       const rear=type==='fresnel',i=group==='left'?0:1,rack=rear?soportesTraseros[i]:barrasDanza[i];
@@ -663,6 +767,9 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     }else if(group==='front'){mount='Truss frontal';rangeX=[-6.3,6.3];}
     else if(group==='top'||group==='back'){mount=group==='top'?'Barra superior':'Barra de contraluz';rangeX=[-4.97,4.97];}
     else if(group==='moving'){mount='Segunda barra';rangeX=[-4.57,4.57];}
+    else if(group==='music'){mount='Barra posterior propuesta';rangeX=[-4.97,4.97];}
+    else if(group==='ambient'){mount='Soporte lateral a piso';rangeX=source.x<0?[-10.6,-9.1]:[9.1,10.8];rangeZ=[-4.25,-2.65];}
+    else if(group==='pixels'){mount='Base vertical junto al banner';rangeX=source.x<0?[-4.24,-2.9]:[2.9,4.24];rangeZ=[-6.15,-5.8];}
     else if(group==='house'){mount='Techo de sala';rangeX=[-10.60,10.92];rangeZ=[-.60,7.36];}
     else{
       mount='Piso del escenario';rangeX=type==='strip'?[-5.44,5.44]:[-5.78,5.78];
@@ -671,13 +778,13 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const {x,y,z}=l.light.target.position;
     return {id:l.id,group,profile:l.profile,aimLabel:l.aimLabel,origin:originOf(l),type:types[type],x:source.x,y:source.y,z:source.z,mount,rangeX,rangeZ,added:l.added,
       emitter:{x:l.light.position.x,y:l.light.position.y,z:l.light.position.z},aim:{x,y,z},
-      enabled:l.light.intensity>0,color:'#'+l.light.color.getHexString(),intensity:l.light.intensity,angle:l.angle,
-      beamAngle:T.MathUtils.radToDeg(2*l.angle),rotation:l.fixtureRoot.rotation.toArray().slice(0,3)};
+      enabled:l.level>0,color:'#'+l.light.color.getHexString(),intensity:l.light.intensity,angle:l.type==='pixel'?null:l.angle,
+      beamAngle:l.type==='pixel'?null:T.MathUtils.radToDeg(2*l.angle),rotation:l.fixtureRoot.rotation.toArray().slice(0,3)};
   }
   function fixtures(){return lights.filter(inInventory).map(fixtureInfo)}
   function setAim(id,target,label){
     const l=fixtureIndex.get(id);
-    if(!inInventory(l)||l.group==='house')return false;
+    if(!inInventory(l)||l.group==='house'||l.type==='pixel')return false;
     if(target){
       if(![target.x,target.y,target.z].every(Number.isFinite))return false;
       const dest=v(target.x,target.y,target.z);
@@ -702,7 +809,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     z=rangeZ&&Number.isFinite(z)?T.MathUtils.clamp(z,...rangeZ):l.source.z;
     l.source.set(x,l.home.y,z);l.fixtureRoot.position.copy(l.source);l.indicator.position.copy(l.source);
     l.dest.copy(l.homeTarget);
-    if(l.type==='strip')l.dest.x+=x-l.home.x;
+    if(l.type==='strip'||l.type==='pixel'){l.dest.x+=x-l.home.x;l.dest.z+=z-l.home.z}
     point(l,l.manualAim||l.dest);
     if(layerState)update(layerState);else refresh();
     return fixtureInfo(l);
@@ -726,7 +833,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     }
     if(!best)return null;
     const [x,z]=best,p=original.source.clone().setX(x).setZ(z),target=original.dest.clone();
-    if(original.type==='strip')target.x+=x-original.source.x;
+    if(original.type==='strip'||original.type==='pixel'){target.x+=x-original.source.x;target.z+=z-original.source.z}
     const l=lamp(original.group,p.toArray(),target.toArray(),original.color,original.angle,original.power,original.type,original.railHeight,true);
     l.profile=original.profile;
     if(original.manualAim){l.manualAim=original.manualAim.clone();l.aimLabel=original.aimLabel;}
@@ -757,10 +864,11 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     }
   }
   function inventory(which){
-    if(!['all','existing','proposed'].includes(which))return;
+    if(!['all','existing','proposed','future'].includes(which))return;
     inventoryMode=which;
+    if(which!=='future')showMotion=false;
     for(const [key,group] of Object.entries(supports)){
-      group.visible=which==='all'||lights.some(l=>l.group===key&&inInventory(l));
+      group.visible=lights.some(l=>l.group===key&&inInventory(l));
     }
     ceiling.position.y=which==='existing'?0:Math.max(0,houseHeight-plan.sala.altura);
     if(selectedFixture&&!inInventory(fixtureIndex.get(selectedFixture)))selectedFixture=null;
@@ -832,7 +940,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   houseLayout(plan.sala.posiciones,plan.sala.altura);
   return {
-    setAim,pickAim(handler){aimPick=handler;},update,cameraMode,zoomBy,houseLayout,inventory,fixtures,focusFixture,selectFixture,moveFixture,resetFixture,addFixture,removeFixture,dragFixture,exportScene,
+    setAim,pickAim(handler){aimPick=handler;},update,cameraMode,zoomBy,setQuality,playMotion,houseLayout,inventory,fixtures,focusFixture,selectFixture,moveFixture,resetFixture,addFixture,removeFixture,dragFixture,exportScene,
     locate(group){selectedFixture=null;marked=group;for(const l of lights)l.indicator.visible=inInventory(l)&&l.group===group;drawAimGuide();refresh()},
     beams(value){showBeams=value;if(layerState)update(layerState)},
     labels(value){showLabels=value;refresh()},
