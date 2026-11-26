@@ -21,6 +21,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   const mat=(color,shininess=12)=>new T.MeshPhongMaterial({color,shininess});
   const m={edge:mat('#363636'),base:mat('#282828'),floor:mat('#777777'),wall:mat('#646464'),
     fascia:mat('#737373'),pad:mat('#131313',4),padEdge:mat('#242424',5),rib:mat('#565656'),
+    bridge:new T.MeshPhongMaterial({name:'Puente · negro mate',color:0x191919,specular:0x151515,shininess:16}),
     metal:mat('#8c8c8c',48),iron:mat('#252525',24),seat:mat('#4b4b4b'),seatBack:mat('#363636'),
     trunk:mat('#333333'),skin:mat('#aaaaaa'),shirt:mat('#989898'),lightShirt:mat('#d6d6d6'),
     silver:mat('#ababab',50),brass:mat('#919191',48),drum:mat('#555555')};
@@ -53,7 +54,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   function walls(points,height){
     for(let i=1;i<points.length;i++)wall(points[i-1],points[i],height);
   }
-  wall(footprint[0],footprint[1],5.3);
+  wall(footprint[0],footprint[1],7.9);
   wall(footprint[0],plan.izquierda.at(-1),4.45);
   wall(footprint[1],plan.derecha.at(-1),4.45);
   const entrada=plan.ingreso, jambA=entrada.z-entrada.ancho/2, jambB=entrada.z+entrada.ancho/2;
@@ -64,28 +65,34 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   for(const z of [jambA,entrada.z,jambB])box(entrada.x,1.14,z,.10,2.28,.055,m.metal);
   box(entrada.x,2.27,entrada.z,.1,.08,entrada.ancho,m.metal);
   for(const s of [-1,1])box(entrada.x,1.13,entrada.z+s*entrada.ancho/4,.04,2.18,entrada.ancho/2-.06,doorGlass);
+  const bajoEntrepiso=mat('#595c5c');
+  box(0,.016,(plan.limiteSala+plan.extremoPB)/2,plan.anchoSala-.06,.014,plan.extremoPB-plan.limiteSala,bajoEntrepiso);
+  for(const x of [-12.4,-7.5,-2.6,2.3,7.2,12.1])box(x,1.31,plan.limiteSala+1.05,.16,2.62,.16,m.metal);
   // The rear gallery is schematic and closes the cutaway in the view from the stage.
-  box(.025,2.55,7.65,16.85,5.10,.14,m.wall,0,rearGallery);
-  box(.025,2.73,6.91,16.85,.34,1.48,m.edge,0,rearGallery);
-  box(.025,3.75,6.19,16.85,.05,.06,m.metal,0,rearGallery);
-  box(.025,3.32,6.20,16.78,.79,.04,doorGlass,0,rearGallery);
+  box(.025,2.55,plan.extremoPB,33.9,5.10,.14,m.wall,0,rearGallery);
+  box(.025,2.73,(plan.limiteSala+plan.extremoPB)/2,33.9,.34,plan.extremoPB-plan.limiteSala,m.edge,0,rearGallery);
+  box(.025,3.75,plan.limiteSala,33.9,.05,.06,m.metal,0,rearGallery);
+  box(.025,3.32,plan.limiteSala,33.8,.79,.04,doorGlass,0,rearGallery);
   for(let i=0;i<=12;i++){
-    const x=-8.37+i*1.40;
-    box(x,3.32,6.19,.038,.86,.06,m.metal,0,rearGallery);
-    if(i%3===0)box(x,1.31,6.38,.13,2.62,.13,m.metal,0,rearGallery);
+    const x=-16.8+i*2.80;
+    box(x,3.32,plan.limiteSala,.038,.86,.06,m.metal,0,rearGallery);
+    if(i%3===0)box(x,1.31,plan.limiteSala+.20,.13,2.62,.13,m.metal,0,rearGallery);
   }
 
   // The curved partitions face the dancers. Each wing opens directly onto the stage.
   for(const [side,curve] of [[-1,plan.izquierda],[1,plan.derecha]]){
-    const x=side*6.1;
+    const x=side*plan.anchoAltar/2;
     const vertices=[...curve,[curve.at(-1)[0],plan.fondo],[x,plan.fondo]];
     slab(new T.Shape(vertices.map(([px,pz])=>new T.Vector2(px,-pz))),.02,.64,m.edge);
     walls(curve,4.18);
-    wall([x,plan.fondo],[x,-6.80],4.18);wall([x,-5.46],curve[0],4.18);
+    wall([x,plan.fondo],[x,-6.6],4.18);wall([x,-5.46],curve[0],4.18);
     box(x,3.63,-6.13,.13,1.1,1.34,m.wall);
   }
-  const deck=new T.Shape();deck.moveTo(-6.1,6.6);deck.lineTo(6.1,6.6);deck.lineTo(6.1,3.0);
-  deck.quadraticCurveTo(0,-.35,-6.1,3.0);deck.closePath();slab(deck,.015,.655,m.fascia);
+  const deck=new T.Shape(), halfStage=plan.anchoAltar/2;
+  deck.moveTo(-halfStage,-plan.fondo);deck.lineTo(halfStage,-plan.fondo);
+  deck.lineTo(halfStage,-plan.frenteAltar+.37);
+  deck.quadraticCurveTo(0,-plan.frenteAltar-.37,-halfStage,-plan.frenteAltar+.37);
+  deck.closePath();slab(deck,.015,.655,m.fascia);
   // World-space tile map is clipped by the same curved footprint as the deck.
   const tileCanvas=document.createElement('canvas');tileCanvas.width=tileCanvas.height=256;
   const tileCtx=tileCanvas.getContext('2d');
@@ -101,9 +108,9 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   tiles.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
   const tileTop=new T.Mesh(new T.ShapeGeometry(deck,38).rotateX(-Math.PI/2),new T.MeshPhongMaterial({map:tiles,shininess:22,specular:0x282828}));
   tileTop.position.y=.671;stage.add(tileTop);
-  for(let i=0;i<3;i++)box(0,.1*(i+1),-.48-i*.28,2.7,.2*(i+1),.33,m.edge);
+  for(let i=0;i<3;i++)box(0,.1*(i+1),plan.frenteAltar+.64-i*.28,2.7,.2*(i+1),.33,m.edge);
   for(const s of [-1,1]){
-    for(let i=0;i<2;i++)box(s*(6.68-i*.27),.1*(i+1),-3.62,.29,.2*(i+1),1.1,m.fascia);
+    for(let i=0;i<2;i++)box(s*(halfStage+.56-i*.27),.1*(i+1),-3.62,.29,.2*(i+1),1.1,m.fascia);
   }
   const pads=plan.danza.map(({x,z})=>[x,z]);
   for(const {x,z,w,d} of plan.danza){box(x,.16,z,w,.31,d,m.padEdge);box(x,.327,z,w,.035,d,m.pad)}
@@ -119,7 +126,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const panel=new T.Mesh(new T.PlaneGeometry(w,h),displayMaterial);panel.rotation.y=yaw;
     panel.position.set(x+.075*Math.sin(yaw),y,z+.075*Math.cos(yaw));stage.add(panel);
   }
-  display(0,3.87,-6.06,3.65,1.91,0);
+  display(0,4.10,-6.06,4.40,2.30,0);
   for(const curve of [plan.izquierda,plan.derecha]){
     const [a,b]=curve, c=[(a[0]+b[0])/2,(a[1]+b[1])/2],yaw=-Math.atan((b[1]-a[1])/(b[0]-a[0]));
     display(c[0]+.14*Math.sin(yaw),2.45,c[1]+.14*Math.cos(yaw),1.58,.89,yaw);
@@ -144,7 +151,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   stage.add(new T.Mesh(bannerGeo,new T.MeshLambertMaterial({vertexColors:true})));
   rod(v(0,5.01,-2.17),v(0,3.7,-2.17),.035,m.iron);box(0,3.62,-2.17,.56,.21,.37,m.edge);
   // Audience faces the stage, including the two angled side seating blocks.
-  for(const [cx,cz,cols,rows,angle] of [[-6.76,.38,4,6,-.42],[-2.95,.13,6,7,-.12],[2.95,.13,6,7,.12],[6.72,.06,4,6,.43]]){
+  for(const [cx,cz,cols,rows,angle] of plan.bloques){
     const cs=Math.cos(angle),sn=Math.sin(angle);
     for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
       const xx=(col-(cols-1)/2)*.66, x=cx+xx*cs+row*.85*sn,z=cz-xx*sn+row*.85*cs;
@@ -162,48 +169,39 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   function truss(x,y,z,span,depth,cells,root){
     const lo=x-span/2,hi=x+span/2,r=depth*.105;
     for(const dz of [-depth/2,depth/2]){
-      for(const dy of [0,depth])rod(v(lo,y+dy,z+dz),v(hi,y+dy,z+dz),r,m.metal,root);
+      for(const dy of [0,depth])rod(v(lo,y+dy,z+dz),v(hi,y+dy,z+dz),r,m.bridge,root);
       for(let i=0;i<cells;i++){
         const a=lo+span*i/cells,b=lo+span*(i+1)/cells;
-        rod(v(a,y+(i%2)*depth,z+dz),v(b,y+((i+1)%2)*depth,z+dz),r*.60,m.silver,root);
+        rod(v(a,y+(i%2)*depth,z+dz),v(b,y+((i+1)%2)*depth,z+dz),r*.60,m.bridge,root);
       }
     }
     for(let i=0;i<=cells;i++){
       const xx=lo+span*i/cells;
-      for(const dy of [0,depth])rod(v(xx,y+dy,z-depth/2),v(xx,y+dy,z+depth/2),r*.7,m.metal,root);
-      if(i===0||i===cells)for(const dz of [-depth/2,depth/2])rod(v(xx,y,z+dz),v(xx,y+depth,z+dz),r*.72,m.metal,root);
+      for(const dy of [0,depth])rod(v(xx,y+dy,z-depth/2),v(xx,y+dy,z+depth/2),r*.7,m.bridge,root);
+      if(i===0||i===cells)for(const dz of [-depth/2,depth/2])rod(v(xx,y,z+dz),v(xx,y+depth,z+dz),r*.72,m.bridge,root);
     }
   }
   function suspension(x,y,z,root){
     // The upper plate represents a support position to check on site.
-    box(x,5.86,z,.20,.07,.24,m.metal,0,root);
-    rod(v(x,y,z),v(x,5.83,z),.022,m.silver,root);
+    const placa=y+.48;
+    box(x,placa,z,.20,.07,.24,m.bridge,0,root);
+    rod(v(x,y,z),v(x,placa,z),.022,m.bridge,root);
   }
-  const trussZ=plan.frontalZ,trussY=4.75,frontDepth=.36;
-  truss(0,trussY,trussZ,13.1,frontDepth,24,supports.front);
-  for(const x of [-5.62,5.62])suspension(x,trussY+frontDepth,trussZ+frontDepth/2,supports.front);
-  const railZ=plan.barraZ,railY=4.87;
-  rod(v(-4.86,railY,railZ),v(4.86,railY,railZ),.062,m.metal,supports.moving);
-  for(const x of [-4.35,4.35])suspension(x,railY,railZ,supports.moving);
-  const barrasDanza=pads.map(([x,z])=>({x,z:z+2.25,y:4.08}));
-  const soportesTraseros=pads.map(([x,z])=>({x:x-Math.sign(x)*.95,z:z-1.18,y:4.08}));
-  const danceDepth=.29;
-  for(const [i,{x,y,z}] of barrasDanza.entries()){
-    const root=i?supports.right:supports.left;
-    truss(x,y,z,2,danceDepth,6,root);
-    for(const dx of [-.80,.80])suspension(x+dx,y+danceDepth,z+danceDepth/2,root);
-    const rear=soportesTraseros[i];
-    rod(v(rear.x-.43,rear.y,rear.z),v(rear.x+.43,rear.y,rear.z),.045,m.metal,root);
-    for(const dx of [-.30,.30])suspension(rear.x+dx,rear.y,rear.z,root);
+  const principal=plan.porId.principal, trussZ=principal.a[1], trussY=principal.y, frontDepth=.34;
+  const railZ=plan.barraZ,railY=6.96;
+  for(const p of plan.puentes){
+    const root=p.id==='principal'?supports.front:supports[p.id];
+    const [dx,dz]=p.b.map((n,i)=>n-p.a[i]), length=Math.hypot(dx,dz);
+    const local=new T.Group();root.add(local);
+    const mid=plan.punto(p,.5);
+    local.position.set(mid[0],p.y,mid[1]);local.rotation.y=-Math.atan2(dz,dx);
+    truss(0,0,-frontDepth/2,length,frontDepth,Math.ceil(length/.68),local);
+    for(const t of [.08,.92])suspension((t-.5)*length,frontDepth,-frontDepth/2,local);
   }
-  const stageRailY=4.96;
-  for(const [i,z] of [-5.60,-3.28].entries()){
-    const root=i?supports.top:supports.back;
-    rod(v(-5.15,stageRailY,z),v(5.15,stageRailY,z),.047,m.metal,root);
-    for(const x of [-4.69,4.69])suspension(x,stageRailY,z,root);
-  }
-  for(const z of [-.2,1.2,2.6,4,5.4])for(const x of [-7.7,-5.15,-2.6,0,2.6,5.15,7.7]){
-    box(x,5.58,z,1.83,.47,.10,m.rib,0,ceiling);rod(v(x,5.84,z),v(x,6.07,z),.015,m.metal,ceiling);
+  rod(v(-7.8,railY,railZ),v(7.8,railY,railZ),.062,m.bridge,supports.moving);
+  for(const x of [-7,7])suspension(x,railY,railZ,supports.moving);
+  for(const z of [-.2,2,4.2,6.4,8.6])for(const x of [-13,-9,-4.5,0,4.5,9,13]){
+    box(x,7.98,z,2.9,.47,.10,m.rib,0,ceiling);rod(v(x,8.20,z),v(x,8.45,z),.015,m.metal,ceiling);
   }
   // Simple scale figures reveal the effect of the front and overhead light on faces.
   function person(x,y,z,shirt,pose=0){
@@ -227,13 +225,13 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   // Drum booth, cymbals, keys and floor monitors.
   const glass=new T.MeshPhongMaterial({color:0xbebebe,transparent:true,opacity:.16,depthWrite:false,side:T.DoubleSide});
-  box(4.59,1.67,-4.87,1.86,1.98,.035,glass);box(5.51,1.67,-5.48,.035,1.98,1.25,glass);
-  for(const x of [3.68,4.60,5.51])box(x,1.66,-4.86,.035,1.98,.035,m.metal);
-  box(4.59,2.69,-5.47,1.91,.09,1.38,m.edge);
-  rod(v(4.55,1.08,-5.05),v(4.55,1.08,-5.56),.36,m.drum);
-  for(const [x,z] of [[4.04,-5.34],[5.12,-5.51]]){rod(v(x,.68,z),v(x,1.7,z),.025,m.silver);piece(geometries.disc,m.brass,v(x,1.7,z),v(.26,.034,.26))}
-  box(-4.86,1.52,-5.15,1.58,.12,.48,m.iron);box(-4.86,1.59,-4.98,1.43,.025,.17,m.lightShirt);
-  for(const s of [-1,1])rod(v(-4.86+s*.53,.68,-5.12),v(-4.86-s*.46,1.49,-5.12),.03,m.iron);
+  box(7.09,1.67,-4.87,1.86,1.98,.035,glass);box(8.01,1.67,-5.48,.035,1.98,1.25,glass);
+  for(const x of [6.18,7.10,8.01])box(x,1.66,-7.36,.035,1.98,.035,m.metal);
+  box(7.09,2.69,-5.47,1.91,.09,1.38,m.edge);
+  rod(v(7.05,1.08,-5.05),v(7.05,1.08,-5.56),.36,m.drum);
+  for(const [x,z] of [[6.54,-5.34],[7.62,-5.51]]){rod(v(x,.68,z),v(x,1.7,z),.025,m.silver);piece(geometries.disc,m.brass,v(x,1.7,z),v(.26,.034,.26))}
+  box(-7.36,1.52,-5.15,1.58,.12,.48,m.iron);box(-7.36,1.59,-4.98,1.43,.025,.17,m.lightShirt);
+  for(const s of [-1,1])rod(v(-7.36+s*.53,.68,-5.12),v(-7.36-s*.46,1.49,-5.12),.03,m.iron);
   for(const x of [-3.85,3.85])box(x,.82,-2.7,.68,.29,.37,m.iron);
   const grid=new T.GridHelper(62,62,0x666666,0x686868);grid.userData.excludeFromExport=true;grid.material.transparent=true;grid.material.opacity=.13;grid.position.y=-.47;scene.add(grid);
   const lights=[],pickables=[];
@@ -261,6 +259,28 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     if(!l?.installed)return false;
     const origin=originOf(l);
     return inventoryMode==='future'||(inventoryMode==='all'?origin!=='future':origin===inventoryMode);
+  }
+  const patch=new Map(plan.ramales.flatMap(r=>r.puntos.map(p=>[p.visor,{...p,ramal:r.id,universo:r.u}])));
+  const cables=new T.Group();cables.name='Rutas DMX de referencia';cables.userData.excludeFromExport=true;scene.add(cables);
+  const wireMaterials=[0x54f5b1,0xbba2ff,0x57edff,0x89adff].map(color=>new T.LineBasicMaterial({color,depthTest:false,transparent:true,opacity:.88}));
+  let showCables=false;
+  function drawCables(){
+    for(const line of [...cables.children]){line.geometry.dispose();cables.remove(line);}
+    if(!showCables||inventoryMode==='existing')return;
+    for(const [n,r] of plan.ramales.entries()){
+      const sala=r.u===2;
+      if(sala&&housePoints.length!==45)continue;
+      const equipos=r.puntos.map(p=>fixtureIndex.get(p.visor)).filter(inInventory);
+      if(!equipos.length)continue;
+      const first=equipos[0].source, altura=sala?houseHeight+.38:r.y+.13;
+      const tray=v(sala?0:-13.8,1.1,13.75);
+      const coords=[tray,v(tray.x,altura,tray.z)];
+      if(sala)coords.push(v(first.x,altura,11.1));
+      else {const x=-16.65+n*.19;coords.push(v(x,altura,12.9),v(x,altura,first.z+.22*n),v(first.x,altura,first.z+.22*n));}
+      coords.push(...equipos.map(l=>v(l.source.x,altura,l.source.z)));
+      const line=new T.Line(new T.BufferGeometry().setFromPoints(coords),wireMaterials[sala?n-4:0]);
+      line.renderOrder=9;cables.add(line);
+    }
   }
   function lamp(group,position,target,color,angle,power,type,railHeight,added=false){
     const pivot=v(...position),dest=v(...target),axis=aiming(pivot,dest);
@@ -381,21 +401,19 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     P2:['ADJ COB Cannon Wash DW','wash','#fff2d6',.43,46,'235–238'],
     P4:['U’King LED PAR Light 7 4in1','wash','#f3e8da',.32,27,'225–232']
   };
-  for(const [x,key] of [[-6.17,'P3'],[-4.48,'P2'],[-2.83,'P4'],[-1.19,'P4'],[1.42,'P4'],[2.93,'P4'],[4.34,'P2'],[6.09,'P3']]){
+  for(const [x,key] of [[-9.49,'P3'],[-6.94,'P2'],[-4.15,'P4'],[-1.65,'P4'],[1.64,'P4'],[4.18,'P4'],[6.92,'P2'],[9.48,'P3']]){
     const [name,type,color,angle,power,channels]=frontProfiles[key];
-    const unit=lamp('front',[x,trussY-.31,trussZ+frontDepth/2],[x*.72,1.55,-3.62],color,angle,power,type,trussY);
+    const unit=lamp('front',[x,trussY-.31,trussZ-frontDepth],[x*.72,1.55,-3.62],color,angle,power,type,trussY);
     unit.profile={key,name,channels};
   }
-  for(const x of [-3.8,0,3.8]){
-    lamp('top',[x,stageRailY-.31,-3.28],[x,.68,-3.28],'#fff1d6',.43,63,'fresnel',stageRailY);
-    lamp('back',[x,stageRailY-.31,-5.60],[x*.92,.75,-3.18],'#b19aff',.37,75,'wash',stageRailY);
-  }
-  for(const [i,[x,z]] of pads.entries()){
-    const g=i?'right':'left',barra=barrasDanza[i],altura=barra.y-.32,frente=barra.z+danceDepth/2;
-    lamp(g,[x-.79,altura,frente],[x+.31,1.45,z],'#ffd6a5',.245,60,'profile',barra.y);
-    lamp(g,[x+.79,altura,frente],[x-.31,1.45,z],'#ffedc5',.245,60,'profile',barra.y);
-    const rear=soportesTraseros[i];
-    lamp(g,[rear.x,rear.y-.32,rear.z],[x,1.54,z],'#fff1da',.33,54,'fresnel',rear.y);
+  for(const p of plan.puentes){
+    const pad=p.id==='left'?plan.danza[0]:p.id==='right'?plan.danza[1]:null;
+    for(const {tipo,numero,pos:[x,z]} of p.equipos){
+      const fresnel=tipo==='F', lateral=(numero%2?1:-1)*.41;
+      const target=pad?[pad.x+lateral,fresnel?1.6:.50,pad.z]:[x*.89,1.33,p.id==='back'?-3.48:-3.08];
+      const color=fresnel?'#ffe2be':pad?'#92baff':p.id==='back'?'#b19aff':'#ffe7cb';
+      lamp(p.id,[x,p.y-.32,z],target,color,fresnel?.29:.28,fresnel?100:72,fresnel?'fresnel':'wash',p.y);
+    }
   }
   for(const [i,x] of plan.cannonX.entries()){
     const [tx,tz]=pads[x<0?0:1];
@@ -412,13 +430,13 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   // Future fixtures stay outside the base inventory and the photometric calculation.
   for(const side of [-1,1]){
     const wallX=side<0?plan.ladoIzq:plan.ladoDer;
-    lamp('ambient',[side*9.15,.24,-3.77],[side*9.22,2.50,-4.95],'#4da7ff',.45,84,'wash');
-    lamp('ambient',[wallX-side*.85,.24,-2.95],[wallX-side*.08,2.78,-3.33],'#4da7ff',.48,105,'wash');
+    lamp('ambient',[side*13.05,.24,-2.33],[side*12.95,2.50,-2.60],'#4da7ff',.45,84,'wash');
+    lamp('ambient',[wallX-side*1.35,.24,1.85],[wallX-side*.24,2.78,1.34],'#4da7ff',.48,105,'wash');
     for(const offset of [3.38,4.02]){
       const x=side*offset,y=offset<3.5?1.39:1.58;
       lamp('pixels',[x,y,-6.05],[x,y,-4.90],'#4db8ff',.80,0,'pixel');
     }
-    lamp('music',[side*2.47,stageRailY-.42,-5.60],[side*1.48,1.24,-3.05],'#98bbff',.34,82,'moving',stageRailY);
+    lamp('music',[side*2.47,plan.porId.back.y-.42,plan.porId.back.a[1]],[side*1.48,1.24,-3.05],'#98bbff',.34,82,'moving',plan.porId.back.y);
   }
   const houseLamps=[];
   // Shared intensity field on the reading plane. The samples are candela at
@@ -447,7 +465,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
         vHousePosition = (modelMatrix * housePosition).xyz;`);
       shader.fragmentShader='uniform sampler2D uHouseMap; uniform vec3 uHouseTint; uniform float uHouseHeight; varying vec3 vHousePosition;\n'+shader.fragmentShader.replace('#include <lights_fragment_end>',`
         #include <lights_fragment_end>
-        vec2 houseUv=(vHousePosition.xz+vec2(13.0,9.0))/vec2(26.0,18.0);
+        vec2 houseUv=(vHousePosition.xz+vec2(18.0,7.0))/vec2(36.0,24.0);
         float facingUp=max(dot(normal,viewMatrix[1].xyz),0.0);
         float occupiedHeight=1.0-smoothstep(1.65,uHouseHeight,vHousePosition.y);
         float exposure=texture2D(uHouseMap,houseUv).r;
@@ -461,7 +479,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const gridScale=100/h;
     let k=0;
     for(let row=0;row<mapDepth;row++)for(let col=0;col<mapWidth;col++){
-      const x=(col+.5)*26/mapWidth-13,z=(row+.5)*18/mapDepth-9;
+      const x=(col+.5)*36/mapWidth-18,z=(row+.5)*24/mapDepth-7;
       let lux=0;
       for(const [cx,cz] of points){
         const dx=x-cx,dz=z-cz;
@@ -480,7 +498,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const y=T.MathUtils.clamp(Number(height),3,8);
     if(houseHeight===y&&housePoints.length===points.length&&points.every(([x,z],i)=>x===housePoints[i][0]&&z===housePoints[i][1]))return;
     housePoints=points.map(([x,z])=>[x,z]);houseHeight=y;
-    const supportTop=Math.max(5.85,y+.80);
+    const supportTop=Math.max(6.96,y+.80);
     for(let i=0;i<Math.max(points.length,houseLamps.length);i++){
       let unit=houseLamps[i];
       if(i<points.length){
@@ -489,6 +507,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
           unit=lamp('house',[x,y,z],[x,plan.sala.planoLectura,z],'#ffffff',T.MathUtils.degToRad(plan.sala.haz/2),90,'pendant');
           houseLamps.push(unit);
         }
+        unit.codigoPlano=points.length===45?plan.filasSala[Math.floor(i/9)].tipo:null;
         unit.source.set(x,y,z);unit.dest.set(x,plan.sala.planoLectura,z);
         unit.fixtureRoot.position.copy(unit.source);unit.indicator.position.copy(unit.source);point(unit,unit.dest);
         const length=supportTop-y-.36;
@@ -498,7 +517,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       unit.installed=i<points.length;unit.fixtureRoot.visible=unit.installed;
     }
     ceiling.position.y=inventoryMode==='existing'?0:Math.max(0,y-plan.sala.altura);
-    rebuildWash(points,y);
+    rebuildWash(points,y);drawCables();
     if(layerState)update(layerState);
   }
   for(const {geo,material,root,matrices} of batches.values()){
@@ -543,25 +562,14 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   tag('Barra de móviles',v(-.70,railY,railZ),[...general,'side'],'moving');
   tag('Banner',v(-2.02,1.72,banner.z),[...general,'front']);
   tag('Ingreso',v(entrada.x,1.15,entrada.z),general);
-  tag('Frontal',v(0,trussY,trussZ),[...section,'front'],'front');
-  tag('Superior',v(0,stageRailY,-3.28),[...section,'front'],'top');
-  tag('Contraluz',v(0,stageRailY,-5.60),[...section,'front'],'back');
-  for(const [i,{x,y,z}] of barrasDanza.entries()){
-    const support=i?'right':'left',view=[support];
-    tag('Truss propuesto · 2 m',v(x,y+danceDepth+.23,z),view,support);
-    tag('Perfil',v(x-.79,y-.53,z),view,support);
-    const rear=soportesTraseros[i];
-    tag('Fresnel posterior',v(rear.x,rear.y-.50,rear.z),view,support);
-    tag('Perfil',v(x+.79,y-.53,z),view,support);
-    tag('Tarima de danza',v(x,.36,pads[i][1]),view);
-    const giro=(i?plan.derecha:plan.izquierda)[1];
-    tag('Muro de backstage',v(giro[0],2.7,giro[1]),view);
+  for(const p of plan.puentes){
+    const mid=plan.punto(p,.5), lateral=p.id==='left'||p.id==='right';
+    tag(lateral?p.nombre+' · 4 m':p.nombre,v(mid[0],p.y+.52,mid[1]),lateral?[p.id,'top']:['front','side','top'],p.id==='principal'?'front':p.id);
   }
-  const cameraTarget=v(0,1.94,.12);
+  const cameraTarget=v(0,2.6,2.1);
   const bounds=footprint.map(([x,z])=>v(x,-.40,z));
-  for(const [x,z] of [footprint[0],footprint[1],plan.izquierda.at(-1),plan.derecha.at(-1)])bounds.push(v(x,5.3,z));
-  for(const {x,z} of barrasDanza)for(const dx of [-1,1])bounds.push(v(x+dx,5.9,z));
-  for(const x of [-5.63,5.63])bounds.push(v(x,5.90,railZ));
+  for(const [x,z] of [footprint[0],footprint[1],plan.izquierda.at(-1),plan.derecha.at(-1)])bounds.push(v(x,8.2,z));
+  for(const p of plan.puentes)for(const [x,z] of [p.a,p.b])bounds.push(v(x,p.y+.8,z));
   function ortho(eye,target,halfHeight,aspect,near=.1){
     camera=overhead;
     const half=halfHeight/zoom;
@@ -594,16 +602,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     rearGallery.visible=mode==='stage';
     camera=perspective;
     if(mode==='top'){
-      ortho(v(.15,28,.2),v(.15,0,.2),Math.max(8.25,12.5/aspect),aspect);
+      ortho(v(.15,28,.2),v(0,0,4.4),Math.max(12.15,18.6/aspect),aspect);
     }else if(mode==='side'){
       // Longitudinal section on the centreline, keeping the centre fixtures in view.
-      const middle=Math.max(2.72,(houseHeight+.8)/2);
-      ortho(v(23,middle,.15),v(0,middle,.15),Math.max(3.60,middle+.55,8.75/aspect),aspect,22.62);
+      const middle=Math.max(4.08,(houseHeight+.8)/2);
+      ortho(v(23,middle,4.4),v(0,middle,4.4),Math.max(4.65,middle+.55,12.2/aspect),aspect,22.62);
     }else if(mode==='front'){
-      ortho(v(0,6.1,16),v(0,2.45,-4.05),Math.max(3.62,8.25/aspect),aspect,15.72);
+      ortho(v(0,6.7,19),v(0,3.8,-3.65),Math.max(4.5,15.6/aspect),aspect,15.72);
     }else if(mode==='left'||mode==='right'){
       const i=mode==='left'?0:1,[x,z]=pads[i],sign=i?-1:1;
-      ortho(v(x+4.12*sign,3.85,z+5.85),v(x,2.65,z+.85),Math.max(3.53,2.72/aspect),aspect,2.8);
+      ortho(v(x+4.12*sign,3.85,z+5.85),v(x,3.7,z+1.2),Math.max(4.5,3.75/aspect),aspect,2.8);
     }else if(mode==='fixture'&&fixtureIndex.has(detailId)){
       const l=fixtureIndex.get(detailId),p=l.source;
       const direction=l.light.target.position.clone().sub(l.light.position).normalize();
@@ -614,7 +622,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       const extent=l.type==='strip'?.84:.72;
       ortho(eye,target,Math.max(extent*.86,extent/aspect),aspect,.15);
     }else if(mode==='seats'){
-      fromEye(v(0,1.58,7.20),v(0,2.49,-4.0),aspect,140);
+      fromEye(v(0,1.58,11.85),v(0,2.49,-4.0),aspect,140);
     }else if(mode==='stage'){
       fromEye(v(.15,2.28,-2.44),v(.15,1.47,4.0),aspect,125);
     }else{
@@ -709,7 +717,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     let active=0;
     for(const l of lights){
       const present=inInventory(l);l.fixtureRoot.visible=present;
-      const rearDance=(l.group==='left'||l.group==='right')&&l.type==='fresnel';
+      const rearDance=(l.group==='left'||l.group==='right')&&l.type==='wash';
       const roomFixture=l.group==='house'||l.group==='ambient';
       const level=present&&state.on[l.group]&&(!rearDance||state.danceRim!==false)&&!(roomFixture&&state.roomOff)?state.level[l.group]/100:0;
       l.level=level;
@@ -723,7 +731,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       l.shader.uniforms.tint.value.copy(c);l.shader.uniforms.level.value=level*(l.group==='house'?.065:.095);
       l.cone.visible=showBeams&&level>.001&&l.power>0&&(!['left','right'].includes(mode)||l.group===mode||l.id===selectedFixture);
       const dest=l.manualAim||(l.group==='moving'&&state.aim==='walls'
-        ? v(Math.sign(l.source.x)*8.17,2.13,(l.source.x<0?plan.izquierda:plan.derecha)[1][1]+.08) : l.dest);
+        ? v(Math.sign(l.source.x)*12.12,2.13,(l.source.x<0?plan.izquierda:plan.derecha)[1][1]+.08) : l.dest);
       if(!l.light.target.position.equals(dest))point(l,dest);
     }
     fillLight.intensity=.19+active*.66;key.intensity=.17+active*.94;rim.intensity=.20+active*.64;
@@ -761,22 +769,24 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const types={profile:'Perfil LED',fresnel:'Fresnel LED',wash:'PAR LED',parFloor:'PAR LED',moving:'Cabeza móvil',strip:'Barra LED',pixel:'Barra de píxeles',pendant:'Colgante RGBWL'};
     let mount,rangeX,rangeZ=null;
     if(group==='left'||group==='right'){
-      const rear=type==='fresnel',i=group==='left'?0:1,rack=rear?soportesTraseros[i]:barrasDanza[i];
-      const half=rear?.32:.85;
-      mount=rear?'Barra posterior de danza':'Truss frontal de danza';rangeX=[rack.x-half,rack.x+half];
-    }else if(group==='front'){mount='Truss frontal';rangeX=[-6.3,6.3];}
-    else if(group==='top'||group==='back'){mount=group==='top'?'Barra superior':'Barra de contraluz';rangeX=[-4.97,4.97];}
-    else if(group==='moving'){mount='Segunda barra';rangeX=[-4.57,4.57];}
-    else if(group==='music'){mount='Barra posterior propuesta';rangeX=[-4.97,4.97];}
-    else if(group==='ambient'){mount='Soporte lateral a piso';rangeX=source.x<0?[-10.6,-9.1]:[9.1,10.8];rangeZ=[-4.25,-2.65];}
+      const p=plan.porId[group];
+      mount='Puente diagonal de 4 m · altura provisional';rangeX=[p.a[0]+.12,p.b[0]-.12];
+    }else if(group==='front'||group==='principal'){mount='Puente principal';rangeX=[-9.7,9.7];}
+    else if(group==='top'||group==='back'){mount=plan.porId[group].nombre;rangeX=[-8.95,8.95];}
+    else if(group==='moving'){mount='Segunda barra';rangeX=[-7.5,7.5];}
+    else if(group==='music'){mount='Barra posterior propuesta';rangeX=[-8.95,8.95];}
+    else if(group==='ambient'){mount='Soporte lateral a piso';rangeX=source.x<0?[-16,-12]:[12,16];rangeZ=[-2.4,2];}
     else if(group==='pixels'){mount='Base vertical junto al banner';rangeX=source.x<0?[-4.24,-2.9]:[2.9,4.24];rangeZ=[-6.15,-5.8];}
-    else if(group==='house'){mount='Techo de sala';rangeX=[-10.60,10.92];rangeZ=[-.60,7.36];}
+    else if(group==='house'){mount='Techo de sala';rangeX=[plan.ladoIzq+.16,plan.ladoDer-.16];rangeZ=[-.60,plan.limiteSala];}
     else{
-      mount='Piso del escenario';rangeX=type==='strip'?[-5.44,5.44]:[-5.78,5.78];
+      mount='Piso del escenario';rangeX=[-8.7,8.7];
       rangeZ=[-6.15,-3.12];
     }
     const {x,y,z}=l.light.target.position;
-    return {id:l.id,group,profile:l.profile,aimLabel:l.aimLabel,origin:originOf(l),type:types[type],x:source.x,y:source.y,z:source.z,mount,rangeX,rangeZ,added:l.added,
+    const campo=group==='house'&&!l.codigoPlano?null:patch.get(l.id);
+    return {id:l.id,group,profile:l.profile,aimLabel:l.aimLabel,origin:originOf(l),type:plan.porId[group]&&type==='wash'?'PAR LED RGBAW':types[type],x:source.x,y:source.y,z:source.z,mount,rangeX,rangeZ,added:l.added,
+      codigoPlano:l.codigoPlano||null,
+      patch:campo?{id:campo.codigo,ramal:campo.ramal,universo:campo.universo,inicio:campo.canal}:null,
       emitter:{x:l.light.position.x,y:l.light.position.y,z:l.light.position.z},aim:{x,y,z},
       enabled:l.level>0,color:'#'+l.light.color.getHexString(),intensity:l.light.intensity,angle:l.type==='pixel'?null:l.angle,
       beamAngle:l.type==='pixel'?null:T.MathUtils.radToDeg(2*l.angle),rotation:l.fixtureRoot.rotation.toArray().slice(0,3)};
@@ -801,16 +811,22 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const l=fixtureIndex.get(id);if(!l||!inInventory(l))return false;
     detailId=id;selectedFixture=id;marked=null;cameraMode('fixture');return true;
   }
+  function railZAt(group,x,z){
+    if(group!=='left'&&group!=='right')return z;
+    const p=plan.porId[group];
+    return plan.punto(p,(x-p.a[0])/(p.b[0]-p.a[0]))[1];
+  }
   function moveFixture(id,x,z){
     const l=fixtureIndex.get(id);
     if(!l?.installed||l.group==='house'||!Number.isFinite(x))return null;
     const {rangeX,rangeZ}=fixtureInfo(l);
     x=T.MathUtils.clamp(x,...rangeX);
     z=rangeZ&&Number.isFinite(z)?T.MathUtils.clamp(z,...rangeZ):l.source.z;
+    z=railZAt(l.group,x,z);
     l.source.set(x,l.home.y,z);l.fixtureRoot.position.copy(l.source);l.indicator.position.copy(l.source);
     l.dest.copy(l.homeTarget);
     if(l.type==='strip'||l.type==='pixel'){l.dest.x+=x-l.home.x;l.dest.z+=z-l.home.z}
-    point(l,l.manualAim||l.dest);
+    point(l,l.manualAim||l.dest);drawCables();
     if(layerState)update(layerState);else refresh();
     return fixtureInfo(l);
   }
@@ -832,7 +848,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       if(candidates.length)best=[candidates[0],z];
     }
     if(!best)return null;
-    const [x,z]=best,p=original.source.clone().setX(x).setZ(z),target=original.dest.clone();
+    const [x,baseZ]=best,z=railZAt(original.group,x,baseZ),p=original.source.clone().setX(x).setZ(z),target=original.dest.clone();
     if(original.type==='strip'||original.type==='pixel'){target.x+=x-original.source.x;target.z+=z-original.source.z}
     const l=lamp(original.group,p.toArray(),target.toArray(),original.color,original.angle,original.power,original.type,original.railHeight,true);
     l.profile=original.profile;
@@ -865,10 +881,10 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   function inventory(which){
     if(!['all','existing','proposed','future'].includes(which))return;
-    inventoryMode=which;
+    inventoryMode=which;drawCables();
     if(which!=='future')showMotion=false;
     for(const [key,group] of Object.entries(supports)){
-      group.visible=lights.some(l=>l.group===key&&inInventory(l));
+      group.visible=lights.some(l=>(l.group===key||(key==='front'&&l.group==='principal'))&&inInventory(l));
     }
     ceiling.position.y=which==='existing'?0:Math.max(0,houseHeight-plan.sala.altura);
     if(selectedFixture&&!inInventory(fixtureIndex.get(selectedFixture)))selectedFixture=null;
@@ -938,10 +954,11 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       if(inView&&dirty)refresh();
     }).observe(host);
   }
-  houseLayout(plan.sala.posiciones,plan.sala.altura);
+  houseLayout(plan.filasSala.flatMap(f=>f.puntos),plan.sala.altura);
   return {
     setAim,pickAim(handler){aimPick=handler;},update,cameraMode,zoomBy,setQuality,playMotion,houseLayout,inventory,fixtures,focusFixture,selectFixture,moveFixture,resetFixture,addFixture,removeFixture,dragFixture,exportScene,
     locate(group){selectedFixture=null;marked=group;for(const l of lights)l.indicator.visible=inInventory(l)&&l.group===group;drawAimGuide();refresh()},
+    wiring(value){showCables=!!value;drawCables();refresh()},
     beams(value){showBeams=value;if(layerState)update(layerState)},
     labels(value){showLabels=value;refresh()},
     roof(value){ceiling.visible=value;refresh()},

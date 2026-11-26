@@ -98,8 +98,8 @@ function iniciarCobertura(colocarColgantes) {
     el('min-result').textContent = number(r.gridMin,1) + ' lx';
     el('seat-min').textContent = number(r.seatMin,1) + ' lx en la butaca más oscura';
     el('layout-note').textContent = edited.has(count)
-      ? 'Distribución editada · ' + active.length + ' colgantes en sala.'
-      : count === recommended ? 'Tres filas de 6, 5 y 6. A 4,66 m cubren la retícula simulada con línea de luz libre.' : 'Distribución de referencia · ' + count + ' colgantes en sala.';
+      ? 'Distribución editada · ' + active.length + ' puntos en sala.'
+      : count === recommended ? 'Planta DUC · cinco filas de nueve puntos. Los lux usan una misma óptica de ensayo en ambos tipos.' : 'Distribución de referencia · ' + count + ' colgantes en sala.';
     const level = plane ? 'de lectura' : 'del piso';
     el('comparison-result').textContent = complete
       ? 'En la simulación a ' + number(height,2) + ' m, todas las butacas y los pasillos de la retícula alcanzan el objetivo en el plano ' + level + '.'
@@ -123,7 +123,7 @@ function iniciarCobertura(colocarColgantes) {
   for (const size of Object.keys(layouts).map(Number).sort((a,b) => a - b)) {
     const button = document.createElement('button');
     button.type = 'button'; button.dataset.count = size;
-    button.textContent = size + ' colgantes';
+    button.textContent = size===recommended?'45 · plano DUC':size+' · alternativa';
     button.setAttribute('aria-pressed',String(size === count));
     button.addEventListener('click', () => {
       count = size;

@@ -12,7 +12,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
     banner:{x:plan.panel.x,y:plan.panel.base+plan.panel.h/2,z:plan.panel.z+.04},
     seats:{x:0,y:plan.sala.planoLectura,z:3.5}
   };
-  const names = {front:'Frontal',top:'Superior',back:'Contraluz',left:'Danza izquierda',right:'Danza derecha',
+  const names = {principal:'PAR del principal',front:'Frontal',top:'Superior',back:'Contraluz',left:'Danza izquierda',right:'Danza derecha',
     moving:'Cabezas móviles',bars:'Barras de piso',par:'PAR de piso',house:'Sala',
     ambient:'Bañadores laterales',pixels:'Barras de píxeles',music:'Móviles de música'};
   const fmt = n => Number(n).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -24,7 +24,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
   const say = message => { el('edit-status').textContent = message; };
   function updateOptics(f=current()) {
     if (!f) return;
-    const target = {left:'tarima izquierda', right:'tarima derecha', front:'rostros en el escenario', top:'escenario', back:'intérpretes desde atrás', house:'butacas y pasillos', bars:'banner trasero', par:'banner trasero', moving: f.aim.y > 1 ? 'muros laterales' : 'tarimas de danza', ambient:'muro lateral',music:'escenario'};
+    const target = {principal:'intérpretes del altar',left:'tarima izquierda', right:'tarima derecha', front:'rostros en el escenario', top:'escenario', back:'intérpretes desde atrás', house:'butacas y pasillos', bars:'banner trasero', par:'banner trasero', moving: f.aim.y > 1 ? 'muros laterales' : 'tarimas de danza', ambient:'muro lateral',music:'escenario'};
     const power=f.enabled ? 'Encendida' : 'Apagada';
     if(f.group==='pixels'){
       el('fixture-optics').textContent=power+' · Barra vertical visible desde las butacas.';
@@ -46,9 +46,10 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
     el('p2-reference').hidden = !position;
     if (!position) el('p2-reference').open = false;
     const origin = isAdded(f) ? 'Añadida en esta sesión' : {existing:'Existente',proposed:'Propuesta base',future:'Ampliación futura'}[f.origin];
-    el('fixture-facts').textContent = (f.profile ? f.profile.key+' · '+f.profile.name+' · '+(f.added?'copia':'U0 '+f.profile.channels) : f.type)+' · '+origin+' · '+f.mount+' · '+fmt(f.y)+' m sobre el piso. '+
+    el('fixture-facts').textContent = (f.profile ? f.profile.key+' · '+f.profile.name+' · '+(f.added?'copia':'U0 '+f.profile.channels) : (f.codigoPlano?f.codigoPlano+' · óptica simulada':f.type))+' · '+origin+' · '+f.mount+' · '+fmt(f.y)+' m sobre el piso. '+
       (position ? position+' en el montaje de referencia, visto desde las butacas. ' : '')+
       (!f.rangeZ ? 'Se desplaza a lo largo de su barra.' : f.group === 'house' ? 'Su eje es vertical. Mover este colgante recalcula el mapa de lux.' : 'Se desplaza dentro de su zona de montaje.');
+    if(f.patch)el('fixture-facts').textContent+=' Parche propuesto · '+f.patch.id+' · ramal '+f.patch.ramal+' · U'+f.patch.universo+' / '+String(f.patch.inicio).padStart(3,'0')+'.';
     updateOptics(f);
     el('remove-fixture').hidden = !isAdded(f);
     el('reset-fixture').hidden = f.group === 'house' && isAdded(f);
@@ -64,7 +65,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
           const section = document.createElement('optgroup'); section.label = names[f.group];
           sections.set(f.group,section); list.append(section);
         }
-        const name=p2Positions[f.id] ? 'P2 · '+p2Positions[f.id] : names[f.group]+' · '+(f.profile ? f.profile.key+' '+f.profile.name : f.type)+' '+(indexOf(f.id)+1);
+        const name=p2Positions[f.id] ? 'P2 · '+p2Positions[f.id] : names[f.group]+' · '+(f.profile ? f.profile.key+' '+f.profile.name : f.codigoPlano||f.type)+' '+(indexOf(f.id)+1);
         sections.get(f.group).append(new Option(name,f.id));
       }
       list.dataset.signature = signature;
@@ -105,7 +106,7 @@ function iniciarEditor(model, coverage, setGroup, cameraLabel, revealAdded, desc
       say('La posición queda fuera del soporte de esta luminaria.'); return false;
     }
     syncFields(current());
-    say('Posición aplicada · X '+fmt(x)+' m, Z '+fmt(z)+' m.'); return true;
+    const actual=current();say('Posición aplicada · X '+fmt(actual.x)+' m, Z '+fmt(actual.z)+' m.'); return true;
   }
   function choose(id) {
     const f = fixtures().find(item=>item.id === id);

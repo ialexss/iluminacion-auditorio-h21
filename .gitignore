@@ -10,3 +10,4 @@ graft/
 /auditorio-3d/*
 !/auditorio-3d/dist/
 .DS_Store
+!/auditorio-3d/scripts/

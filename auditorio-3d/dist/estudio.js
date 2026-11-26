@@ -12,36 +12,37 @@ const cameras = {
   seats: ['Desde butacas', 'Desde las butacas']
 };
 const zones = {
-  house: ['Sala RGBW', 'Colgantes sobre las butacas, con blanco regulable para lectura y color para eventos.'],
+  house: ['Sala RGBW', 'Cinco filas de nueve puntos PL‑01 y LD‑01. Blanco de lectura y ambiente RGB según los modelos que se seleccionen.'],
   front: ['Frontal existente', 'Dos Fresnel P3 en los extremos, dos COB P2 hacia el interior y cuatro PAR P4 en el centro. El enfoque se ajusta en cada aparato.'],
-  top: ['Superior del escenario', 'Tres Fresnel sobre la banda y las voces distribuyen el blanco a lo ancho del escenario.'],
-  back: ['Contraluz', 'Tres PAR detrás de los intérpretes perfilan las siluetas contra el fondo.'],
-  left: ['Danza izquierda', 'Dos perfiles frontales cruzados iluminan las caras. Un Fresnel alto detrás de la tarima izquierda dibuja el contorno de brazos y hombros.'],
-  right: ['Danza derecha', 'La tarima derecha replica el montaje junto a su escalera lateral. Dos perfiles dan luz frontal y un Fresnel entra en diagonal desde atrás.'],
+  top: ['Superior del escenario', 'Ocho PAR LED RGBAW en el puente sobre el altar iluminan la banda y las voces.'],
+  back: ['Contraluz', 'Ocho PAR LED RGBAW en el puente posterior separan a los intérpretes del fondo.'],
+  left: ['Danza izquierda', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal izquierdo de 4 m.'],
+  right: ['Danza derecha', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal derecho de 4 m.'],
   moving: ['Móviles MH4–MH7', 'Cuatro móviles sobre el público se orientan hacia las tarimas o hacia los muros.'],
   bars: ['Barras de piso', 'Las barras lineales de la base del banner distribuyen color de abajo hacia arriba.'],
   par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.'],
   ambient: ['Bañadores laterales', 'Cuatro bañadores RGB proyectan color en los muros junto a las tarimas.'],
   pixels: ['Barras de píxeles', 'Cuatro barras verticales enmarcan el banner.'],
-  music: ['Móviles de música', 'Dos cabezas wash en la barra posterior se orientan dentro del escenario.']
+  music: ['Móviles de música', 'Dos cabezas wash en la barra posterior se orientan dentro del escenario.'],
+  principal: ['PAR del puente principal','Ocho PAR LED RGBAW nuevos comparten el puente con los ocho frontales existentes.']
 };
 const futureZones = new Set(['ambient','pixels','music']);
 const presets = {
-  dance: {name:'Danza', levels:[16,30,20,60,100,100,78,85,72,68,52,35], color:'#599dff', aim:'dance',
+  dance: {name:'Danza', levels:[16,30,20,60,100,100,78,85,72,68,52,35,38], color:'#599dff', aim:'dance',
     scenicColors:{back:'#18baba',moving:'#49e4ff',bars:'#244dff',par:'#2cd2e2',ambient:'#4d77ff',pixels:'#46d9ff',music:'#5ec5ff'},
-    description:'Los perfiles iluminan las caras en ambas tarimas y los Fresnel posteriores dibujan los hombros. Los móviles añaden un acento cian.'},
-  sermon:{name:'Prédica', levels:[24,100,48,18,0,0,0,40,26,24,0,0], color:'#ffe3b5', aim:'dance',
+    description:'Dos Fresnel iluminan las caras en cada tarima. Los PAR laterales añaden color y los móviles dan un acento cian.'},
+  sermon:{name:'Prédica', levels:[24,100,48,18,0,0,0,40,26,24,0,0,65], color:'#ffe3b5', aim:'dance',
     scenicColors:{back:'#ffa257',moving:'#ffe3b5',bars:'#e59a51',par:'#ffcf84',ambient:'#ffc590'},
     description:'El blanco cálido concentra la atención en el púlpito. El fondo queda ámbar y las tarimas se apagan.'},
-  event: {name:'Evento', levels:[35,50,35,80,12,12,95,100,95,77,70,60], color:'#aa7bfa', aim:'walls',
+  event: {name:'Evento', levels:[35,50,35,80,12,12,95,100,95,77,70,60,55], color:'#aa7bfa', aim:'walls',
     scenicColors:{back:'#ff539e',moving:'#3ce2f4',bars:'#8a35fa',par:'#ff4098',ambient:'#b05cff',pixels:'#ff77d7',music:'#42ccff'},
     description:'El violeta y el magenta bañan el banner. Los cuatro móviles dirigen haces cian hacia los muros laterales.'},
-  hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
+  hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
     description:'Solo se encienden los colgantes del público. En blanco al 100 %, esta escena corresponde al cálculo de cobertura.'},
-  mellow:{name:'Adoración íntima', future:true, levels:[24,64,37,25,12,12,0,38,32,43,52,24], color:'#5784df', aim:'dance',
+  mellow:{name:'Adoración íntima', future:true, levels:[24,64,37,25,12,12,0,38,32,43,52,24,38], color:'#5784df', aim:'dance',
     scenicColors:{back:'#699cff',bars:'#233fa9',par:'#7388fa',ambient:'#4268f2',pixels:'#ffac56',music:'#ffe1bb'},
     description:'Azul suave en la sala, barras ámbar junto al banner y blanco cálido sobre las voces.'},
-  music:{name:'Alabanza', future:true, levels:[36,66,44,62,35,35,24,64,72,78,92,83], color:'#986aff', aim:'dance',
+  music:{name:'Alabanza', future:true, levels:[36,66,44,62,35,35,24,64,72,78,92,83,58], color:'#986aff', aim:'dance',
     scenicColors:{back:'#7c7aff',moving:'#2bc8ff',bars:'#3f2cdb',par:'#586dff',ambient:'#bd5aff',pixels:'#52e5ff',music:'#4ae5fa'},
     description:'Violeta en los laterales, barras cian en el fondo y dos móviles posteriores. Activa su movimiento para probar el efecto.'}
 };
@@ -66,7 +67,7 @@ let playing = false;
 const inventoryNotes = {
   existing:'Ocho frontales P2, P3 y P4, cuatro móviles MH4–MH7 sobre el público y cuatro PAR LED de piso. La cantidad de barras de piso es aproximada.',
   all:'El montaje completo reúne las luces instaladas y la propuesta para danza, escenario y público.',
-  proposed:'Cada tarima tiene un truss frontal y un soporte posterior. Se añaden luces superiores y de contraluz en el escenario y colgantes en sala.',
+  proposed:'Dos diagonales de danza, ocho PAR en cada uno de los tres puentes de escenario y 45 puntos de sala en la distribución de referencia.',
   future:'El montaje completo incorpora 10 luminarias futuras. Incluye bañadores de muro, barras de fondo y dos móviles de música.'
 };
 const soloDescriptions = {
@@ -77,17 +78,15 @@ const soloDescriptions = {
     hall:'Los colgantes de sala son parte de la propuesta. El alumbrado general actual carece de fotometría en el modelo.'
   },
   proposed:{
-    dance:'Dos perfiles se cruzan delante de cada tarima. Desde el lado de la escalera, un Fresnel posterior ilumina hombros y brazos.',
-    sermon:'Los Fresnel superiores refuerzan el escenario y los colgantes dan luz tenue a las butacas.',
+    dance:'Cada diagonal cruza el blanco de dos Fresnel sobre una tarima y añade el color de dos PAR RGBAW.',
+    sermon:'Los PAR del principal y del altar refuerzan los rostros. La sala queda en blanco tenue.',
     event:'El contraluz baña las siluetas en magenta y la sala toma un tono violeta.',
     hall:'Los colgantes iluminan el público en blanco al 100 %, como en el mapa de cobertura.'
   }
 };
 function previewUrl(camera, mode=inventory) {
-  if (camera === 'stage') return 'recursos/ampliacion/desde-escenario.webp';
-  if (mode === 'future' && lastPreset === 'music' && camera === 'seats') return 'recursos/ampliacion/alabanza.webp';
-  const reference = mode === 'future' ? 'all' : mode;
-  return 'recursos/vistas/' + (reference === 'all' ? '' : reference + '/') + (lastBasePreset === 'dance' ? '' : lastBasePreset + '/') + camera + '.webp';
+  const cue=mode==='future'?lastPreset:lastBasePreset;
+  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=puentes26';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));
@@ -96,10 +95,10 @@ function refreshPreviews() {
 }
 function updatePair() {
   if (!byId('compare-pair').open) return;
-  const camera = currentCamera === 'stage' ? 'seats' : cameras[currentCamera] ? currentCamera : 'orbit';
+  const camera = cameras[currentCamera] ? currentCamera : 'orbit';
   byId('before-image').src = previewUrl(camera,'existing');
   byId('after-image').src = previewUrl(camera,'all');
-  byId('compare-caption').textContent = 'Montaje base a 4,66 m · '+presets[lastBasePreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
+  byId('compare-caption').textContent = 'Óptica de sala simulada a 4,66 m · '+presets[lastBasePreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
 }
 function playMotion(value) {
   playing = value;
@@ -165,6 +164,7 @@ function sync() {
   byId('dimmer').value = state.on[selected] ? state.level[selected] : 0;
   byId('percent').textContent = byId('dimmer').value+' %';
   byId('group-detail').textContent = zones[selected][1];
+  byId('wire-layer').disabled = !model || inventory==='existing';
   byId('dance-rim').checked = state.danceRim!==false;
   byId('dance-rim').disabled = !model || inventory==='existing';
   byId('room-look').disabled = !model || inventory==='existing';
@@ -234,6 +234,8 @@ byId('show-color').onchange = e => { state.monochrome = !e.target.checked; sync(
 byId('beams').onchange = e => model?.beams(e.target.checked);
 byId('dance-rim').onchange = e => {state.danceRim=e.target.checked;customize();};
 byId('labels').onchange = e => model?.labels(e.target.checked);
+byId('wire-layer').onchange = e => model?.wiring(e.target.checked);
+byId('open-wire-plan').onclick=()=>{changeInventory('all');setCamera('top');byId('wire-layer').checked=true;model?.wiring(true);document.getElementById('maqueta').scrollIntoView();};
 byId('roof').onchange = e => model?.roof(e.target.checked);
 byId('zoom-in').onclick = () => model?.zoomBy(1.15);
 byId('zoom-out').onclick = () => model?.zoomBy(1/1.15);
@@ -284,7 +286,7 @@ const coverage = iniciarCobertura((positions,height) => {
   editor?.refresh();
 });
 const query = new URLSearchParams(location.search);
-changeInventory(query.get('montaje') === 'future' ? 'future' : 'all');
+changeInventory(['existing','proposed','future'].includes(query.get('montaje')) ? query.get('montaje') : 'all');
 const requestedPreset = query.get('escena');
 if (Object.hasOwn(presets,requestedPreset) && (!presets[requestedPreset].future || inventory === 'future')) applyPreset(requestedPreset);
 if (query.get('comparar') === '1') {
@@ -321,6 +323,7 @@ function startViewer() {
     model.inventory(inventory);
     model.setQuality(qualityInput.value);
     model.beams(byId('beams').checked);
+    model.wiring(byId('wire-layer').checked);
     model.labels(byId('labels').checked);
     model.cameraMode(currentCamera);
     editor = iniciarEditor(model,coverage,key => { selected = key; sync(); },() => currentCamera,

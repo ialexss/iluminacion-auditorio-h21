@@ -1,25 +1,26 @@
-# Iluminación del auditorio
+# Iluminación del auditorio H21
 
-Maqueta 3D del escenario, las dos tarimas de danza y el sector de butacas. El visor permite comparar los equipos existentes con la propuesta, mover luminarias, cambiar su enfoque y descargar el montaje en formato GLB.
+La [web del proyecto](https://lucesh21.landydrop.com/) reúne la maqueta, la planta acotada, la iluminación por escenas y los documentos para preparar el montaje.
 
-## Abrir la web
+## Revisión del 26 de noviembre de 2026
 
-Desde la raíz del repositorio, inicia un servidor local con Python 3.
+El salón mide 34,34 m de ancho y el altar 19,42 × 5,78 m. La cota de 12,14 m abarca el tramo desde el arranque lateral derecho hasta la línea transversal. Cada puente de danza mide 4,00 m de largo en diagonal. Su altura de 6,96 m en el visor es provisional. Las otras referencias verticales tomadas desde el piso son 7,60 m al empezar el altar y 6,95 m en el altar.
+
+- **Danza.** Dos Fresnel y dos PAR LED RGBAW por tarima.
+- **Escenario.** Ocho PAR RGBAW adicionales en el principal, ocho sobre el altar y ocho en el puente posterior.
+- **Sala.** Cinco filas de nueve puntos del DUC de julio. Se alternan filas de PL-01 y LD-01, con 27 y 18 puntos respectivamente. La distribución base suma 77 puntos nuevos. Los 28 PAR nuevos son de tipo SlimPAR RGBAW. Las 10 luminarias decorativas siguen en la ampliación futura.
+- **Cableado.** U0 conserva el parche existente. U1 distribuye los cinco ramales de puentes y U2 los tres de sala. La [ficha de montaje](auditorio-3d/dist/recursos/puentes/ficha-montaje.pdf), el [parche preliminar](auditorio-3d/dist/recursos/puentes/patch-propuesto.csv) y la [hoja de tendido](auditorio-3d/dist/recursos/puentes/tendido-por-tramo.csv) permiten revisar rutas, equipos y modos en sitio.
+
+## Abrir y usar
+
+Desde la raíz, iniciar el servidor estático y abrir la [maqueta local](http://127.0.0.1:8000/).
 
 ```sh
 python3 -m http.server 8000 --bind 127.0.0.1 --directory auditorio-3d/dist
 ```
 
-Abre [la maqueta](http://127.0.0.1:8000/) en el navegador. La carpeta [auditorio-3d/dist](auditorio-3d/dist) contiene la web estática y sus recursos.
+El visor compara existentes, nuevos, montaje base y ampliación futura. Ofrece ocho cámaras, tres calidades y edición de posición y enfoque con exportación GLB. Los equipos de danza se desplazan por su diagonal. La cobertura compara el diseño de 45 puntos con alternativas a distintas alturas. La óptica de ensayo es común a todos los puntos y el modelo de butacas es esquemático.
 
-## Consultar el montaje
+En **Cableado**, la hoja de metrado guarda las distancias de cada ramal en este navegador y exporta un CSV. La capa **Cableado DMX** muestra las rutas propuestas en 3D.
 
-- **Comparar montaje** permite alternar entre los equipos existentes, los nuevos, el conjunto y el conjunto con la ampliación futura. Selecciona una escena y un ángulo para ver qué superficies ilumina cada grupo.
-- **Calidad** ofrece Alta, Automática y Baja. Arrastra desde cualquier ángulo para mover la vista y usa el botón de restablecer para volver a su punto de partida.
-- **Ambiente RGB** cambia el color de los colgantes de sala y, con la ampliación activada, también el de los bañadores laterales. La sección **Ampliación** reúne los equipos de referencia y las escenas de música.
-- **Contraluz de danza** permite comparar cada tarima con y sin el Fresnel posterior. Los dos perfiles delanteros conservan su enfoque.
-- **Mover y orientar luces** muestra el soporte y el perfil de la luminaria seleccionada. Los cambios se aplican a la simulación. **Descargar 3D** exporta la configuración visible.
-- **Cobertura en butacas** calcula la iluminancia directa para distintas alturas y distribuciones. El sector bajo el entrepiso requiere mediciones en el recinto.
-- **Plano de iluminación** ubica las luminarias existentes y propuestas sobre la planta baja. Las referencias de equipo enlazan con el punto correspondiente en la maqueta.
-
-El [informe técnico](auditorio-3d/dist/recursos/informe-tecnico.pdf) reúne las cantidades propuestas, los diagramas de montaje, la fotometría y el inventario existente. El [presupuesto preliminar](auditorio-3d/dist/recursos/plan-iluminacion.pdf) corresponde a la propuesta inicial de seis colgantes de sala.
+La geometría compartida está en [planta.js](auditorio-3d/dist/planta.js). Al cambiar los puentes o las filas, ejecutar `node auditorio-3d/scripts/ficha.cjs` para regenerar planos, tablas de campo y ficha imprimible. Imprimir `recursos/puentes/ficha.html` en A4 como `ficha-montaje.pdf`. La sección Informes conserva los estudios previos como antecedentes.

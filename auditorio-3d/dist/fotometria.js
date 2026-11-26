@@ -30,22 +30,19 @@ window.Fotometria = (() => {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0
   ];
-  const recommended = 17;
+  const recommended = 45;
   const layouts = {
     6: plan.sala.posiciones,
     8: [...plan.sala.posiciones, ...plan.sala.ampliacion],
+    45: plan.filasSala.flatMap(fila=>fila.puntos),
     17: [
       [-10.3, .1], [-6.05, .13], [-1.8, .25], [2.2, .25], [6.2, .25], [10.42, -.22],
       [-9.66, 3.65], [-4.8, 3.55], [.1, 3.55], [5.1, 3.55], [10.32, 3.65],
       [-9.46, 6.55], [-5.8, 6.95], [-1.8, 6.95], [2.2, 6.95], [6.2, 6.95], [9.9, 6.6]
-    ]
+    ].map(([x,z])=>[x*1.50,z*1.26])
   };
   const seats = [];
-  const seatBlocks = [
-    [-6.76, .38, 4, 6, -.42], [-2.95, .13, 6, 7, -.12],
-    [2.95, .13, 6, 7, .12], [6.72, .06, 4, 6, .43]
-  ];
-  for (const [x, z, columns, rows, rotation] of seatBlocks) {
+  for (const [x, z, columns, rows, rotation] of plan.bloques) {
     const cos = Math.cos(rotation), sin = Math.sin(rotation);
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < columns; col++) {
@@ -56,7 +53,8 @@ window.Fotometria = (() => {
   }
 
   // Centros de celdas de 5 cm. La región incluye butacas y pasillos desde z = -0,60.
-  const step = .05, height = 166, z0 = -.575;
+  const step = .05, z0 = -.575;
+  const height = Math.floor((plan.limiteSala-z0)/step)+1;
   const x0 = (Math.floor(plan.ladoIzq / step) + .5) * step;
   const width = Math.ceil((plan.ladoDer - x0) / step);
   function publicFloor(x, z) {
@@ -67,12 +65,20 @@ window.Fotometria = (() => {
       if ((az > z) !== (bz > z) && x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
     }
     if (!inside) return false;
+    const ala=x<0?plan.izquierda:plan.derecha;
+    if (Math.abs(x)>plan.anchoAltar/2){
+      const i=ala.findIndex(([px])=>Math.abs(px)>=Math.abs(x));
+      if(i>0){
+        const [ax,az]=ala[i-1],[bx,bz]=ala[i];
+        if(z<az+(bz-az)*(x-ax)/(bx-ax))return false;
+      }
+    }
     for (const pad of plan.danza) {
       if (Math.abs(x - pad.x) <= pad.w / 2 && Math.abs(z - pad.z) <= pad.d / 2) return false;
     }
     if (Math.abs(x) <= 1.35) {
       for (let stair = 0; stair < 3; stair++) {
-        if (Math.abs(z - (-.48 - stair * .28)) <= .165) return false;
+        if (Math.abs(z - (plan.frenteAltar+.64 - stair * .28)) <= .165) return false;
       }
     }
     return true;
@@ -124,8 +130,8 @@ window.Fotometria = (() => {
     return table[degree] + (table[degree + 1] - table[degree]) * (degrees - degree);
   }
   function radialProfile(h) {
-    // 26 m exceeds the diagonal of this public-floor grid for every supported mounting point.
-    const samples = 2601;
+    // Cubrir toda la diagonal del sector analizado, incluso si se mueve un punto.
+    const samples = Math.ceil(Math.hypot(plan.anchoSala,height*step)/radialStep)+2;
     const first = new Float64Array(samples), delta = new Float64Array(samples);
     for (let i = 0; i < samples; i++) {
       const r = i * radialStep, d2 = r * r + h * h;
@@ -203,6 +209,6 @@ window.Fotometria = (() => {
     return result;
   }
   return {layouts, seats, recommended, calculate,
-    withinHall: (x,z) => Number.isFinite(x) && Number.isFinite(z) && z >= -.60 && z <= 7.66 && publicFloor(x,z)
+    withinHall: (x,z) => Number.isFinite(x) && Number.isFinite(z) && z >= -.60 && z <= plan.limiteSala && publicFloor(x,z)
   };
 })();
