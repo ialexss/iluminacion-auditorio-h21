@@ -57,7 +57,6 @@ test('los 77 puntos de compra tienen códigos propios y excluyen el inventario e
     return counts;
   }, {});
   assert.deepEqual(contarPor(nuevos, 'tipo'), { Fresnel: 4, 'PAR LED RGBAW': 28, 'LD-01': 18, 'PL-01': 27 });
-  assert.deepEqual(contarPor(plan.existentes, 'familia'), { P3: 2, P2: 2, P4: 4, MH: 4, P1: 4, BL: 5 });
-  assert.equal(plan.existentes.filter(f => f.estimado).length, 5);
+  assert.deepEqual(contarPor(plan.existentes, 'familia'), { P3: 2, P2: 2, P4: 4, MH: 4, P1: 4, BL: 4 });
   assert.deepEqual(new Set(plan.existentes.filter(f => f.pendienteDMX).map(f => f.familia)), new Set(['P1', 'BL']));
 });

@@ -11,7 +11,7 @@ img{width:100%;display:block;border:.5pt solid #b7c0b7}table{width:100%;border-c
 @media print{body{background:white}section{margin:0;min-height:295mm;height:295mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style><section>${title(1,'Planta y equipos')}
 <p class="lead">32 luminarias nuevas en cinco puentes y 45 puntos de sala.</p><img src="planta.svg" alt="Planta acotada con símbolos de las luminarias nuevas de los puentes y la sala">
-<p class="fine">Consultar las tres plantas en color y los códigos de cada equipo en el <a href="https://lucesh21.landydrop.com/#referencias">inventario de la web</a>. Los ocho frontales actuales del principal reciben ocho PAR nuevos. P1 y las barras de piso son existentes con conexión DMX pendiente.</p>
+<p class="fine">Consultar las tres plantas en color y los códigos de cada equipo en el <a href="https://lucesh21.landydrop.com/#referencias">inventario de la web</a>. Los ocho frontales actuales del principal reciben ocho PAR nuevos. Los cuatro P1 y las cuatro barras LED de piso son existentes con conexión DMX pendiente.</p>
 <table><thead><tr><th>Zona</th><th>Equipo base</th><th>Unidades</th></tr></thead><tbody>
 <tr><td>Tarimas izquierda y derecha</td><td>2 Fresnel + 2 PAR RGBAW por lado</td><td>8</td></tr>
 <tr><td>Puente principal existente</td><td>8 PAR RGBAW adicionales</td><td>8</td></tr>

@@ -8,8 +8,8 @@ const destino=process.argv[2];
 if(!destino)throw new Error('Indica un directorio temporal para el HTML de impresión.');
 fs.mkdirSync(destino,{recursive:true});
 
-const provisional=existentes.filter(f=>f.estimado).length;
-const perfiles=existentes.length-provisional;
+const perfiles=existentes.filter(f=>f.perfil).length;
+const barras=existentes.filter(f=>f.familia==='BL').length;
 const faseFutura=gruposFuturos.reduce((suma,f)=>suma+f.cantidad,0);
 const totalFamilia=Object.fromEntries(Object.keys(familias).map(id=>[id,[...existentes,...nuevos].filter(f=>f.familia===id).length]));
 const dist=path.resolve(out,'../..');
@@ -55,7 +55,7 @@ const cantidadesBase=[
  ['Escenario · posterior','8 PAR RGBAW en puente nuevo',8],
  ['Sala · cinco filas de nueve','27 PL-01 + 18 LD-01',45]
 ];
-const notaExistentes=`Hay ${perfiles} posiciones asociadas a perfiles en la captura de Lightkey y ${provisional} barras de piso representadas de manera provisional. P1 y las barras ya están instalados. Su conexión a DMX está pendiente.`;
+const notaExistentes=`Hay ${perfiles} posiciones asociadas a perfiles en la captura de Lightkey y ${barras} barras LED de piso junto al banner. Sus posiciones en el plano son orientativas. P1 y las barras ya están instalados. Su conexión a DMX está pendiente.`;
 const notaFutura=`La fase musical añade ${faseFutura} equipos de manera opcional. Requiere su propio estudio de carga y parche antes de incorporarla.`;
 const fotos=(n,alt,leyenda)=>`<figure>${img('montaje/'+n+'.webp',alt)}<figcaption>${leyenda}</figcaption></figure>`;
 
@@ -70,7 +70,7 @@ archivo('informe','Resumen del proyecto',[header('RESUMEN','Iluminación del aud
 const filasExistentes=['P1','P2','P3','P4','MH','BL'].map(id=>{
  const grupo=existentes.filter(f=>f.familia===id);
  const f=grupo[0];
- return [familias[id].nombre,totalFamilia[id]+(f.estimado?'*':''),f.lugar,
+ return [familias[id].nombre,totalFamilia[id],f.lugar,
   id==='MH'?'265–282 / 285–302 / 305–322 / 325–342':f.perfil?.channels||'Por levantar',
   f.pendienteDMX?'Pendiente de conexión':'Verificar en equipo'];
 });
@@ -88,7 +88,7 @@ archivo('informe-tecnico','Informe técnico',[
  <p class="lead">Inventario U0 observado y reservas de la compra base.</p>
  <h2>Existentes en el auditorio</h2>
  ${tabla(['Familia','Ud.','Ubicación','Canales en U0','Estado'],filasExistentes)}
- <p class="fine">* Cantidad de barras de piso estimada. Los bloques de P1–P4 corresponden a los perfiles que muestra la captura, con posible direccionamiento compartido. Cotejar modelo, modo, dirección y respuesta en cada aparato antes de cambiar el parche.</p>
+ <p class="fine">Los bloques de P1–P4 corresponden a los perfiles que muestra la captura, con posible direccionamiento compartido. Cotejar modelo, modo, dirección y respuesta en cada aparato antes de cambiar el parche.</p>
  <h2>Compra base · ${totalNuevos} puntos</h2>
  ${tabla(['Ramal','Destino','Universo','Bloque preliminar','Puntos'],ramas.map(r=>[r.id,r.nombre,'U'+r.u,addr(r.puntos[0].canal)+'–'+addr(r.puntos.at(-1).canal+r.puntos[0].slots-1),r.puntos.length]))}
  <p>U1 reserva 16 canales por equipo y U2, 10 por punto. Ajustar la reserva al modo real seleccionado. Los PAR del piso y sus barras requieren revisar la asignación y el cableado de U0.</p>
@@ -139,7 +139,7 @@ archivo('plan-iluminacion','Montaje y presupuesto',[
  <h2>Ampliación musical opcional</h2>
  ${tabla(['Familia','Cantidad','Montaje','Bs total'],gruposFuturos.map(f=>[f.nombre,f.cantidad,f.lugar,'&nbsp;']))}
  <p>Registrar marca, modelo, garantía, plazo, impuestos y montaje en cada oferta. El costo depende de las fichas de sala, el metrado en sitio y la estructura habilitada.</p>
- <p class="fine">P1–P4, MH4–MH7 y barras de piso figuran en el inventario existente. Para P1 y las barras, cotizar conexión DMX y puesta en servicio.</p>`),
+ <p class="fine">P1–P4, MH4–MH7 y las cuatro barras de piso figuran en el inventario existente. Para P1 y las barras, cotizar conexión DMX y puesta en servicio.</p>`),
  header('SOPORTES','Instalación por fases',`
  <p class="lead">Completar la luz blanca y el control de sala antes de añadir los efectos musicales.</p>
  <h2>Puentes y posicionamiento</h2>

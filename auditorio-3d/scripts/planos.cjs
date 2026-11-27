@@ -47,7 +47,7 @@ function inventario(f){
   const patch=instalado?(f.perfil?.channels||''):addr(f.canal)+'–'+addr(f.canal+f.slots-1);
   return [f.codigo,f.etapa,familias[f.familia].nombre,
     instalado?f.lugar:f.ramal,1,...f.pos.map(v=>fmt(v)),f.visor,universo,patch,control,
-    instalado?(f.estimado?'Cantidad y ubicación por verificar':'Posición aproximada; verificar placa, modo y dirección reales'):
+    instalado?'Posición aproximada; verificar placa, modo y dirección reales':
     'Bloque reservado; verificar modo y huella DMX'];
 }
 csv('inventario-iluminacion.csv',['ID de campo','Etapa','Familia','Ubicación / ramal','Cantidad','X (m)','Z (m)','ID de maqueta','Universo Art-Net','Canales observados o reservados','Estado de control','Validación'],
@@ -87,13 +87,12 @@ function inventarioLeyenda(items,x=851){
      const n=grupo.filter(item=>item.familia===id).length;
      if(!n)continue;
      s+=marca(x+8,y-5,id,etapa,6)+label(x+24,y,f.nombre,14,'start')+
-       label(1113,y,n+(id==='BL'?'*':''),14,'end','font-weight="bold"');
+       label(1113,y,n,14,'end','font-weight="bold"');
      y+=27;
    }
    y+=15;
  }
  if(items.some(f=>f.etapa==='existente')){
-   s+=label(x,y,'* Barras de piso estimadas.',13,'start');y+=19;
    s+=label(x,y,'P1 y BL pendientes de DMX.',13,'start');y+=19;
    s+=label(x,y,'Ubicaciones existentes orientativas.',12,'start');y+=20;
  }
@@ -168,8 +167,8 @@ function sheet(modo){
   s+=dim(tr(-A,0)[0],yt-9,tr(A,0)[0],yt-9,'19,42 m · altar');
   s+=dim(45,tr(0,plan.fondo)[1],45,tr(0,plan.frenteAltar)[1],'5,78 m',true);
   const y1=tr(0,plan.arranqueDerecho)[1],y2=tr(0,plan.limiteSala)[1];
-  s+=line(xr,y1,802,y1,colors.fine,'stroke-dasharray="3 3"')+
-     line(xr,y2,802,y2,colors.fine,'stroke-dasharray="3 3"')+dim(802,y1,802,y2,'12,14 m',true);
+  s+=line(xr,y1,791,y1,colors.fine,'stroke-dasharray="3 3"')+
+     line(xr,y2,791,y2,colors.fine,'stroke-dasharray="3 3"')+dim(791,y1,791,y2,'12,14 m',true);
   s+=label(425,489,'Sector bajo el entrepiso · profundidad aproximada',13);
  }
  for(const f of items){

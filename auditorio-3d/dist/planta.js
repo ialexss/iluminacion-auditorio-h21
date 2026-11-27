@@ -133,9 +133,10 @@ const plantaAuditorio = (() => {
       pos:[x,panel.z+.78],lugar:'Piso del escenario',pendienteDMX:true,
       perfil:{key:'P1',name:perfiles.P1.nombre,channels:perfiles.P1.canales}});
   }
-  for(const [i,x] of [-4.5,-2.25,0,2.25,4.5].entries()){
+  // Cuatro barras confirmadas. Las posiciones en planta son orientativas.
+  for(const [i,x] of [-4.5,-2.25,2.25,4.5].entries()){
     existentes.push({codigo:'BL-'+pad(i+1),familia:'BL',grupo:'bars',visor:'bars-'+(i+1),
-      pos:[x,panel.z+.49],lugar:'Piso del escenario',pendienteDMX:true,estimado:true});
+      pos:[x,panel.z+.49],lugar:'Piso del escenario',pendienteDMX:true});
   }
   return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,arranqueDerecho,limiteSala,extremoPB,
     contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,enTarima,pantallas,paredEn,puentes,porId,punto,filasSala,asientos,

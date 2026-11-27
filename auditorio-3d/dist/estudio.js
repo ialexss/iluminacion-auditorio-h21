@@ -19,7 +19,7 @@ const zones = {
   left: ['Danza izquierda', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal izquierdo de 4 m.'],
   right: ['Danza derecha', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal derecho de 4 m.'],
   moving: ['Móviles MH4–MH7', 'Cuatro móviles sobre el público se orientan hacia las tarimas o hacia los muros.'],
-  bars: ['Barras de piso', 'Las barras lineales de la base del banner distribuyen color de abajo hacia arriba.'],
+  bars: ['Barras de piso', 'Cuatro barras lineales en la base del banner distribuyen color de abajo hacia arriba.'],
   par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.'],
   ambient: ['Bañadores laterales', 'Cuatro bañadores RGB proyectan color en los muros junto a las tarimas.'],
   pixels: ['Barras de píxeles', 'Cuatro barras verticales enmarcan el banner.'],
@@ -64,7 +64,7 @@ let lastPreset = 'dance';
 let inventory = 'all';
 let playing = false;
 const inventoryNotes = {
-  existing:'Ocho frontales P2, P3 y P4, cuatro móviles MH4–MH7 sobre el público y cuatro PAR LED de piso. La cantidad de barras de piso es aproximada.',
+  existing:'Ocho frontales P2, P3 y P4, cuatro móviles MH4–MH7 sobre el público y cuatro PAR LED de piso. Cuatro barras LED de piso completan el montaje existente.',
   all:'El montaje completo reúne las luces instaladas y la propuesta para danza, escenario y público.',
   proposed:'Dos diagonales de danza, ocho PAR en cada uno de los tres puentes de escenario y 45 puntos de sala en la distribución de referencia.',
   future:'El montaje completo incorpora 10 luminarias futuras. Incluye bañadores de muro, barras de fondo y dos móviles de música.'
@@ -93,7 +93,7 @@ const soloDescriptions = {
 };
 function previewUrl(camera, mode=inventory) {
   const cue=lastPreset;
-  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=planta26b';
+  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=barras26';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));

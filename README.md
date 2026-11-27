@@ -9,7 +9,7 @@ El salón mide 34,34 m de ancho y el altar 19,42 × 5,78 m. La cota de 12,14 m a
 - **Danza.** Dos Fresnel y dos PAR LED RGBAW por tarima.
 - **Escenario.** Ocho PAR RGBAW adicionales en el principal, ocho sobre el altar y ocho en el puente posterior.
 - **Sala.** Cinco filas de nueve puntos del DUC de julio. Se alternan filas de PL-01 y LD-01, con 27 y 18 puntos respectivamente. La distribución base suma 77 puntos nuevos. Los 28 PAR nuevos son de tipo SlimPAR RGBAW. Las 10 luminarias decorativas siguen en la ampliación futura.
-- **Cableado.** U0 conserva el parche existente. U1 distribuye los cinco ramales de puentes y U2 los tres de sala. La [ficha de montaje](auditorio-3d/dist/recursos/puentes/ficha-montaje.pdf), el [parche preliminar](auditorio-3d/dist/recursos/puentes/patch-propuesto.csv) y la [hoja de tendido](auditorio-3d/dist/recursos/puentes/tendido-por-tramo.csv) permiten revisar rutas, equipos y modos en sitio.
+- **Cableado.** U0 conserva el parche existente. Los cuatro PAR P1 y las cuatro barras LED de piso tienen conexión DMX pendiente. U1 distribuye los cinco ramales de puentes y U2 los tres de sala. La [ficha de montaje](auditorio-3d/dist/recursos/puentes/ficha-montaje.pdf), el [parche preliminar](auditorio-3d/dist/recursos/puentes/patch-propuesto.csv) y la [hoja de tendido](auditorio-3d/dist/recursos/puentes/tendido-por-tramo.csv) permiten revisar rutas, equipos y modos en sitio.
 
 ## Abrir y usar
 
