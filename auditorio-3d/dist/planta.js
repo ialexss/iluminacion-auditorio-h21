@@ -2,7 +2,19 @@
 const plantaAuditorio = (() => {
   const anchoSala = 34.34, anchoAltar = 19.42, fondoAltar = 5.78;
   const ladoDer = anchoSala/2, ladoIzq = -ladoDer, fondo = -6.8;
-  const frenteAltar = fondo + fondoAltar;
+  const frenteAltar = fondo + fondoAltar, mitadAltar = anchoAltar/2;
+  const curvaFrontal = .85, nivelAltar = .67;
+  const alturaSala = 7.20;
+  const peldaños = 3, huellaLateral = .32;
+  const escaleraLateral = {
+    fondo: fondo + .16, frente: frenteAltar - .43, peldaños, huella: huellaLateral,
+    ancho: peldaños * huellaLateral
+  };
+  const frenteAltarEn = x => frenteAltar - curvaFrontal * (x / mitadAltar) ** 2;
+  const bordeAltar = Array.from({length:33}, (_,i)=>{
+    const x=-mitadAltar+i*anchoAltar/32;
+    return [x,frenteAltarEn(x)];
+  });
   const arranqueDerecho = fondo + 4.13, limiteSala = arranqueDerecho + 12.14;
   const extremoPB = limiteSala + 6.2; // Tramo bajo entrepiso aproximado.
   const contorno = [[ladoIzq,fondo],[ladoDer,fondo],[ladoDer,extremoPB],[ladoIzq,extremoPB]];
@@ -10,7 +22,7 @@ const plantaAuditorio = (() => {
   const metrosPorPixel=anchoSala/(1135-201);
   function ala(signo, arranque, pixelInicio, profundidad){
     const inicio=(pixelInicio-201)*metrosPorPixel+ladoIzq;
-    const puntos=[[signo*anchoAltar/2,arranque]];
+    const puntos=[[signo*(mitadAltar+escaleraLateral.ancho+.07),arranque]];
     for(let i=0;i<=32;i++){
       const a=i*Math.PI/64;
       puntos.push([inicio+(signo*ladoDer-inicio)*Math.sin(a),arranque+profundidad*metrosPorPixel*(1-Math.cos(a))]);
@@ -30,7 +42,7 @@ const plantaAuditorio = (() => {
     return [p.x+lateral*c+profundidad*s,p.z-lateral*s+profundidad*c];
   }
   // Mobiliario y pantallas estimados con las fotos 7720–7725.
-  const pantallas=[izquierda,derecha].map(([a,b])=>({x:(a[0]+b[0])/2,z:a[1]+.14,w:1.8,h:1.01}));
+  const pantallas=[izquierda,derecha].map(([a,b])=>({x:(Math.sign(a[0])*mitadAltar+b[0])/2,z:a[1]+.14,w:1.8,h:1.01}));
   const danza=[-1,1].map(signo=>{
     const x=signo*14.32;
     const tarima={x,z:0,w:2.7,d:1.65,giro:-Math.atan((paredEn(x+.35)-paredEn(x-.35))/.70)};
@@ -93,7 +105,7 @@ const plantaAuditorio = (() => {
       puntos.push({codigo:'S'+(f+1)+'-'+pad(col+1),tipo:fila.tipo,pos:fila.puntos[col],
         canal,slots:10,visor:'house-'+(f*9+col+1)});canal+=10;
     }
-    ramas.push({id:'S'+(sector+1),nombre:'Sala '+['izquierda','central','derecha'][sector],u:2,y:4.66,puntos});
+    ramas.push({id:'S'+(sector+1),nombre:'Sala '+['izquierda','central','derecha'][sector],u:2,y:alturaSala,puntos});
   }
   // Secciones en abanico, con un bloque continuo frente a la escalera central.
   // Las imágenes permiten reconstruir el patrón, pero no contar el aforo del salón.
@@ -107,7 +119,7 @@ const plantaAuditorio = (() => {
       asientos.push({x:cx+dx*c+dz*s,z:cz-dx*s+dz*c,giro});
     }
   }
-  const panel={x:0,z:-6.36,w:13.82,base:.685,h:2.57};
+  const panel={x:0,z:-6.36,w:13.82,base:.685,h:3.30};
   const barraZ=3.55, profundidadPuente=.34;
   const perfiles={
     P1:{nombre:'Chauvet SlimPAR Q12BT',canales:'010–017',tipo:'PAR de piso'},
@@ -134,14 +146,14 @@ const plantaAuditorio = (() => {
       perfil:{key:'P1',name:perfiles.P1.nombre,channels:perfiles.P1.canales}});
   }
   // Cuatro barras confirmadas. Las posiciones en planta son orientativas.
-  for(const [i,x] of [-4.5,-2.25,2.25,4.5].entries()){
+  for(const [i,x] of [-1.94,-.65,.65,1.94].entries()){
     existentes.push({codigo:'BL-'+pad(i+1),familia:'BL',grupo:'bars',visor:'bars-'+(i+1),
       pos:[x,panel.z+.49],lugar:'Piso del escenario',pendienteDMX:true});
   }
-  return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,arranqueDerecho,limiteSala,extremoPB,
+  return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,bordeAltar,curvaFrontal,nivelAltar,escaleraLateral,arranqueDerecho,limiteSala,extremoPB,
     contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,enTarima,pantallas,paredEn,puentes,porId,punto,filasSala,asientos,
     ingreso:{x:ladoDer,z:3.1,ancho:2},
-    sala:{altura:4.66,planoLectura:.75,haz:41,
+    sala:{altura:alturaSala,techo:8.4,planoLectura:.75,haz:41,
       posiciones:[[-12,1.1],[12,1.1],[-4.3,1.32],[4.3,1.32],[-5.1,6.65],[5.1,6.65]],
       ampliacion:[[-13.5,6.4],[13.5,6.4]]},
     barraZ,profundidadPuente,panel,perfiles,existentes};

@@ -19,7 +19,7 @@ const zones = {
   left: ['Danza izquierda', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal izquierdo de 4 m.'],
   right: ['Danza derecha', 'Dos Fresnel blancos y dos PAR LED RGBAW comparten el puente diagonal derecho de 4 m.'],
   moving: ['Móviles MH4–MH7', 'Cuatro móviles sobre el público se orientan hacia las tarimas o hacia los muros.'],
-  bars: ['Barras de piso', 'Cuatro barras lineales en la base del banner distribuyen color de abajo hacia arriba.'],
+  bars: ['Barras de piso', 'Cuatro barras de piso agrupadas al centro bañan los paneles negros del fondo.'],
   par: ['PAR LED de piso', 'Dos PAR de cada lado del escenario apuntan desde el piso hacia el banner trasero.'],
   ambient: ['Bañadores laterales', 'Cuatro bañadores RGB proyectan color en los muros junto a las tarimas.'],
   pixels: ['Barras de píxeles', 'Cuatro barras verticales enmarcan el banner.'],
@@ -93,7 +93,7 @@ const soloDescriptions = {
 };
 function previewUrl(camera, mode=inventory) {
   const cue=lastPreset;
-  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=barras26';
+  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=altar26';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));
@@ -105,7 +105,7 @@ function updatePair() {
   const camera = cameras[currentCamera] ? currentCamera : 'orbit';
   byId('before-image').src = previewUrl(camera,'existing');
   byId('after-image').src = previewUrl(camera,'all');
-  byId('compare-caption').textContent = 'Óptica de sala simulada a 4,66 m · '+presets[lastPreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
+  byId('compare-caption').textContent = 'Óptica de sala simulada a '+plantaAuditorio.sala.altura.toFixed(2).replace('.',',')+' m · '+presets[lastPreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
 }
 function playMotion(value) {
   playing = value;
@@ -308,7 +308,7 @@ function startViewer() {
   byId('gesture').textContent = 'Cargando vista 3D…';
   function usePreview() {
     host.hidden = true;
-    byId('gesture').textContent = 'Vista fija a 4,66 m · Elige escena y ángulo';
+    byId('gesture').textContent = 'Vista fija a '+plantaAuditorio.sala.altura.toFixed(2).replace('.',',')+' m · Elige escena y ángulo';
     viewer.querySelector('.viewer-type').textContent = 'Maqueta';
   }
   script.onerror = usePreview;

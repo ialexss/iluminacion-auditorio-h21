@@ -60,3 +60,24 @@ test('los 77 puntos de compra tienen códigos propios y excluyen el inventario e
   assert.deepEqual(contarPor(plan.existentes, 'familia'), { P3: 2, P2: 2, P4: 4, MH: 4, P1: 4, BL: 4 });
   assert.deepEqual(new Set(plan.existentes.filter(f => f.pendienteDMX).map(f => f.familia)), new Set(['P1', 'BL']));
 });
+
+test('el altar conserva el frente curvo y espacio para las dos escaleras', () => {
+  const borde = plan.bordeAltar;
+  const mitad = plan.anchoAltar / 2;
+  assert.equal(borde[16][1], plan.frenteAltar);
+  assert.equal(borde[0][1], borde.at(-1)[1]);
+  assert.ok(borde[16][1] > borde[0][1] + .5);
+  for (const pared of [plan.izquierda, plan.derecha]) {
+    assert.ok(Math.abs(pared[0][0]) > mitad + plan.escaleraLateral.ancho);
+    assert.ok(plan.escaleraLateral.frente > pared[0][1]);
+  }
+});
+
+test('las cuatro barras quedan agrupadas y la cota de sala supera el principal', () => {
+  const barras = plan.existentes.filter(l => l.familia === 'BL');
+  assert.equal(barras.length, 4);
+  assert.ok(barras.every(l => Math.abs(l.pos[0]) < 2 && l.pendienteDMX));
+  assert.ok(plan.sala.altura > plan.porId.principal.y);
+  assert.ok(plan.sala.altura + .36 < plan.sala.techo);
+  assert.ok(plan.ramales.filter(r => r.u === 2).every(r => r.y === plan.sala.altura));
+});

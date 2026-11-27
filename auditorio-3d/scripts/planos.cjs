@@ -120,7 +120,14 @@ function sheet(modo){
  s+=poly(plan.contorno,'#fff','#a8b3ad');
  s+=poly([[-W,plan.limiteSala],[W,plan.limiteSala],[W,plan.extremoPB],[-W,plan.extremoPB]],'#edf0eb','none');
  for(const [sig,curve] of [[-1,plan.izquierda],[1,plan.derecha]])s+=poly([...curve,[sig*W,plan.fondo],[sig*A,plan.fondo]],'#e8ece6','#95a39a');
- s+=poly([[-A,plan.fondo],[A,plan.fondo],[A,plan.frenteAltar],[-A,plan.frenteAltar]],'#e3ebe3','#8c9d91');
+ s+=poly([[-A,plan.fondo],[A,plan.fondo],...plan.bordeAltar.slice().reverse()],'#e3ebe3','#8c9d91');
+ const escalera=plan.escaleraLateral;
+ for(const lado of [-1,1])for(let paso=0;paso<escalera.peldaños;paso++){
+   const x=lado*(A+paso*escalera.huella), siguiente=x+lado*escalera.huella;
+   s+=poly([[x,escalera.fondo],[siguiente,escalera.fondo],[siguiente,escalera.frente],[x,escalera.frente]],'#c5cec4','#89968b');
+ }
+ const p=plan.panel;
+ s+=polyline([[p.x-p.w/2,p.z],[p.x+p.w/2,p.z]],'#303431','stroke-width="3"');
  s+=label(425,151,'ALTAR',11,'middle','fill="#68776a" letter-spacing="2"');
  if(!wiring)for(const {x,z,giro} of plan.asientos){
    const [px,py]=tr(x,z);
@@ -181,12 +188,13 @@ function sheet(modo){
    const ladoPar=f.familia==='P1'?(f.codigo==='P1-01'||f.codigo==='P1-03'?-1:1):0;
    const ladoDanza=f.ramal==='DI'?-1:f.ramal==='DD'?1:0;
    const dx=ladoDanza*9+ladoPar*7;
-   const dy=ladoDanza?3:ladoPar?16:f.universo===2&&!f.codigo.startsWith('S2-')?16:-9;
+   const rotuloBarra=f.familia==='BL'?(Number(f.codigo.slice(-2))%2?15:25):null;
+   const dy=rotuloBarra??(ladoDanza?3:ladoPar?16:f.universo===2&&!f.codigo.startsWith('S2-')?16:-9);
    const anchor=dx<0?'end':dx>0?'start':'middle';
    s+=`<g data-id="${f.codigo}" data-etapa="${f.etapa}"><title>${f.codigo} · ${familias[f.familia].nombre} · ${f.etapa}</title>`;
    if(delta)s+=line(x,y,x,y+delta,'#657461');
    s+=marca(x,y+delta,f.familia,f.etapa,f.universo===2?4.5:5);
-   if(!wiring)s+=label(x+dx,y+dy+delta,f.codigo,9.7,anchor,
+   if(!wiring)s+=label(x+dx,y+dy+delta,f.codigo,f.familia==='BL'?9.2:9.7,anchor,
       `font-weight="bold" fill="${familias[f.familia].color}" paint-order="stroke" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"`);
    s+='</g>';
  }

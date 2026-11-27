@@ -80,20 +80,15 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     if(i%3===0)box(x,1.31,plan.limiteSala+.20,.13,2.62,.13,m.metal,0,rearGallery);
   }
 
-  // The curved partitions face the dancers. Each wing opens directly onto the stage.
-  for(const [side,curve] of [[-1,plan.izquierda],[1,plan.derecha]]){
-    const x=side*plan.anchoAltar/2;
-    const vertices=[...curve,[curve.at(-1)[0],plan.fondo],[x,plan.fondo]];
-    slab(new T.Shape(vertices.map(([px,pz])=>new T.Vector2(px,-pz))),.02,.64,m.edge);
-    walls(curve,4.18);
-    wall([x,plan.fondo],[x,-6.6],4.18);wall([x,-5.46],curve[0],4.18);
-    box(x,3.63,-6.13,.13,1.1,1.34,m.wall);
-  }
+  // Los muros dejan libre el ancho de las escaleras laterales.
+  walls(plan.izquierda,4.18);
+  walls(plan.derecha,4.18);
   const deck=new T.Shape(), halfStage=plan.anchoAltar/2;
+  const frontEdge=plan.frenteAltar-plan.curvaFrontal;
   deck.moveTo(-halfStage,-plan.fondo);deck.lineTo(halfStage,-plan.fondo);
-  deck.lineTo(halfStage,-plan.frenteAltar+.37);
-  deck.quadraticCurveTo(0,-plan.frenteAltar-.37,-halfStage,-plan.frenteAltar+.37);
-  deck.closePath();slab(deck,.015,.655,m.fascia);
+  deck.lineTo(halfStage,-frontEdge);
+  deck.quadraticCurveTo(0,-plan.frenteAltar-plan.curvaFrontal,-halfStage,-frontEdge);
+  deck.closePath();slab(deck,.015,plan.nivelAltar-.015,m.fascia);
   // World-space tile map is clipped by the same curved footprint as the deck.
   const tileCanvas=document.createElement('canvas');tileCanvas.width=tileCanvas.height=256;
   const tileCtx=tileCanvas.getContext('2d');
@@ -108,10 +103,15 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   tiles.wrapS=tiles.wrapT=T.RepeatWrapping;tiles.repeat.set(1/2.56,1/2.56);
   tiles.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
   const tileTop=new T.Mesh(new T.ShapeGeometry(deck,38).rotateX(-Math.PI/2),new T.MeshPhongMaterial({map:tiles,shininess:22,specular:0x282828}));
-  tileTop.position.y=.671;stage.add(tileTop);
+  tileTop.position.y=plan.nivelAltar+.001;stage.add(tileTop);
   for(let i=0;i<3;i++)box(0,.1*(i+1),plan.frenteAltar+.64-i*.28,2.7,.2*(i+1),.33,m.edge);
-  for(const s of [-1,1]){
-    for(let i=0;i<2;i++)box(s*(halfStage+.56-i*.27),.1*(i+1),-3.62,.29,.2*(i+1),1.1,m.fascia);
+  const lateral=plan.escaleraLateral;
+  for(const side of [-1,1])for(let i=0;i<lateral.peldaños;i++){
+    const x=side*(halfStage+(i+.5)*lateral.huella);
+    const z=(lateral.fondo+lateral.frente)/2;
+    const alto=plan.nivelAltar*(lateral.peldaños-i)/(lateral.peldaños+1);
+    box(x,alto/2,z,lateral.huella,alto,lateral.frente-lateral.fondo,m.fascia);
+    box(x,alto,z,lateral.huella-.015,.012,lateral.frente-lateral.fondo,m.edge);
   }
   const pads=plan.danza.map(({x,z})=>[x,z]);
   for(const {x,z,w,d,giro} of plan.danza){box(x,.16,z,w,.31,d,m.padEdge,giro);box(x,.327,z,w,.035,d,m.pad,giro)}
@@ -131,15 +131,17 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   for(const {x,z,w,h} of plan.pantallas)display(x,2.45,z,w,h,0);
   // Matte faceted scenic banner, below and behind the projection screen.
   const banner=plan.panel, bannerVertices=[], bannerColors=[];
-  function facetPoint(col,row){
+  function facetPoint(col,row,borde=0){
     const relief=(col%2===row%2?.08:0);
-    return [banner.x-banner.w/2+banner.w*col/10,banner.base+banner.h*row/3,banner.z+relief];
+    return [banner.x-banner.w/2+banner.w*col/10+borde,banner.base+banner.h*row/3,banner.z+relief];
   }
   for(let col=0;col<10;col++)for(let row=0;row<3;row++){
-    const a=facetPoint(col,row),b=facetPoint(col+1,row),c=facetPoint(col+1,row+1),d=facetPoint(col,row+1);
+    const juntaIzq=col%2===0?.012:0, juntaDer=col%2===1?-.012:0;
+    const a=facetPoint(col,row,juntaIzq), b=facetPoint(col+1,row,juntaDer);
+    const c=facetPoint(col+1,row+1,juntaDer), d=facetPoint(col,row+1,juntaIzq);
     for(const [i,tri] of [[a,b,c],[a,c,d]].entries()){
       bannerVertices.push(...tri.flat());
-      const shade=.29+.045*((i+col*3+row)%4);
+      const shade=.021+.007*((i+col*3+row)%4);
       for(let n=0;n<3;n++)bannerColors.push(shade,shade*1.03,shade*1.045);
     }
   }
@@ -493,7 +495,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     const y=T.MathUtils.clamp(Number(height),3,8);
     if(houseHeight===y&&housePoints.length===points.length&&points.every(([x,z],i)=>x===housePoints[i][0]&&z===housePoints[i][1]))return;
     housePoints=points.map(([x,z])=>[x,z]);houseHeight=y;
-    const supportTop=Math.max(6.96,y+.80);
+    const supportTop=plan.sala.techo;
     for(let i=0;i<Math.max(points.length,houseLamps.length);i++){
       let unit=houseLamps[i];
       if(i<points.length){
@@ -511,7 +513,6 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       }
       unit.installed=i<points.length;unit.fixtureRoot.visible=unit.installed;
     }
-    ceiling.position.y=inventoryMode==='existing'?0:Math.max(0,y-plan.sala.altura);
     rebuildWash(points,y);drawCables();
     if(layerState)update(layerState);
   }
@@ -881,7 +882,6 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     for(const [key,group] of Object.entries(supports)){
       group.visible=lights.some(l=>(l.group===key||(key==='front'&&l.group==='principal'))&&inInventory(l));
     }
-    ceiling.position.y=which==='existing'?0:Math.max(0,houseHeight-plan.sala.altura);
     if(selectedFixture&&!inInventory(fixtureIndex.get(selectedFixture)))selectedFixture=null;
     if(dragId&&!inInventory(fixtureIndex.get(dragId)))dragFixture(null);
     if(detailId&&mode==='fixture'&&!inInventory(fixtureIndex.get(detailId))){detailId=null;cameraMode('orbit')}

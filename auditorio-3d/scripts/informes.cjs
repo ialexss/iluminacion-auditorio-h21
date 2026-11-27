@@ -65,7 +65,7 @@ archivo('informe','Resumen del proyecto',[header('RESUMEN','Iluminación del aud
  ${tabla(['Zona','Dotación nueva','Puntos'],cantidadesBase)}
  <p><b>Equipos existentes.</b> ${notaExistentes} Los ocho frontales del puente principal se conservan y se complementan con ocho PAR RGBAW nuevos.</p>
  <p><b>Luz de sala.</b> El plano DUC distribuye 27 PL-01 y 18 LD-01. El diseño integra regulación con Lightkey y un mando de pared para uso con el Mac apagado. ${notaFutura}</p>
- <p class="fine">Ancho de sala 34,34 m. Altar 19,42 × 5,78 m. Cada diagonal de danza mide 4,00 m de largo. El aforo y las posiciones de mobiliario requieren levantamiento. <a href="${web}#referencias">Planos y leyendas en la web</a>.</p>`)]);
+ <p class="fine">Ancho de sala 34,34 m. Altar 19,42 × 5,78 m. Frente curvo y dos escaleras laterales. Cada diagonal de danza mide 4,00 m de largo. El aforo y las posiciones de mobiliario requieren levantamiento. <a href="${web}#referencias">Planos y leyendas en la web</a>.</p>`)]);
 
 const filasExistentes=['P1','P2','P3','P4','MH','BL'].map(id=>{
  const grupo=existentes.filter(f=>f.familia===id);
@@ -77,7 +77,7 @@ const filasExistentes=['P1','P2','P3','P4','MH','BL'].map(id=>{
 const sandbox=vm.createContext({window:{}});
 for(const f of ['planta.js','fotometria.js'])vm.runInContext(fs.readFileSync(path.join(dist,f),'utf8'),sandbox);
 const fotometria=sandbox.window.Fotometria;
-const alturas=[4.16,4.66,5.16];
+const alturas=[4.66,plan.sala.altura,7.60];
 const resultados=alturas.map(h=>fotometria.calculate(plan.filasSala.flatMap(f=>f.puntos).length,h,.75));
 const casoBase=resultados[1];
 const casos=resultados.map(r=>{
@@ -97,7 +97,7 @@ archivo('informe-tecnico','Informe técnico',[
  <p class="lead">Simulación con el trazado de 45 puntos PL-01 y LD-01 del DUC.</p>
  <p>Se usa como ensayo una óptica común Elation FUZE Pendant Compact de 45° en blanco a 3.200 K. Cálculo horizontal directo en retícula de 5 cm, sobre el plano de lectura de 0,75 m. Factor de mantenimiento de 0,80. Se analizaron ${fmt(casoBase.totalArea)} m² delante del entrepiso.</p>
  ${tabla(['Altura óptica (m)','Sillas ≥150 lx','Área ≥150 lx','Mín. sillas (lx)','Mín. sala (lx)','Media sala (lx)'],casos)}
- <p>A ${fmt(casoBase.height)} m, el modelo estima ${casoBase.seats150} de ${casoBase.totalSeats} sillas en 150 lx o más. Los mínimos de borde muestran que hace falta comprobar huecos y recorridos. Las sillas se reconstruyeron con fotos y su número es ilustrativo.</p>
+ <p>A ${fmt(casoBase.height)} m, el modelo estima ${casoBase.seats150} de ${casoBase.totalSeats} sillas en 150 lx o más. Se ensaya esa cota para dejar más espacio a los haces de escenario. Verificar estructura, suspensiones y enfoque en sitio. Los mínimos de borde muestran que hace falta comprobar huecos y recorridos. Las sillas se reconstruyeron con fotos y su número es ilustrativo.</p>
  <h2>Prueba de luz real</h2>
  <ol><li>Identificar los modelos PL-01 y LD-01. Incorporar cada archivo IES o LDT y la altura óptica medida.</li>
  <li>Medir con luxómetro en puntos centrales, bordes, pasillos, acceso y bajo el voladizo. Revisar reflejos en pantallas y deslumbramiento desde las primeras filas.</li>

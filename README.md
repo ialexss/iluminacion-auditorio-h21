@@ -23,7 +23,7 @@ El visor compara existentes, nuevos, montaje base y ampliación futura. Ofrece o
 
 En **Cableado**, la hoja de metrado guarda las distancias de cada ramal en este navegador y exporta un CSV. La capa **Cableado DMX** muestra las rutas propuestas en 3D.
 
-La curva de cada pared se traza por separado sobre el ancho interior del CAD. Las tarimas se ubican hacia el exterior de los monitores. Las primeras filas rodean el altar y comparten sus coordenadas con el mapa fotométrico. La posición del mobiliario se estima a partir de las fotos. Las escenas musicales permiten comparar el montaje base y la ampliación con la misma cámara.
+El altar tiene frente curvo, escaleras laterales y paneles negros de fondo. Las cuatro barras de piso están agrupadas al centro. La óptica de sala se ensaya a 7,20 m para separar sus cuerpos y suspensiones de los haces del escenario. La curva de cada pared se traza por separado sobre el ancho interior del CAD. Las tarimas se ubican hacia el exterior de los monitores. Las primeras filas rodean el altar y comparten sus coordenadas con el mapa fotométrico. La posición del mobiliario se estima a partir de las fotos. Las escenas musicales permiten comparar el montaje base y la ampliación con la misma cámara.
 
 La geometría compartida está en [planta.js](auditorio-3d/dist/planta.js). Al cambiar los puentes o las filas, ejecutar `node auditorio-3d/scripts/ficha.cjs` para regenerar planos, tablas de campo y ficha imprimible. Imprimir `recursos/puentes/ficha.html` en A4 como `ficha-montaje.pdf`.
 
@@ -31,3 +31,5 @@ La geometría compartida está en [planta.js](auditorio-3d/dist/planta.js). Al c
 El plano usa símbolos de contorno para los equipos existentes y marcas rellenas para los nuevos. [Ver los dos montajes juntos](auditorio-3d/dist/recursos/puentes/planta-combinada.svg) · [Inventario por código y fase](auditorio-3d/dist/recursos/puentes/inventario-iluminacion.csv) · [Las tres plantas en A3](auditorio-3d/dist/recursos/puentes/planos-iluminacion.pdf).
 
 Para regenerar los informes, ejecutar `node auditorio-3d/scripts/informes.cjs /tmp/h21-informes`. Imprimir los HTML a PDF con gráficos de fondo y tamaño de página CSS. Guardar informe, informe-tecnico y plan-iluminacion en `dist/recursos` y planos-iluminacion en `dist/recursos/puentes`. El informe completo reúne el resumen, las plantas, el informe técnico, la ficha y el presupuesto. La fotometría de los PDF se genera con el mismo cálculo que usa la web.
+
+Con el servidor local iniciado y Playwright disponible, ejecutar `node auditorio-3d/scripts/vistas.cjs http://127.0.0.1:8000/` para regenerar imágenes y miniaturas. El script valida que cada captura tenga contenido de la maqueta antes de escribir las vistas.

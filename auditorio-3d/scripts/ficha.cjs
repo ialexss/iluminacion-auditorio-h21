@@ -1,6 +1,6 @@
 /* Imprimir ficha.html en A4 para producir ficha-montaje.pdf. */
 const fs=require('node:fs'), path=require('node:path');
-const {ramas,fmt,addr,out}=require('./planos.cjs');
+const {ramas,fmt,addr,out,plan}=require('./planos.cjs');
 const title=(page,name)=>`<header><b>H21 &nbsp;/&nbsp; SALÓN 01</b><span>PLANTA BAJA &nbsp;·&nbsp; 26 NOV 2026</span></header><h1>${name}</h1><footer>Proyecto de iluminación &nbsp;·&nbsp; Revisión de puentes y sala <b>${page} / 3</b></footer>`;
 const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>H21 · Ficha de montaje y cableado</title><style>
 @page{size:A4;margin:0}*{box-sizing:border-box}body{background:#e6e9e3;color:#172922;margin:0;font:10.5pt/1.42 Helvetica,Arial,sans-serif}
@@ -17,7 +17,7 @@ img{width:100%;display:block;border:.5pt solid #b7c0b7}table{width:100%;border-c
 <tr><td>Puente principal existente</td><td>8 PAR RGBAW adicionales</td><td>8</td></tr>
 <tr><td>Puente sobre el altar / posterior</td><td>8 PAR RGBAW por puente nuevo</td><td>16</td></tr>
 <tr><td>Sala, cinco filas de nueve</td><td>27 PL-01 + 18 LD-01</td><td>45</td></tr></tbody></table>
-<h2>Dimensiones de replanteo</h2><p>El salón mide <b>34,34 m</b> de ancho (34,33 m en la segunda línea de cota). El altar mide <b>19,42 × 5,78 m</b>. El tramo de <b>12,14 m</b> parte del arranque lateral derecho y termina en la línea transversal frente al entrepiso. El plano también acota 4,01 y 4,13 m en los laterales del altar.</p>
+<h2>Dimensiones de replanteo</h2><p>El salón mide <b>34,34 m</b> de ancho (34,33 m en la segunda línea de cota). El altar mide <b>19,42 × 5,78 m</b>. El tramo de <b>12,14 m</b> parte del arranque lateral derecho y termina en la línea transversal frente al entrepiso. El plano también acota 4,01 y 4,13 m en los laterales del altar. El modelo muestra el frente curvo y las dos escaleras laterales. La altura de ensayo de la óptica de sala es ${fmt(plan.sala.altura)} m para dejar espacio a los haces del escenario.</p>
 <p class="fine">Base documental · DUC-I-H21-SALON01-290726 de 29/07/2026, capturas CAD y croquis de diagonales entregados por H21. Las fotos sitúan las tarimas hacia el exterior de los monitores y las primeras sillas frente a la escalera. Levantar sus posiciones, anclajes y el fondo bajo el entrepiso.</p></section>
 <section>${title(2,'Distribución de señal')}
 <p class="lead">Lightkey → Art-Net → nodo → distribuidores aislados → luminarias.</p>
