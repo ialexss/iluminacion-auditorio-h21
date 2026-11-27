@@ -104,7 +104,10 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   tiles.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
   const tileTop=new T.Mesh(new T.ShapeGeometry(deck,38).rotateX(-Math.PI/2),new T.MeshPhongMaterial({map:tiles,shininess:22,specular:0x282828}));
   tileTop.position.y=plan.nivelAltar+.001;stage.add(tileTop);
-  for(let i=0;i<3;i++)box(0,.1*(i+1),plan.frenteAltar+.64-i*.28,2.7,.2*(i+1),.33,m.edge);
+  const central=plan.escaleraCentral;
+  const centralDepth=central.frente-central.fondo;
+  box(0,central.altoBase/2,(central.fondo+central.frente)/2,central.ancho,central.altoBase,centralDepth,m.edge);
+  box(0,central.altoSuperior/2,(central.fondo+central.frente-.17)/2,central.anchoSuperior,central.altoSuperior,centralDepth-.17,m.iron);
   const lateral=plan.escaleraLateral;
   for(const side of [-1,1])for(let i=0;i<lateral.peldaños;i++){
     const x=side*(halfStage+(i+.5)*lateral.huella);
@@ -149,7 +152,6 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   bannerGeo.setAttribute('position',new T.Float32BufferAttribute(bannerVertices,3));
   bannerGeo.setAttribute('color',new T.Float32BufferAttribute(bannerColors,3));bannerGeo.computeVertexNormals();
   stage.add(new T.Mesh(bannerGeo,new T.MeshLambertMaterial({vertexColors:true})));
-  rod(v(0,5.01,-2.17),v(0,3.7,-2.17),.035,m.iron);box(0,3.62,-2.17,.56,.21,.37,m.edge);
   for(const {x,z,giro} of plan.asientos){
     box(x,.35,z,.51,.13,.43,m.seat,giro);
     box(x+.188*Math.sin(giro),.59,z+.188*Math.cos(giro),.51,.40,.09,m.seatBack,giro);
@@ -193,6 +195,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     truss(0,0,-frontDepth/2,length,frontDepth,Math.ceil(length/.68),local);
     for(const t of [.08,.92])suspension((t-.5)*length,frontDepth,-frontDepth/2,local);
   }
+  // El herraje del proyector comparte el cordón inferior del puente frontal.
+  const p=plan.proyector, cuerpoY=p.anclajeY-p.caida;
+  const soporteProyector=new T.Group();
+  soporteProyector.name='Proyector en puente frontal';
+  supports.front.add(soporteProyector);
+  box(p.x,p.anclajeY,p.z,.16,.11,.20,m.iron,0,soporteProyector);
+  rod(v(p.x,p.anclajeY,p.z),v(p.x,cuerpoY+.13,p.z),.036,m.iron,soporteProyector);
+  box(p.x,cuerpoY+.12,p.z,.37,.05,.29,m.iron,0,soporteProyector);
+  box(p.x,cuerpoY,p.z,.52,.16,.36,m.edge,0,soporteProyector);
+  rod(v(p.x+.13,cuerpoY,p.z-.18),v(p.x+.13,cuerpoY,p.z-.205),.052,m.iron,soporteProyector);
   rod(v(-7.8,railY,railZ),v(7.8,railY,railZ),.062,m.bridge,supports.moving);
   for(const x of [-7,7])suspension(x,railY,railZ,supports.moving);
   for(const z of [-.2,2,4.2,6.4,8.6])for(const x of [-13,-9,-4.5,0,4.5,9,13]){
@@ -557,6 +569,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   tag('Danza der.',v(pads[1][0],.35,pads[1][1]),general);
   tag('Barra de móviles',v(-.70,railY,railZ),[...general,'side'],'moving');
   tag('Banner',v(-2.02,1.72,banner.z),[...general,'front']);
+  tag('Proyector',v(p.x,cuerpoY,p.z),['front','side'],'front');
   tag('Ingreso',v(entrada.x,1.15,entrada.z),general);
   for(const p of plan.puentes){
     const mid=plan.punto(p,.5), lateral=p.id==='left'||p.id==='right';

@@ -119,8 +119,12 @@ function sheet(modo){
  const W=plan.ladoDer,A=plan.anchoAltar/2;
  s+=poly(plan.contorno,'#fff','#a8b3ad');
  s+=poly([[-W,plan.limiteSala],[W,plan.limiteSala],[W,plan.extremoPB],[-W,plan.extremoPB]],'#edf0eb','none');
- for(const [sig,curve] of [[-1,plan.izquierda],[1,plan.derecha]])s+=poly([...curve,[sig*W,plan.fondo],[sig*A,plan.fondo]],'#e8ece6','#95a39a');
+ for(const [sig,curve] of [[-1,plan.izquierda],[1,plan.derecha]])s+=poly([...curve,[sig*W,plan.fondo],[curve[0][0],plan.fondo]],'#e8ece6','#95a39a');
  s+=poly([[-A,plan.fondo],[A,plan.fondo],...plan.bordeAltar.slice().reverse()],'#e3ebe3','#8c9d91');
+ const acceso=plan.escaleraCentral;
+ const a=acceso.ancho/2, b=acceso.anchoSuperior/2;
+ s+=poly([[-a,acceso.fondo],[a,acceso.fondo],[a,acceso.frente],[-a,acceso.frente]],'#bac6bb','#8c9d91');
+ s+=poly([[-b,acceso.fondo],[b,acceso.fondo],[b,acceso.frente-.17],[-b,acceso.frente-.17]],'#879788','#666b65');
  const escalera=plan.escaleraLateral;
  for(const lado of [-1,1])for(let paso=0;paso<escalera.peldaños;paso++){
    const x=lado*(A+paso*escalera.huella), siguiente=x+lado*escalera.huella;

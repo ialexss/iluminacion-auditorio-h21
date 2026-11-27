@@ -61,11 +61,8 @@ window.Fotometria = (() => {
       const dx=x-pad.x,dz=z-pad.z,c=Math.cos(pad.giro),s=Math.sin(pad.giro);
       if(Math.abs(dx*c-dz*s)<=pad.w/2 && Math.abs(dx*s+dz*c)<=pad.d/2)return false;
     }
-    if (Math.abs(x) <= 1.35) {
-      for (let stair = 0; stair < 3; stair++) {
-        if (Math.abs(z - (plan.frenteAltar+.64 - stair * .28)) <= .165) return false;
-      }
-    }
+    const acceso = plan.escaleraCentral;
+    if (Math.abs(x) <= acceso.ancho / 2 && z >= acceso.fondo && z <= acceso.frente) return false;
     return true;
   }
   let domain;

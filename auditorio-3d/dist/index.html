@@ -7,14 +7,14 @@
   <meta name="description" content="Maqueta interactiva, distribución de luminarias y estudio de cobertura del auditorio.">
   <title>Iluminación del auditorio</title>
   <link rel="stylesheet" href="estudio.css?v=barras26">
-  <script defer src="planta.js?v=altar26"></script>
+  <script defer src="planta.js?v=frente26"></script>
   <script defer src="cableado.js?v=planta26b"></script>
-  <script defer src="fotometria.js?v=planta26b"></script>
-  <script defer src="modelo.js?v=altar26"></script>
-  <script defer src="cobertura-vista.js?v=planta26b"></script>
+  <script defer src="fotometria.js?v=frente26"></script>
+  <script defer src="modelo.js?v=frente26"></script>
+  <script defer src="cobertura-vista.js?v=frente26"></script>
   <script defer src="exportar-glb.js"></script>
   <script defer src="editor.js?v=planta26b"></script>
-  <script defer src="estudio.js?v=altar26"></script>
+  <script defer src="estudio.js?v=frente26"></script>
 </head>
 <body>
 <a class="skip" href="#maqueta">Ir a la maqueta</a>
@@ -32,7 +32,7 @@
       <button type="button" data-inventory="future" aria-pressed="false">Con ampliación futura</button>
     </div></div>
     <div class="viewer static" id="viewer">
-      <img class="poster" id="poster" src="recursos/vistas/orbit.webp?v=altar26" alt="Perspectiva general del auditorio y sus luminarias" fetchpriority="high">
+      <img class="poster" id="poster" src="recursos/vistas/orbit.webp?v=frente26" alt="Perspectiva general del auditorio y sus luminarias" fetchpriority="high">
       <div id="canvas-area" tabindex="0" aria-label="Vista 3D. Usa las flechas para mover la vista y los signos más y menos para acercar o alejar."></div>
       <div id="anchors" aria-hidden="true"></div>
       <div class="viewer-head"><div><span class="viewer-type">Vista 3D</span><p id="view-name">Perspectiva</p></div>
@@ -113,7 +113,7 @@
         <div id="aim" hidden><label for="aim-choice">Enfoque base de los móviles</label><select id="aim-choice"><option value="dance">Tarimas</option><option value="walls">Muros laterales</option></select></div>
       </div><p id="group-detail" class="detail-copy"></p>
     </details>
-    <p class="model-note">Salón de 34,34 m de ancho y altar de 19,42 × 5,78 m. El altar tiene frente curvo y escaleras laterales. Cada diagonal de danza mide 4 m de largo. La altura de los laterales y la geometría del entrepiso son provisionales. <a href="#referencias">Plano de puntos de montaje</a> · <a href="?montaje=proposed&amp;escena=dance&amp;vista=right#maqueta" data-demo="dance">Ver danza derecha</a></p>
+    <p class="model-note">Salón de 34,34 m de ancho y altar de 19,42 × 5,78 m. El altar tiene frente curvo, escaleras cortas en los extremos y una grada central. El proyector cuelga del puente frontal. Cada diagonal de danza mide 4 m de largo. La altura de los laterales y la geometría del entrepiso son provisionales. <a href="#referencias">Plano de puntos de montaje</a> · <a href="?montaje=proposed&amp;escena=dance&amp;vista=right#maqueta" data-demo="dance">Ver danza derecha</a></p>
   </section>
 
   <section id="referencias" class="mounting" aria-labelledby="mount-title">
@@ -128,19 +128,19 @@
     <div class="plan-navigation">
       <p><b>Contorno</b> para equipos existentes. <b>Relleno</b> para equipos nuevos. Cada símbolo tiene un código que coincide con el inventario.</p>
       <p class="plan-hint">La leyenda está a la derecha. Desplaza el plano para verla.</p>
-      <a href="recursos/puentes/planos-iluminacion.pdf?v=altar26" download>Tres plantas · PDF A3</a>
-      <a href="recursos/puentes/inventario-iluminacion.csv?v=altar26" download>Inventario por código · CSV</a>
+      <a href="recursos/puentes/planos-iluminacion.pdf?v=frente26" download>Tres plantas · PDF A3</a>
+      <a href="recursos/puentes/inventario-iluminacion.csv?v=frente26" download>Inventario por código · CSV</a>
     </div>
     <div id="sheet-combinado" class="mount-sheet">
       <figure class="mount-plan">
-        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta combinada de H21 con símbolos y códigos de los equipos existentes y nuevos"><a href="recursos/puentes/planta-combinada.svg?v=altar26"><img src="recursos/puentes/planta-combinada.svg?v=altar26" alt="Planta combinada de H21 con símbolos y códigos de los equipos existentes y nuevos" width="1140" height="592" loading="lazy"></a></div>
-        <figcaption>El puente principal reúne ocho frontales instalados y ocho PAR nuevos. Los cuatro P1 y las cuatro barras LED de piso aparecen como existentes con conexión DMX pendiente. La ampliación musical de diez equipos figura en el inventario como fase futura. <a href="recursos/puentes/planta-combinada.svg?v=altar26">Abrir plano a tamaño completo</a></figcaption>
+        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta combinada de H21 con símbolos y códigos de los equipos existentes y nuevos"><a href="recursos/puentes/planta-combinada.svg?v=frente26"><img src="recursos/puentes/planta-combinada.svg?v=frente26" alt="Planta combinada de H21 con símbolos y códigos de los equipos existentes y nuevos" width="1140" height="592" loading="lazy"></a></div>
+        <figcaption>El puente principal reúne ocho frontales instalados y ocho PAR nuevos. Los cuatro P1 y las cuatro barras LED de piso aparecen como existentes con conexión DMX pendiente. La ampliación musical de diez equipos figura en el inventario como fase futura. <a href="recursos/puentes/planta-combinada.svg?v=frente26">Abrir plano a tamaño completo</a></figcaption>
       </figure>
     </div>
     <div id="sheet-propuesto" class="mount-sheet" hidden>
       <figure class="mount-plan">
-        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta de los 77 puntos nuevos con leyenda y códigos"><a href="recursos/puentes/planta.svg?v=altar26"><img src="recursos/puentes/planta.svg?v=altar26" alt="Planta de los 77 puntos nuevos con leyenda y códigos" width="1140" height="592" loading="lazy"></a></div>
-        <figcaption>Compra base de 77 puntos. Cuatro Fresnel, 28 PAR RGBAW y 45 puntos de sala. <a href="recursos/puentes/planta.svg?v=altar26">Abrir plano a tamaño completo</a></figcaption>
+        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta de los 77 puntos nuevos con leyenda y códigos"><a href="recursos/puentes/planta.svg?v=frente26"><img src="recursos/puentes/planta.svg?v=frente26" alt="Planta de los 77 puntos nuevos con leyenda y códigos" width="1140" height="592" loading="lazy"></a></div>
+        <figcaption>Compra base de 77 puntos. Cuatro Fresnel, 28 PAR RGBAW y 45 puntos de sala. <a href="recursos/puentes/planta.svg?v=frente26">Abrir plano a tamaño completo</a></figcaption>
       </figure>
       <ol class="fixture-key" aria-label="Luminarias por cotizar">
         <li><img src="recursos/montaje/fresnel.webp" alt="Fresnel LED con viseras" loading="lazy"><div><h3><span>1</span> Fresnel de danza <small>4 uds.</small></h3><p>Dos por tarima, en los extremos de cada diagonal. Cruzar el blanco sobre los rostros y recortar con las viseras para proteger los monitores.</p><a href="https://www.chauvetdj.com/products/eve-f-50z/">Familia de referencia</a> · <a href="?montaje=proposed&amp;luz=left-1#maqueta">Ver Fresnel</a></div></li>
@@ -150,8 +150,8 @@
     </div>
     <div id="sheet-existente" class="mount-sheet" hidden>
       <figure class="mount-plan">
-        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta de equipos existentes con los perfiles P1 a P4, MH4 a MH7 y barras de piso"><a href="recursos/puentes/planta-existente.svg?v=altar26"><img src="recursos/puentes/planta-existente.svg?v=altar26" alt="Planta de equipos existentes con los perfiles P1 a P4, MH4 a MH7 y barras de piso" width="1140" height="592" loading="lazy"></a></div>
-        <figcaption>El inventario identifica 16 equipos por los perfiles de Lightkey. Se incluyen además cuatro barras LED de piso con conexión DMX pendiente. <a href="recursos/puentes/planta-existente.svg?v=altar26">Abrir plano a tamaño completo</a></figcaption>
+        <div class="plan-scroll" tabindex="0" role="region" aria-label="Planta de equipos existentes con los perfiles P1 a P4, MH4 a MH7 y barras de piso"><a href="recursos/puentes/planta-existente.svg?v=frente26"><img src="recursos/puentes/planta-existente.svg?v=frente26" alt="Planta de equipos existentes con los perfiles P1 a P4, MH4 a MH7 y barras de piso" width="1140" height="592" loading="lazy"></a></div>
+        <figcaption>El inventario identifica 16 equipos por los perfiles de Lightkey. Se incluyen además cuatro barras LED de piso con conexión DMX pendiente. <a href="recursos/puentes/planta-existente.svg?v=frente26">Abrir plano a tamaño completo</a></figcaption>
       </figure>
       <dl class="installed-key">
         <div><dt>P1 <span>4 uds.</span></dt><dd><strong>PAR de piso</strong><p>Dos a cada lado del escenario, dirigidos al banner.</p><a href="https://www.chauvetdj.com/products/slimpar-q12-bt/">Chauvet DJ SlimPAR Q12BT</a> · <a href="?montaje=existing&amp;luz=par-1#maqueta">Ver punto</a></dd></div>
@@ -162,22 +162,22 @@
         <div><dt>Barras LED <span>4 uds.</span></dt><dd><strong>Baño del banner</strong><p>Cuatro barras agrupadas al centro del fondo. Bañan los paneles negros desde el piso. Ubicación en planta orientativa y conexión DMX pendiente.</p><a href="?montaje=existing&amp;luz=bars-1#maqueta">Ver punto</a></dd></div>
       </dl>
     </div>
-    <details class="wings" id="danza"><summary>Tarimas, escaleras y muros laterales <span class="summary-symbol" aria-hidden="true"></span></summary>
+    <details class="wings" id="danza"><summary>Tarimas, escaleras y forma del altar <span class="summary-symbol" aria-hidden="true"></span></summary>
       <div class="wing-photos">
         <figure><a href="recursos/referencias/danza-7720.webp"><img src="recursos/referencias/danza-7720.webp" loading="lazy" alt="Tarima izquierda hacia el exterior de la pantalla con la escalera hacia el escenario en el borde interior."></a><figcaption>Tarima izquierda · Acceso al escenario por la derecha</figcaption></figure>
         <figure><a href="recursos/puentes/diagonales.webp"><img class="room-plan" src="recursos/puentes/diagonales.webp" loading="lazy" alt="Croquis de la iglesia con los dos ejes de danza señalados en verde."></a><figcaption>Croquis de orientación recibido · <a href="recursos/montaje/detalle-planta-baja.webp">Consultar el trazado original de planta baja</a></figcaption></figure>
         <figure><a href="recursos/referencias/danza-7724.webp"><img src="recursos/referencias/danza-7724.webp" loading="lazy" alt="Tarima derecha hacia el exterior de la pantalla, con los escalones hacia su izquierda."></a><figcaption>Tarima derecha · Acceso al escenario por la izquierda</figcaption></figure>
       </div>
       <figure class="focus-detail"><a href="recursos/puentes/danza-derecha.svg?v=barras26"><img loading="lazy" width="765" height="550" src="recursos/puentes/danza-derecha.svg?v=barras26" alt="Detalle a escala de la pantalla, la tarima derecha y los cuatro puntos de enfoque."></a></figure>
-      <p class="model-note">La pantalla queda hacia el altar y la tarima hacia el muro exterior. El primer bloque de sillas llega frente a los escalones. La forma de las paredes se trazó sobre el CAD. La posición de los muebles, el giro de las tarimas y la separación entre filas se estimaron con las fotos.</p>
+      <p class="model-note">La pantalla queda hacia el altar y la tarima hacia el muro exterior. El primer bloque de sillas llega frente a los escalones. La forma de las paredes se trazó sobre el CAD. El video muestra las gradas cortas a los lados y el frente del altar arqueado hacia las butacas. El proyector cuelga del puente frontal. Las dimensiones de los peldaños y de la curva se estiman por imagen. La posición de los muebles, el giro de las tarimas y la separación entre filas se estimaron con las fotos.</p>
       <a href="?montaje=proposed&amp;escena=dance&amp;vista=right#maqueta" data-demo="dance">Ver el enfoque de la tarima derecha en 3D ↗</a>
     </details>
   </section>
 
   <section id="cableado" class="wiring" aria-labelledby="wiring-title">
-    <header class="mount-head"><div><p class="kicker">Instalación · planta baja</p><h2 id="wiring-title">Puentes y cableado</h2></div><a href="recursos/puentes/ficha-montaje.pdf?v=altar26" class="download">Ficha de montaje PDF <span data-icon="download"></span></a></header>
+    <header class="mount-head"><div><p class="kicker">Instalación · planta baja</p><h2 id="wiring-title">Puentes y cableado</h2></div><a href="recursos/puentes/ficha-montaje.pdf?v=frente26" class="download">Ficha de montaje PDF <span data-icon="download"></span></a></header>
     <div class="wire-grid">
-      <figure class="wire-plan"><a href="recursos/puentes/ramales.svg?v=altar26"><img src="recursos/puentes/ramales.svg?v=altar26" loading="lazy" width="1140" height="592" alt="Distribución de señal. Cinco salidas DMX alimentan los puentes y tres salidas sirven a grupos de tres columnas de sala."></a><figcaption>Vista desde las butacas hacia el altar. Los trazos muestran el orden de conexión previsto. <a href="recursos/puentes/tendido-por-tramo.csv?v=planta26b" download>Hoja de tendido por tramo · CSV</a></figcaption>
+      <figure class="wire-plan"><a href="recursos/puentes/ramales.svg?v=frente26"><img src="recursos/puentes/ramales.svg?v=frente26" loading="lazy" width="1140" height="592" alt="Distribución de señal. Cinco salidas DMX alimentan los puentes y tres salidas sirven a grupos de tres columnas de sala."></a><figcaption>Vista desde las butacas hacia el altar. Los trazos muestran el orden de conexión previsto. <a href="recursos/puentes/tendido-por-tramo.csv?v=planta26b" download>Hoja de tendido por tramo · CSV</a></figcaption>
         <button type="button" id="open-wire-plan" class="text-link plain-link">Ver ramales en el 3D</button></figure>
       <div class="wire-aside"><h3>Cotas de referencia</h3><dl>
         <div><dt>Ancho interior del salón</dt><dd>34,34 m</dd></div><div><dt>Altar · ancho × fondo</dt><dd>19,42 × 5,78 m</dd></div><div><dt>Desde el arranque lateral derecho hasta la línea transversal</dt><dd>12,14 m</dd></div><div><dt>Longitud de cada diagonal de danza</dt><dd>4,00 m</dd></div>
@@ -192,7 +192,7 @@
       <div class="meter-scroll" role="region" aria-label="Metrado por ramal, desplazable horizontalmente" tabindex="0"><table><thead><tr><th>Ramal</th><th>Universo / equipos</th><th>En planta</th><th>Troncal medida (m)</th><th>Enlaces medidos (m)</th><th>Total medido</th></tr></thead><tbody id="wire-rows"></tbody></table></div>
       <p id="wire-result" role="status"></p><button class="text-link plain-link" id="wire-export" type="button">Exportar mis medidas · CSV</button>
     </details>
-    <div class="wire-details"><article><h3>Señal desde Lightkey</h3><p>Mac → Art-Net → nodo con salidas independientes. U0 conserva el parche existente. U1 alimenta un distribuidor DMX aislado con cinco salidas para DI, DD, PR, AL y PO. U2 alimenta otro con tres salidas para la sala. Un distribuidor repite el universo de entrada. En sala, cada ramal recorre tres columnas contiguas de cinco puntos, en serpentina desde el fondo hacia el altar.</p><p>Conectar cada ramal en cadena con cable DMX y terminar su último equipo a 120 Ω. Verificar puertos, numeración de universos y licencia. Para los PAR y barras de piso pendientes, prever una salida aislada de U0 hasta el primer equipo del banner, enlazar el resto en cadena y terminar el último. Leer modelo, dirección y modo reales antes de fijar el orden definitivo y la cantidad de latiguillos. <a href="https://www.lightkeyapp.com/en/help">Lightkey</a> · <a href="https://support.etcconnect.com/ETC/Getting_Started_with_ETC_and_FAQ/DMX512-Info">Guía DMX de ETC</a></p><a href="recursos/puentes/patch-propuesto.csv?v=altar26" download>Descargar parche preliminar · 77 puntos</a></article>
+    <div class="wire-details"><article><h3>Señal desde Lightkey</h3><p>Mac → Art-Net → nodo con salidas independientes. U0 conserva el parche existente. U1 alimenta un distribuidor DMX aislado con cinco salidas para DI, DD, PR, AL y PO. U2 alimenta otro con tres salidas para la sala. Un distribuidor repite el universo de entrada. En sala, cada ramal recorre tres columnas contiguas de cinco puntos, en serpentina desde el fondo hacia el altar.</p><p>Conectar cada ramal en cadena con cable DMX y terminar su último equipo a 120 Ω. Verificar puertos, numeración de universos y licencia. Para los PAR y barras de piso pendientes, prever una salida aislada de U0 hasta el primer equipo del banner, enlazar el resto en cadena y terminar el último. Leer modelo, dirección y modo reales antes de fijar el orden definitivo y la cantidad de latiguillos. <a href="https://www.lightkeyapp.com/en/help">Lightkey</a> · <a href="https://support.etcconnect.com/ETC/Getting_Started_with_ETC_and_FAQ/DMX512-Info">Guía DMX de ETC</a></p><a href="recursos/puentes/patch-propuesto.csv?v=frente26" download>Descargar parche preliminar · 77 puntos</a></article>
       <article><h3>Potencia y mando de pared</h3><p>Tablero → protecciones por circuito → distribución de potencia por zona → luminarias. El electricista dimensiona circuitos y enlaces con tensión local, corriente de placa, arranque, caída de tensión y límites del fabricante. Medir cada subida, recorrido por bandeja y bajada antes de pedir cable.</p><p>Para la sala, prever una estación mural «Encender / Apagar» y un controlador arquitectónico con prioridad local y escena blanca guardada. Probar la sala con el Mac apagado y el retorno de control a Lightkey. El alumbrado de emergencia mantiene su alimentación y mando independientes.</p><a href="recursos/puentes/potencia-por-zona.csv" download>Hoja de potencia por zona · CSV</a></article>
     </div>
     <details class="method"><summary>Material y comprobaciones de montaje <span class="summary-symbol" aria-hidden="true"></span></summary>
@@ -246,8 +246,8 @@
       </div>
     </header>
     <div class="music-comparison">
-      <figure class="future-preview"><a href="?montaje=all&amp;escena=music&amp;vista=seats#maqueta" data-demo="music"><img src="recursos/vistas/music/seats.webp?v=altar26" alt="Alabanza desde butacas con los tres puentes de escenario y las diagonales de danza." width="1100" height="500" loading="lazy"></a><figcaption><b>Montaje base</b> · Blanco frontal, azul superior y contraluz violeta.</figcaption></figure>
-      <figure class="future-preview"><a href="?montaje=future&amp;escena=music&amp;vista=seats#maqueta" data-demo="music"><img src="recursos/vistas/future/music/seats.webp?v=altar26" alt="Misma perspectiva con las barras cian en los extremos del banner, los bañadores y los móviles posteriores." width="1100" height="500" loading="lazy"></a><figcaption><b>Con ampliación</b> · Misma cámara y niveles de base, con diez equipos adicionales.</figcaption></figure>
+      <figure class="future-preview"><a href="?montaje=all&amp;escena=music&amp;vista=seats#maqueta" data-demo="music"><img src="recursos/vistas/music/seats.webp?v=frente26" alt="Alabanza desde butacas con los tres puentes de escenario y las diagonales de danza." width="1100" height="500" loading="lazy"></a><figcaption><b>Montaje base</b> · Blanco frontal, azul superior y contraluz violeta.</figcaption></figure>
+      <figure class="future-preview"><a href="?montaje=future&amp;escena=music&amp;vista=seats#maqueta" data-demo="music"><img src="recursos/vistas/future/music/seats.webp?v=frente26" alt="Misma perspectiva con las barras cian en los extremos del banner, los bañadores y los móviles posteriores." width="1100" height="500" loading="lazy"></a><figcaption><b>Con ampliación</b> · Misma cámara y niveles de base, con diez equipos adicionales.</figcaption></figure>
     </div>
     <dl class="future-equipment">
       <div><dt><span>4 uds.</span> Bañadores RGBW</dt><dd>Dos por lateral, dirigidos a la pared a ambos lados de la tarima. Óptica abierta orientada al muro, con soportes bajos fuera de pasos y viseras si hay luz directa a las butacas.</dd><dd><a href="https://chauvetprofessional.com/product/colordash-par-h12x-ip/">Ficha de referencia · COLORdash PAR H12X IP</a></dd></div>
@@ -263,12 +263,12 @@
   <section id="informes" class="reports" aria-labelledby="reports-title">
     <div><p class="kicker">Documentación</p><h2 id="reports-title">Informes</h2></div>
     <div class="report-list">
-      <div class="report-row"><div><a class="report-title" href="recursos/puentes/planos-iluminacion.pdf?v=altar26">Planos de iluminación</a><p>Tres plantas en A3 con los mismos símbolos y códigos del inventario.</p></div><a class="download" aria-label="Descargar Planos de iluminación" href="recursos/puentes/planos-iluminacion.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/puentes/ficha-montaje.pdf?v=altar26">Ficha de montaje y cableado</a><p>Cotas, longitudes preliminares y distribución de los ocho ramales nuevos.</p></div><a class="download" aria-label="Descargar Ficha de montaje y cableado" href="recursos/puentes/ficha-montaje.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/informe-plan.pdf?v=altar26">Informe y plan de iluminación</a><p>Documento completo con diagnóstico, planos, montaje, cotización y puesta en servicio.</p></div><a class="download" aria-label="Descargar Informe y plan de iluminación" href="recursos/informe-plan.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/informe-tecnico.pdf?v=altar26">Informe técnico</a><p>Inventario y control Lightkey, cálculo de cobertura de 45 puntos y comprobaciones en sala.</p></div><a class="download" aria-label="Descargar Informe técnico" href="recursos/informe-tecnico.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/plan-iluminacion.pdf?v=altar26">Montaje y presupuesto</a><p>Cantidades vigentes para pedir cotizaciones y registrar precios por fase.</p></div><a class="download" aria-label="Descargar Montaje y presupuesto" href="recursos/plan-iluminacion.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
-      <div class="report-row"><div><a class="report-title" href="recursos/informe.pdf?v=altar26">Resumen del proyecto</a><p>Distribución y totales de la compra base y ampliación.</p></div><a class="download" aria-label="Descargar Resumen del proyecto" href="recursos/informe.pdf?v=altar26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/puentes/planos-iluminacion.pdf?v=frente26">Planos de iluminación</a><p>Tres plantas en A3 con los mismos símbolos y códigos del inventario.</p></div><a class="download" aria-label="Descargar Planos de iluminación" href="recursos/puentes/planos-iluminacion.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/puentes/ficha-montaje.pdf?v=frente26">Ficha de montaje y cableado</a><p>Cotas, longitudes preliminares y distribución de los ocho ramales nuevos.</p></div><a class="download" aria-label="Descargar Ficha de montaje y cableado" href="recursos/puentes/ficha-montaje.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/informe-plan.pdf?v=frente26">Informe y plan de iluminación</a><p>Documento completo con diagnóstico, planos, montaje, cotización y puesta en servicio.</p></div><a class="download" aria-label="Descargar Informe y plan de iluminación" href="recursos/informe-plan.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/informe-tecnico.pdf?v=frente26">Informe técnico</a><p>Inventario y control Lightkey, cálculo de cobertura de 45 puntos y comprobaciones en sala.</p></div><a class="download" aria-label="Descargar Informe técnico" href="recursos/informe-tecnico.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/plan-iluminacion.pdf?v=frente26">Montaje y presupuesto</a><p>Cantidades vigentes para pedir cotizaciones y registrar precios por fase.</p></div><a class="download" aria-label="Descargar Montaje y presupuesto" href="recursos/plan-iluminacion.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
+      <div class="report-row"><div><a class="report-title" href="recursos/informe.pdf?v=frente26">Resumen del proyecto</a><p>Distribución y totales de la compra base y ampliación.</p></div><a class="download" aria-label="Descargar Resumen del proyecto" href="recursos/informe.pdf?v=frente26" download>Descargar PDF <span data-icon="download"></span></a></div>
     </div>
   </section>
 </main>

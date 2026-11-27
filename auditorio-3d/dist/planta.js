@@ -3,12 +3,18 @@ const plantaAuditorio = (() => {
   const anchoSala = 34.34, anchoAltar = 19.42, fondoAltar = 5.78;
   const ladoDer = anchoSala/2, ladoIzq = -ladoDer, fondo = -6.8;
   const frenteAltar = fondo + fondoAltar, mitadAltar = anchoAltar/2;
-  const curvaFrontal = .85, nivelAltar = .67;
+  // Proporciones de la tarima aproximadas a partir del frente en IMG_7111 e IMG_7108.
+  const curvaFrontal = 1.55, nivelAltar = .67;
   const alturaSala = 7.20;
-  const peldaños = 3, huellaLateral = .32;
+  const peldaños = 3, huellaLateral = .31;
   const escaleraLateral = {
-    fondo: fondo + .16, frente: frenteAltar - .43, peldaños, huella: huellaLateral,
-    ancho: peldaños * huellaLateral
+    fondo: frenteAltar - curvaFrontal - 1.02,
+    frente: frenteAltar - curvaFrontal + .46,
+    peldaños, huella: huellaLateral, ancho: peldaños * huellaLateral
+  };
+  const escaleraCentral = {
+    ancho:3.85, anchoSuperior:3.05, fondo:frenteAltar-.04, frente:frenteAltar+.92,
+    altoBase:.20, altoSuperior:.47
   };
   const frenteAltarEn = x => frenteAltar - curvaFrontal * (x / mitadAltar) ** 2;
   const bordeAltar = Array.from({length:33}, (_,i)=>{
@@ -121,6 +127,8 @@ const plantaAuditorio = (() => {
   }
   const panel={x:0,z:-6.36,w:13.82,base:.685,h:3.30};
   const barraZ=3.55, profundidadPuente=.34;
+  const principal=porId.principal, [px,pz]=punto(principal,.5);
+  const proyector={x:px,z:pz,anclajeY:principal.y,caida:1.42};
   const perfiles={
     P1:{nombre:'Chauvet SlimPAR Q12BT',canales:'010–017',tipo:'PAR de piso'},
     P2:{nombre:'ADJ COB Cannon Wash DW',canales:'235–238',tipo:'COB frontal'},
@@ -150,12 +158,12 @@ const plantaAuditorio = (() => {
     existentes.push({codigo:'BL-'+pad(i+1),familia:'BL',grupo:'bars',visor:'bars-'+(i+1),
       pos:[x,panel.z+.49],lugar:'Piso del escenario',pendienteDMX:true});
   }
-  return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,bordeAltar,curvaFrontal,nivelAltar,escaleraLateral,arranqueDerecho,limiteSala,extremoPB,
+  return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,bordeAltar,curvaFrontal,nivelAltar,escaleraLateral,escaleraCentral,arranqueDerecho,limiteSala,extremoPB,
     contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,enTarima,pantallas,paredEn,puentes,porId,punto,filasSala,asientos,
     ingreso:{x:ladoDer,z:3.1,ancho:2},
     sala:{altura:alturaSala,techo:8.4,planoLectura:.75,haz:41,
       posiciones:[[-12,1.1],[12,1.1],[-4.3,1.32],[4.3,1.32],[-5.1,6.65],[5.1,6.65]],
       ampliacion:[[-13.5,6.4],[13.5,6.4]]},
-    barraZ,profundidadPuente,panel,perfiles,existentes};
+    barraZ,profundidadPuente,panel,proyector,perfiles,existentes};
 })();
 if(typeof module !== 'undefined' && module.exports) module.exports=plantaAuditorio;

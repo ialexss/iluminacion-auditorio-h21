@@ -93,7 +93,7 @@ const soloDescriptions = {
 };
 function previewUrl(camera, mode=inventory) {
   const cue=lastPreset;
-  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=altar26';
+  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=frente26';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));

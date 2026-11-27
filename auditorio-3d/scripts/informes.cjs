@@ -65,7 +65,7 @@ archivo('informe','Resumen del proyecto',[header('RESUMEN','Iluminación del aud
  ${tabla(['Zona','Dotación nueva','Puntos'],cantidadesBase)}
  <p><b>Equipos existentes.</b> ${notaExistentes} Los ocho frontales del puente principal se conservan y se complementan con ocho PAR RGBAW nuevos.</p>
  <p><b>Luz de sala.</b> El plano DUC distribuye 27 PL-01 y 18 LD-01. El diseño integra regulación con Lightkey y un mando de pared para uso con el Mac apagado. ${notaFutura}</p>
- <p class="fine">Ancho de sala 34,34 m. Altar 19,42 × 5,78 m. Frente curvo y dos escaleras laterales. Cada diagonal de danza mide 4,00 m de largo. El aforo y las posiciones de mobiliario requieren levantamiento. <a href="${web}#referencias">Planos y leyendas en la web</a>.</p>`)]);
+ <p class="fine">Ancho de sala 34,34 m. Altar 19,42 × 5,78 m. Frente curvo, dos escaleras cortas en los extremos y una grada central. El proyector cuelga del puente frontal. Cada diagonal de danza mide 4,00 m de largo. El aforo y las posiciones de mobiliario requieren levantamiento. <a href="${web}#referencias">Planos y leyendas en la web</a>.</p>`)]);
 
 const filasExistentes=['P1','P2','P3','P4','MH','BL'].map(id=>{
  const grupo=existentes.filter(f=>f.familia===id);

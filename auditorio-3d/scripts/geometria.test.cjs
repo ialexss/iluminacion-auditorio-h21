@@ -81,3 +81,16 @@ test('las cuatro barras quedan agrupadas y la cota de sala supera el principal',
   assert.ok(plan.sala.altura + .36 < plan.sala.techo);
   assert.ok(plan.ramales.filter(r => r.u === 2).every(r => r.y === plan.sala.altura));
 });
+
+test('el proyector queda bajo el puente frontal y las escaleras se concentran en los accesos', () => {
+  const puente = plan.porId.principal;
+  const [x, z] = plan.punto(puente, .5);
+  assert.deepEqual([plan.proyector.x, plan.proyector.z, plan.proyector.anclajeY], [x, z, puente.y]);
+  assert.ok(plan.proyector.caida > 0);
+  const lateral = plan.escaleraLateral;
+  const extremo = plan.bordeAltar[0][1];
+  assert.ok(lateral.fondo < extremo && lateral.frente > extremo);
+  assert.ok(lateral.frente - lateral.fondo < 2);
+  assert.ok(plan.escaleraCentral.altoSuperior < plan.nivelAltar);
+  assert.ok(plan.escaleraCentral.anchoSuperior < plan.escaleraCentral.ancho);
+});
