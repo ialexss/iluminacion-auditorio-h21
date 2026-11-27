@@ -181,7 +181,7 @@ function sheet(modo){
    const ladoPar=f.familia==='P1'?(f.codigo==='P1-01'||f.codigo==='P1-03'?-1:1):0;
    const ladoDanza=f.ramal==='DI'?-1:f.ramal==='DD'?1:0;
    const dx=ladoDanza*9+ladoPar*7;
-   const dy=ladoDanza?3:ladoPar?(ladoPar<0?-12:16):f.universo===2&&!f.codigo.startsWith('S2-')?16:-9;
+   const dy=ladoDanza?3:ladoPar?16:f.universo===2&&!f.codigo.startsWith('S2-')?16:-9;
    const anchor=dx<0?'end':dx>0?'start':'middle';
    s+=`<g data-id="${f.codigo}" data-etapa="${f.etapa}"><title>${f.codigo} · ${familias[f.familia].nombre} · ${f.etapa}</title>`;
    if(delta)s+=line(x,y,x,y+delta,'#657461');
