@@ -107,14 +107,42 @@ const plantaAuditorio = (() => {
       asientos.push({x:cx+dx*c+dz*s,z:cz-dx*s+dz*c,giro});
     }
   }
+  const panel={x:0,z:-6.36,w:13.82,base:.685,h:2.57};
+  const barraZ=3.55, profundidadPuente=.34;
+  const perfiles={
+    P1:{nombre:'Chauvet SlimPAR Q12BT',canales:'010–017',tipo:'PAR de piso'},
+    P2:{nombre:'ADJ COB Cannon Wash DW',canales:'235–238',tipo:'COB frontal'},
+    P3:{nombre:'Chauvet EVE F-50Z',canales:'257–259',tipo:'Fresnel frontal'},
+    P4:{nombre:'LED PAR Light 7 4in1',canales:'225–232',tipo:'PAR frontal'}
+  };
+  const frontales=[[-9.49,'P3'],[-6.94,'P2'],[-4.15,'P4'],[-1.65,'P4'],[1.64,'P4'],[4.18,'P4'],[6.92,'P2'],[9.48,'P3']];
+  const frecuencias={};
+  const existentes=frontales.map(([x,familia],i)=>{
+    const numero=frecuencias[familia]=(frecuencias[familia]||0)+1;
+    return {codigo:familia+'-'+pad(numero),familia,grupo:'front',visor:'front-'+(i+1),
+      pos:[x,porId.principal.a[1]-profundidadPuente],lugar:'Puente principal',
+      perfil:{key:familia,name:perfiles[familia].nombre,channels:perfiles[familia].canales}};
+  });
+  for(const [i,x] of [-6.3,-2.2,2,6.2].entries()){
+    const codigo='MH'+(i+4),inicio=265+i*20;
+    existentes.push({codigo,familia:'MH',grupo:'moving',visor:'moving-'+(i+1),pos:[x,barraZ],
+      lugar:'Barra sobre público',perfil:{key:codigo,name:'Generic Spot Beam ST',channels:inicio+'–'+(inicio+17)}});
+  }
+  for(const [i,x] of [-6.24,-5.75,5.42,5.94].entries()){
+    existentes.push({codigo:'P1-'+pad(i+1),familia:'P1',grupo:'par',visor:'par-'+(i+1),
+      pos:[x,panel.z+.78],lugar:'Piso del escenario',pendienteDMX:true,
+      perfil:{key:'P1',name:perfiles.P1.nombre,channels:perfiles.P1.canales}});
+  }
+  for(const [i,x] of [-4.5,-2.25,0,2.25,4.5].entries()){
+    existentes.push({codigo:'BL-'+pad(i+1),familia:'BL',grupo:'bars',visor:'bars-'+(i+1),
+      pos:[x,panel.z+.49],lugar:'Piso del escenario',pendienteDMX:true,estimado:true});
+  }
   return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,arranqueDerecho,limiteSala,extremoPB,
     contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,enTarima,pantallas,paredEn,puentes,porId,punto,filasSala,asientos,
     ingreso:{x:ladoDer,z:3.1,ancho:2},
     sala:{altura:4.66,planoLectura:.75,haz:41,
       posiciones:[[-12,1.1],[12,1.1],[-4.3,1.32],[4.3,1.32],[-5.1,6.65],[5.1,6.65]],
       ampliacion:[[-13.5,6.4],[13.5,6.4]]},
-    frontalZ:porId.principal.a[1],barraZ:3.55,cannonX:[-6.3,-2.2,2,6.2],
-    panel:{x:0,z:-6.36,w:13.82,base:.685,h:2.57},
-    barrasX:[-4.5,-2.25,0,2.25,4.5],parX:[-6.24,-5.75,5.42,5.94]};
+    barraZ,profundidadPuente,panel,perfiles,existentes};
 })();
 if(typeof module !== 'undefined' && module.exports) module.exports=plantaAuditorio;

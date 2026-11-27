@@ -180,7 +180,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     box(x,placa,z,.20,.07,.24,m.bridge,0,root);
     rod(v(x,y,z),v(x,placa,z),.022,m.bridge,root);
   }
-  const principal=plan.porId.principal, trussZ=principal.a[1], trussY=principal.y, frontDepth=.34;
+  const trussY=plan.porId.principal.y, frontDepth=plan.profundidadPuente;
   const railZ=plan.barraZ,railY=6.96;
   for(const p of plan.puentes){
     const root=p.id==='principal'?supports.front:supports[p.id];
@@ -390,14 +390,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   // Orden visto desde las butacas. La separación y el enfoque inicial son aproximados.
   const frontProfiles={
-    P3:['Chauvet EVE F-50Z','fresnel','#ffe2bb',.33,46,'257–259'],
-    P2:['ADJ COB Cannon Wash DW','wash','#fff2d6',.43,46,'235–238'],
-    P4:['U’King LED PAR Light 7 4in1','wash','#f3e8da',.32,27,'225–232']
+    P3:['fresnel','#ffe2bb',.33,46],
+    P2:['wash','#fff2d6',.43,46],
+    P4:['wash','#f3e8da',.32,27]
   };
-  for(const [x,key] of [[-9.49,'P3'],[-6.94,'P2'],[-4.15,'P4'],[-1.65,'P4'],[1.64,'P4'],[4.18,'P4'],[6.92,'P2'],[9.48,'P3']]){
-    const [name,type,color,angle,power,channels]=frontProfiles[key];
-    const unit=lamp('front',[x,trussY-.31,trussZ-frontDepth],[x*.72,1.55,-3.62],color,angle,power,type,trussY);
-    unit.profile={key,name,channels};
+  const existentes={front:[],moving:[],bars:[],par:[]};
+  for(const f of plan.existentes)existentes[f.grupo].push(f);
+  for(const {pos:[x,z],familia,perfil} of existentes.front){
+    const [type,color,angle,power]=frontProfiles[familia];
+    const unit=lamp('front',[x,trussY-.31,z],[x*.72,1.55,-3.62],color,angle,power,type,trussY);
+    unit.profile=perfil;
   }
   for(const p of plan.puentes){
     const pad=p.id==='left'?plan.danza[0]:p.id==='right'?plan.danza[1]:null;
@@ -407,17 +409,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       lamp(p.id,[x,p.y-.32,z],target,color,fresnel?.29:.28,fresnel?100:72,fresnel?'fresnel':'wash',p.y);
     }
   }
-  for(const [i,x] of plan.cannonX.entries()){
+  for(const [i,{pos:[x,z],perfil}] of existentes.moving.entries()){
     const [tx,tz]=pads[x<0?0:1];
-    const unit=lamp('moving',[x,railY-.40,railZ],[tx+(i%2?.37:-.37),.44,tz],'#cbb7ff',.135,115,'moving',railY);
-    const start=265+i*20;
-    unit.profile={key:'MH'+(i+4),name:'Generic Spot Beam ST',channels:start+'–'+(start+17)};
+    const unit=lamp('moving',[x,railY-.40,z],[tx+(i%2?.37:-.37),.44,tz],'#cbb7ff',.135,115,'moving',railY);
+    unit.profile=perfil;
   }
-  for(const x of plan.barrasX)lamp('bars',[x,.75,banner.z+.49],[x,2.14,banner.z+.04],'#38dcd8',.55,15,'strip');
-  for(const [i,x] of plan.parX.entries()){
+  for(const {pos:[x,z]} of existentes.bars)lamp('bars',[x,.75,z],[x,2.14,banner.z+.04],'#38dcd8',.55,15,'strip');
+  for(const [i,{pos:[x,z],perfil}] of existentes.par.entries()){
     const targetX=Math.sign(x)*(i%2===0?3.07:4.00);
-    const unit=lamp('par',[x,.85,banner.z+.78],[targetX,2.41,banner.z+.035],'#558ffb',.34,48,'parFloor');
-    unit.profile={key:'P1',name:'Chauvet SlimPAR Q12BT',channels:'010–017'};
+    const unit=lamp('par',[x,.85,z],[targetX,2.41,banner.z+.035],'#558ffb',.34,48,'parFloor');
+    unit.profile=perfil;
   }
   // Future fixtures stay outside the base inventory and the photometric calculation.
   for(const side of [-1,1]){
@@ -699,8 +700,8 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       if(t<=0||Math.abs(x-banner.x)>banner.w/2||y<banner.base||y>banner.base+banner.h)continue;
       if(l.group==='bars')nBars++;else nPar++;
     }
-    const bars=state.on.bars?state.level.bars*nBars/(100*plan.barrasX.length):0;
-    const pars=state.on.par?state.level.par*nPar/(100*plan.parX.length):0;
+    const bars=state.on.bars?state.level.bars*nBars/(100*existentes.bars.length):0;
+    const pars=state.on.par?state.level.par*nPar/(100*existentes.par.length):0;
     const scenic=state.scenicColors||{};
     const roomColor=state.roomColor||state.color;
     const houseLevel=state.roomOff?0:state.level.house;

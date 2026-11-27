@@ -379,13 +379,14 @@ for (const button of sheetButtons) {
     }
   });
 }
-for (const link of document.querySelectorAll('.mount-sheet a[href^="?luz="]')) {
+for (const link of document.querySelectorAll('.mount-sheet a[href*="luz="]')) {
   link.addEventListener('click', event => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     if (!editor) return;
     event.preventDefault();
-    const id = new URL(link.href).searchParams.get('luz');
-    const mode = link.closest('.mount-sheet').id === 'sheet-existente' ? 'existing' : 'proposed';
+    const params = new URL(link.href).searchParams;
+    const id = params.get('luz');
+    const mode = params.get('montaje');
     changeInventory(mode);
     if (!model.fixtures().some(f => f.id === id)) return;
     editor.pick(id); model.focusFixture(id);

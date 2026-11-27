@@ -10,7 +10,8 @@ h1{font:500 30pt/1.05 Helvetica,sans-serif;letter-spacing:-1.1pt;margin:7mm 0 3m
 img{width:100%;display:block;border:.5pt solid #b7c0b7}table{width:100%;border-collapse:collapse;font-size:9.3pt}th,td{text-align:left;padding:1.5mm 1.7mm;border-bottom:.5pt solid #bbc8be}th{color:#315c48;background:#eff3ed}.fine{font-size:9pt;color:#495e50}.two{display:grid;grid-template-columns:1fr 1fr;gap:6mm}.metric{font-weight:bold;color:#245f45}ol{padding-left:5mm}li{margin-bottom:2mm}a{color:#255140}
 @media print{body{background:white}section{margin:0;min-height:295mm;height:295mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style><section>${title(1,'Planta y equipos')}
-<p class="lead">32 luminarias nuevas en cinco puentes y 45 puntos de sala.</p><img src="planta.svg" alt="Planta acotada de los puentes y la sala">
+<p class="lead">32 luminarias nuevas en cinco puentes y 45 puntos de sala.</p><img src="planta.svg" alt="Planta acotada con símbolos de las luminarias nuevas de los puentes y la sala">
+<p class="fine">Consultar las tres plantas en color y los códigos de cada equipo en el <a href="https://lucesh21.landydrop.com/#referencias">inventario de la web</a>. Los ocho frontales actuales del principal reciben ocho PAR nuevos. P1 y las barras de piso son existentes con conexión DMX pendiente.</p>
 <table><thead><tr><th>Zona</th><th>Equipo base</th><th>Unidades</th></tr></thead><tbody>
 <tr><td>Tarimas izquierda y derecha</td><td>2 Fresnel + 2 PAR RGBAW por lado</td><td>8</td></tr>
 <tr><td>Puente principal existente</td><td>8 PAR RGBAW adicionales</td><td>8</td></tr>
@@ -20,12 +21,12 @@ img{width:100%;display:block;border:.5pt solid #b7c0b7}table{width:100%;border-c
 <p class="fine">Base documental · DUC-I-H21-SALON01-290726 de 29/07/2026, capturas CAD y croquis de diagonales entregados por H21. Las fotos sitúan las tarimas hacia el exterior de los monitores y las primeras sillas frente a la escalera. Levantar sus posiciones, anclajes y el fondo bajo el entrepiso.</p></section>
 <section>${title(2,'Distribución de señal')}
 <p class="lead">Lightkey → Art-Net → nodo → distribuidores aislados → luminarias.</p>
-<img src="ramales.svg" alt="Ocho ramales de DMX">
+<img src="ramales.svg" alt="Ocho ramales de DMX para los 77 puntos nuevos">
 <table><thead><tr><th>Ramal</th><th>Destino</th><th>Universo</th><th>Bloque reservado</th><th>Equipos</th><th>Entre equipos¹</th></tr></thead><tbody>
 ${ramas.map(r=>`<tr><td>${r.id}</td><td>${r.nombre}</td><td>U${r.u}</td><td>${addr(r.puntos[0].canal)}–${addr(r.puntos.at(-1).canal+r.puntos[0].slots-1)}</td><td>${r.puntos.length}</td><td>${fmt(r.metros)} m</td></tr>`).join('')}
 </tbody></table>
 <p class="fine">¹ Suma de distancias rectas entre puntos consecutivos en planta. Para pedir cable, medir también troncales, recorridos por bandeja, subidas, bajadas y holgura de servicio. La hoja CSV de tendido incluye una fila por tramo.</p>
-<p>U0 conserva los equipos existentes. En U1 se reservan 16 canales por luminaria y en U2, 10 por punto. Comparar el modo real con su bloque, comprobar los puertos del nodo y la licencia de Lightkey antes de aplicar el parche. Rotular ambos extremos de cada línea.</p></section>
+<p>U0 conserva el parche existente. Revisar la conexión de P1 y barras de piso. En U1 se reservan 16 canales por luminaria y en U2, 10 por punto. Comparar el modo real con su bloque, comprobar los puertos del nodo y la licencia de Lightkey antes de aplicar el parche. Rotular ambos extremos de cada línea.</p></section>
 <section>${title(3,'Montaje y puesta en servicio')}
 <div class="two"><div><h2>Orientación y alturas</h2><p>Prever puentes en acabado negro mate. Colocar un puente de <b>4,00 m de largo</b> por lado, por delante de la tarima siguiendo la diagonal del croquis. Dos Fresnel en los extremos cruzan el blanco sobre la tarima. Dos PAR interiores apuntan a mitades opuestas de la superficie. En el lado derecho, el monitor queda hacia el altar y la tarima sigue la curva exterior. Comprobar caras, escalones y reflejos en el monitor desde las butacas.</p>
 <p>Las cotas desde el piso son 6,96 m junto al monitor, 7,60 m al comenzar el altar y 6,95 m en el altar. La maqueta asocia esas cotas a los puentes principal, superior y posterior. En las diagonales, <b>6,96 m es una altura provisional</b>. Replantear el eje, la cara inferior del puente y la altura libre bajo el equipo.</p></div>

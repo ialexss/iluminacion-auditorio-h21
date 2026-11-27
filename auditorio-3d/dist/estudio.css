@@ -312,8 +312,16 @@ select { max-width: 100%; background: var(--paper); height: 36px; border: 1px so
 .mount-head {display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:22px;}
 .mount-head h2 {font-size:clamp(2rem,3.65vw,3.5rem);font-weight:520;letter-spacing:-.065em;line-height:1.04;}
 .mount-head button {border-color:var(--line);}
-.mount-sheet {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(295px,1fr);gap:clamp(16px,3.4vw,60px);align-items:start;}
-.mount-plan,.wing-photos figure {margin:0;}
+.mount-sheet {display:grid;grid-template-columns:minmax(0,1fr);gap:22px;}
+.plan-navigation {display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin:0 0 14px;font-size:.85rem;}
+.plan-navigation p {flex-basis:100%;color:var(--muted);}
+.plan-navigation a {text-underline-offset:3px;}
+.plan-hint {display:none;}
+@media(max-width:960px){.plan-hint {display:block;}}
+.plan-scroll {max-width:100%;overflow:auto;border:1px solid var(--line);background:#f8f9f4;}
+.plan-scroll a {display:block;min-width:900px;}
+.plan-scroll:focus-visible {outline:2px solid #316216;outline-offset:2px;}
+.mount-plan,.wing-photos figure {margin:0;min-width:0;}
 .mount-plan img {display:block;width:100%;height:auto;}
 .mount-plan figcaption,.wing-photos figcaption {font-size:.8rem;color:var(--muted);margin-top:8px;}
 .fixture-key,.installed-key {margin:0;padding:0;list-style:none;}
@@ -331,7 +339,7 @@ select { max-width: 100%; background: var(--paper); height: 36px; border: 1px so
 .wing-photos {display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px;margin:0 0 20px;}
 .wing-photos img {display:block;width:100%;height:clamp(140px,17vw,220px);object-fit:cover;object-position:50% 68%;}
 .wing-photos .room-plan {object-fit:contain;background:#f1f2ee;}
-@media(max-width:780px){.mount-sheet{grid-template-columns:1fr;}.fixture-key,.installed-key{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;}.wing-photos{grid-template-columns:1fr 1fr;}.wing-photos figure:nth-child(2){grid-column:1/-1;grid-row:1;}}
+@media(max-width:780px){.fixture-key,.installed-key{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;}.wing-photos{grid-template-columns:1fr 1fr;}.wing-photos figure:nth-child(2){grid-column:1/-1;grid-row:1;}}
 @media(max-width:580px){.fixture-key,.installed-key{display:block;}.mount-head{gap:12px;}.wing-photos{gap:10px;}}
 .wiring {margin:clamp(44px,6vw,90px) 0;border-top:1px solid var(--ink);padding-top:22px}
 .wire-grid {display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:clamp(20px,4vw,65px);align-items:start}
