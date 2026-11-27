@@ -39,9 +39,17 @@ function sheet(wiring){
  for(const [sig,curve] of [[-1,plan.izquierda],[1,plan.derecha]])s+=poly([...curve,[sig*W,plan.fondo],[sig*A,plan.fondo]],'#e8ece6','#95a39a');
  s+=poly([[-A,plan.fondo],[A,plan.fondo],[A,plan.frenteAltar],[-A,plan.frenteAltar]],'#e3ebe3','#8c9d91');
  s+=label(425,140,'ALTAR',12,'middle','fill="#59675d" letter-spacing="2"');
- for(const [i,pad] of plan.danza.entries()){
-   const [px,py]=tr(pad.x,pad.z);s+=`<rect x="${px-26}" y="${py-13}" width="52" height="28" fill="#d9dfd6" stroke="#87988b"/>`;
-   s+=label(px,py+5,'DANZA',9);
+ if(!wiring)for(const {x,z,giro} of plan.asientos){
+   const [px,py]=tr(x,z);
+   s+=`<rect x="${px-4.9}" y="${py-3.8}" width="9.8" height="7.6" rx="1" fill="#dce1da" transform="rotate(${-giro*180/Math.PI} ${px} ${py})"/>`;
+ }
+ for(const pantalla of plan.pantallas)s+=polyline([[pantalla.x-pantalla.w/2,pantalla.z],[pantalla.x+pantalla.w/2,pantalla.z]],'#3d6171','stroke-width="4"');
+ for(const pad of plan.danza){
+   s+=poly([[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>plan.enTarima(pad,i*pad.w/2,j*pad.d/2)),'#d9dfd6','#87988b');
+   const [px,py]=tr(pad.x,pad.z);s+=label(px,py+4,'DANZA',9);
+ }
+ if(!wiring)for(const p of plan.puentes.filter(p=>p.tipos))for(const f of p.equipos){
+   s+=polyline([f.pos,[f.objetivo[0],f.objetivo[2]]],f.tipo==='F'?'#387664':'#91689b','stroke-width="1.3" stroke-dasharray="3 2"');
  }
  for(const [i,p] of plan.puentes.entries()){
    const lateral=i<2;
@@ -78,9 +86,39 @@ function sheet(wiring){
   s+=label(425,489,'Sector bajo el entrepiso · profundidad aproximada',13);
  }
  s+=label(34,563,wiring?'Trazo discontinuo · ruta propuesta hasta el primer equipo y secuencia de sala.':'■  Fresnel     ●  PAR RGBAW     ●  PL-01 (filas 1, 3 y 5)     ●  LD-01 (filas 2 y 4)',13,'start');
- s+=label(34,582,wiring?'Medir canalizaciones, bajadas y holguras en sitio. La posición de los distribuidores es orientativa.':'PR  Principal    /    AL  Altar    /    PO  Posterior    /    DI y DD  Danza izquierda y derecha',12,'start','fill="#526258"');
+ s+=label(34,582,wiring?'Medir canalizaciones, bajadas y holguras en sitio. La posición de los distribuidores es orientativa.':'Fresnel y PAR de danza · ejes discontinuos dirigidos a cada tarima. Butacas estimadas por fotografía.',12,'start','fill="#526258"');
  return s+'</g></svg>';
 }
 fs.writeFileSync(path.join(out,'planta.svg'),sheet(false));
 fs.writeFileSync(path.join(out,'ramales.svg'),sheet(true));
+// Detalle a escala de los mismos puntos mostrados por el editor de enfoque y el plano.
+function detalleDanza(){
+  const p=plan.porId.right, pad=plan.danza[1], tv=plan.pantallas[1], scale=52;
+  const xy=([x,z])=>[(x-9)*scale+24,(z+3.6)*scale+42];
+  const path=(pts,stroke,width,extra='')=>`<polyline points="${pts.map(pt=>xy(pt).join(',')).join(' ')}" fill="none" stroke="${stroke}" stroke-width="${width}" ${extra}/>`;
+  const labelAt=(pt,cap,size,props='')=>{const [x,y]=xy(pt);return label(x,y,cap,size,'middle',props);};
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 765 550" aria-labelledby="t d" role="img"><title id="t">Danza derecha · planta de enfoque</title><desc id="d">Pantalla hacia el altar, tarima girada hacia el muro exterior y cuatro ejes desde el puente diagonal.</desc><rect width="765" height="550" fill="#f8f9f4"/><g font-family="Helvetica,Arial,sans-serif" fill="#21342a">`;
+  s+=label(26,25,'DANZA DERECHA  /  VISTA DESDE ARRIBA',13,'start','font-weight="bold" letter-spacing="1"');
+  s+=path([...plan.derecha,[plan.ladoDer,3.9]],'#708077',3);
+  s+=path([[tv.x-tv.w/2,tv.z],[tv.x+tv.w/2,tv.z]],'#315d71',7)+labelAt([tv.x,tv.z-.31],'Pantalla',13);
+  const esquinas=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>plan.enTarima(pad,i*pad.w/2,j*pad.d/2));
+  s+=`<polygon points="${esquinas.map(pt=>xy(pt).join(',')).join(' ')}" fill="#dce5d8" stroke="#82917e"/>`;
+  s+=labelAt([pad.x,pad.z-.11],'Tarima',13,'font-weight="bold"');
+  s+=path([p.a,p.b],colors.metal,7,'stroke-linecap="round"');
+  for(const f of p.equipos){
+    const objetivo=[f.objetivo[0],f.objetivo[2]], c=f.tipo==='F'?'#167259':'#865497';
+    const [x,y]=xy(f.pos),[tx,ty]=xy(objetivo);
+    s+=path([f.pos,objetivo],c,2.2,'stroke-dasharray="6 3"');
+    s+=`<circle cx="${tx}" cy="${ty}" r="3.3" fill="${c}"/><circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="white" stroke-width="1.5"/>`;
+    s+=label(x-5,y+22,'DD-0'+f.numero,11,'middle');
+  }
+  s+=line(490,58,490,385,'#c3cdc3')+label(512,80,'Puente de 4,00 m',21,'start');
+  s+=label(512,115,'DD-01 y DD-04 · Fresnel',15,'start','font-weight="bold" fill="#12634a"')+label(512,138,'Cruce blanco a la altura',14,'start')+label(512,157,'del rostro de los bailarines.',14,'start');
+  s+=label(512,204,'DD-02 y DD-03 · PAR RGBAW',15,'start','font-weight="bold" fill="#754884"')+label(512,227,'Color dirigido a dos puntos',14,'start')+label(512,246,'del interior de la tarima.',14,'start');
+  s+=label(512,301,'Hacia el altar ←',14,'start')+label(512,325,'Hacia el público ↓',14,'start');
+  s+=line(30,498,30+2*scale,498,colors.ink,'stroke-width="3"')+label(30+scale,490,'2 m',12);
+  s+=label(26,532,'Contorno según CAD. Tarima, monitor y enfoque propuestos según fotografía, pendientes de medición.',13,'start');
+  return s+'</g></svg>';
+}
+fs.writeFileSync(path.join(out,'danza-derecha.svg'),detalleDanza());
 module.exports={ramas:trunk,fmt,addr,out,plan};

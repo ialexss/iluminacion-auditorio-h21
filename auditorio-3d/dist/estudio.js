@@ -39,12 +39,12 @@ const presets = {
     description:'El violeta y el magenta bañan el banner. Los cuatro móviles dirigen haces cian hacia los muros laterales.'},
   hall:  {name:'Solo sala', levels:[100,0,0,0,0,0,0,0,0,0,0,0,0], color:'#fff4da', aim:'dance', scenicColors:{},
     description:'Solo se encienden los colgantes del público. En blanco al 100 %, esta escena corresponde al cálculo de cobertura.'},
-  mellow:{name:'Adoración íntima', future:true, levels:[24,64,37,25,12,12,0,38,32,43,52,24,38], color:'#5784df', aim:'dance',
-    scenicColors:{back:'#699cff',bars:'#233fa9',par:'#7388fa',ambient:'#4268f2',pixels:'#ffac56',music:'#ffe1bb'},
-    description:'Azul suave en la sala, barras ámbar junto al banner y blanco cálido sobre las voces.'},
-  music:{name:'Alabanza', future:true, levels:[36,66,44,62,35,35,24,64,72,78,92,83,58], color:'#986aff', aim:'dance',
-    scenicColors:{back:'#7c7aff',moving:'#2bc8ff',bars:'#3f2cdb',par:'#586dff',ambient:'#bd5aff',pixels:'#52e5ff',music:'#4ae5fa'},
-    description:'Violeta en los laterales, barras cian en el fondo y dos móviles posteriores. Activa su movimiento para probar el efecto.'}
+  mellow:{name:'Adoración íntima',  levels:[24,64,37,25,12,12,0,38,32,43,52,24,38], color:'#5784df', aim:'dance',
+    scenicColors:{principal:'#ffe4bc',top:'#c6d7ff',dancePar:'#5a78cf',back:'#699cff',bars:'#233fa9',par:'#7388fa',ambient:'#4268f2',pixels:'#ffac56',music:'#ffe1bb'},
+    description:'Los PAR del principal iluminan las voces en cálido. El azul del altar y del posterior se acompaña con barras ámbar en los extremos del banner.'},
+  music:{name:'Alabanza',  levels:[36,66,44,62,35,35,24,64,72,78,92,83,58], color:'#986aff', aim:'dance',
+    scenicColors:{principal:'#ffe9d7',top:'#78c6ff',dancePar:'#ae67ff',back:'#7c7aff',moving:'#2bc8ff',bars:'#3f2cdb',par:'#586dff',ambient:'#bd5aff',pixels:'#52e5ff',music:'#4ae5fa'},
+    description:'Al blanco del principal, el azul superior y el contraluz violeta se suman cuatro bañadores de muro, cuatro barras cian y dos móviles en el puente posterior.'}
 };
 const palette = {'#fff4da':'Blanco', '#ffe3b5':'Ámbar', '#599dff':'Azul', '#aa7bfa':'Violeta'};
 const icons = {
@@ -61,7 +61,6 @@ let selected = 'house';
 let model, editor;
 let currentCamera = 'orbit';
 let lastPreset = 'dance';
-let lastBasePreset = 'dance';
 let inventory = 'all';
 let playing = false;
 const inventoryNotes = {
@@ -71,13 +70,21 @@ const inventoryNotes = {
   future:'El montaje completo incorpora 10 luminarias futuras. Incluye bañadores de muro, barras de fondo y dos móviles de música.'
 };
 const soloDescriptions = {
+  all:{
+    mellow:'Los PAR del principal dan blanco cálido a las voces. El altar y el posterior añaden azul suave.',
+    music:'Los 24 PAR del escenario combinan blanco frontal, azul superior y contraluz violeta. Las diagonales dan blanco y color a danza.'
+  },
   existing:{
+    mellow:'Los frontales mantienen las voces en blanco y las luces de piso tiñen el banner de azul.',
+    music:'Los frontales, las luces de piso y los cuatro móviles existentes acompañan la música.',
     dance:'Los móviles apuntan a las tarimas. El banner recibe azul y cian desde el piso.',
     sermon:'Los frontales iluminan a quien predica y las luces de piso dan un fondo ámbar.',
     event:'Los móviles pasan a los muros laterales y el banner combina violeta y magenta.',
     hall:'Los colgantes de sala son parte de la propuesta. El alumbrado general actual carece de fotometría en el modelo.'
   },
   proposed:{
+    mellow:'Los tres puentes dan blanco y azul al altar. Los Fresnel laterales mantienen luz suave para danza.',
+    music:'Ocho PAR por puente dibujan tres capas de escenario. Cada tarima recibe el cruce de los Fresnel y dos PAR violetas.',
     dance:'Cada diagonal cruza el blanco de dos Fresnel sobre una tarima y añade el color de dos PAR RGBAW.',
     sermon:'Los PAR del principal y del altar refuerzan los rostros. La sala queda en blanco tenue.',
     event:'El contraluz baña las siluetas en magenta y la sala toma un tono violeta.',
@@ -85,8 +92,8 @@ const soloDescriptions = {
   }
 };
 function previewUrl(camera, mode=inventory) {
-  const cue=mode==='future'?lastPreset:lastBasePreset;
-  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=puentes26';
+  const cue=lastPreset;
+  return 'recursos/vistas/' + (mode === 'all' ? '' : mode + '/') + (cue === 'dance' ? '' : cue + '/') + camera + '.webp?v=planta26b';
 }
 function refreshPreviews() {
   byId('cameras').querySelectorAll('button').forEach(b => b.querySelector('img').src = previewUrl(b.dataset.camera).replace('recursos/vistas/','recursos/miniaturas/'));
@@ -98,7 +105,7 @@ function updatePair() {
   const camera = cameras[currentCamera] ? currentCamera : 'orbit';
   byId('before-image').src = previewUrl(camera,'existing');
   byId('after-image').src = previewUrl(camera,'all');
-  byId('compare-caption').textContent = 'Óptica de sala simulada a 4,66 m · '+presets[lastBasePreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
+  byId('compare-caption').textContent = 'Óptica de sala simulada a 4,66 m · '+presets[lastPreset].name+' · '+cameras[camera][1]+'. La maqueta interactiva muestra tus ajustes y la ampliación futura.';
 }
 function playMotion(value) {
   playing = value;
@@ -111,11 +118,9 @@ function changeInventory(mode) {
   model?.inventory(mode);
   if (mode !== 'future') {
     playMotion(false);
-    if (presets[lastPreset].future) applyPreset(lastBasePreset);
     if (futureZones.has(selected)) selected = 'house';
   }
   byId('inventory').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.inventory === mode)));
-  byId('presets').querySelectorAll('[data-future]').forEach(b => { b.hidden = mode !== 'future'; });
   for (const option of byId('zone').options) option.hidden = futureZones.has(option.value) && mode !== 'future';
   byId('play-motion').hidden = mode !== 'future';
   byId('room-look-note').textContent = mode === 'future' ? 'Color de colgantes y bañadores de muro.' : 'Color de los colgantes del público.';
@@ -192,7 +197,6 @@ function applyPreset(key) {
   state.scene = key; state.color = preset.color; state.aim = preset.aim;
   state.scenicColors = preset.scenicColors;
   lastPreset = key;
-  if (!preset.future) lastBasePreset = key;
   refreshPreviews();
   Object.keys(zones).forEach((g, i) => {
     state.level[g] = preset.levels[i]; state.on[g] = preset.levels[i] > 0;
@@ -204,7 +208,6 @@ function customize() { state.scene = null; sync(); }
 for (const [key, preset] of Object.entries(presets)) {
   const b = document.createElement('button'); b.type = 'button';
   b.dataset.key = key; b.textContent = preset.name;
-  if (preset.future) { b.dataset.future = ''; b.hidden = true; }
   b.addEventListener('click', () => applyPreset(key));
   byId('presets').append(b);
 }
@@ -288,7 +291,7 @@ const coverage = iniciarCobertura((positions,height) => {
 const query = new URLSearchParams(location.search);
 changeInventory(['existing','proposed','future'].includes(query.get('montaje')) ? query.get('montaje') : 'all');
 const requestedPreset = query.get('escena');
-if (Object.hasOwn(presets,requestedPreset) && (!presets[requestedPreset].future || inventory === 'future')) applyPreset(requestedPreset);
+if (Object.hasOwn(presets,requestedPreset)) applyPreset(requestedPreset);
 if (query.get('comparar') === '1') {
   setCamera('seats');
   byId('compare-pair').open = true;
@@ -357,10 +360,11 @@ for (const link of document.querySelectorAll('[data-demo]')) {
   link.addEventListener('click', event => {
     if (!model || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    changeInventory('future');
+    const destino=new URL(link.href);
+    changeInventory(destino.searchParams.get('montaje') || 'all');
     state.monochrome = false;
     applyPreset(link.dataset.demo);
-    setCamera('seats');
+    setCamera(destino.searchParams.get('vista') || 'seats');
     byId('maqueta').scrollIntoView({block:'start'});
   });
 }

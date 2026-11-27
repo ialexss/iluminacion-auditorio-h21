@@ -23,4 +23,6 @@ El visor compara existentes, nuevos, montaje base y ampliación futura. Ofrece o
 
 En **Cableado**, la hoja de metrado guarda las distancias de cada ramal en este navegador y exporta un CSV. La capa **Cableado DMX** muestra las rutas propuestas en 3D.
 
+La curva de cada pared se traza por separado sobre el ancho interior del CAD. Las tarimas se ubican hacia el exterior de los monitores. Las primeras filas rodean el altar y comparten sus coordenadas con el mapa fotométrico. La posición del mobiliario se estima a partir de las fotos. Las escenas musicales permiten comparar el montaje base y la ampliación con la misma cámara.
+
 La geometría compartida está en [planta.js](auditorio-3d/dist/planta.js). Al cambiar los puentes o las filas, ejecutar `node auditorio-3d/scripts/ficha.cjs` para regenerar planos, tablas de campo y ficha imprimible. Imprimir `recursos/puentes/ficha.html` en A4 como `ficha-montaje.pdf`. La sección Informes conserva los estudios previos como antecedentes.

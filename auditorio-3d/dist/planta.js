@@ -6,20 +6,41 @@ const plantaAuditorio = (() => {
   const arranqueDerecho = fondo + 4.13, limiteSala = arranqueDerecho + 12.14;
   const extremoPB = limiteSala + 6.2; // Tramo bajo entrepiso aproximado.
   const contorno = [[ladoIzq,fondo],[ladoDer,fondo],[ladoDer,extremoPB],[ladoIzq,extremoPB]];
-  function ala(signo,arranque) {
-    const puntos = [[signo*anchoAltar/2,arranque]];
-    for(let i=0;i<=18;i++){
-      const a=i*Math.PI/36;
-      puntos.push([signo*(12.3+(ladoDer-12.3)*Math.sin(a)),arranque+4.75*(1-Math.cos(a))]);
+  // Trazado de las dos curvas del CAD. La referencia horizontal va del píxel 201 al 1135.
+  const metrosPorPixel=anchoSala/(1135-201);
+  function ala(signo, arranque, pixelInicio, profundidad){
+    const inicio=(pixelInicio-201)*metrosPorPixel+ladoIzq;
+    const puntos=[[signo*anchoAltar/2,arranque]];
+    for(let i=0;i<=32;i++){
+      const a=i*Math.PI/64;
+      puntos.push([inicio+(signo*ladoDer-inicio)*Math.sin(a),arranque+profundidad*metrosPorPixel*(1-Math.cos(a))]);
     }
     return puntos;
   }
-  const izquierda=ala(-1,fondo+4.01), derecha=ala(1,arranqueDerecho);
-  const danza=[-1,1].map(s=>({x:s*12.45,z:-1.38,w:2.6,d:1.65}));
-  // Tramos de montaje propuestos. Sus longitudes y vanos necesitan replanteo.
+  const izquierda=ala(-1,fondo+4.01,305,111), derecha=ala(1,arranqueDerecho,1018,126);
+  function paredEn(x){
+    const curva=x<0?izquierda:derecha;
+    const i=curva.findIndex(([px])=>Math.abs(px)>=Math.abs(x));
+    if(i<=0)return curva[i===0?0:curva.length-1][1];
+    const [ax,az]=curva[i-1],[bx,bz]=curva[i];
+    return az+(bz-az)*(x-ax)/(bx-ax);
+  }
+  function enTarima(p, lateral, profundidad){
+    const c=Math.cos(p.giro),s=Math.sin(p.giro);
+    return [p.x+lateral*c+profundidad*s,p.z-lateral*s+profundidad*c];
+  }
+  // Mobiliario y pantallas estimados con las fotos 7720–7725.
+  const pantallas=[izquierda,derecha].map(([a,b])=>({x:(a[0]+b[0])/2,z:a[1]+.14,w:1.8,h:1.01}));
+  const danza=[-1,1].map(signo=>{
+    const x=signo*14.32;
+    const tarima={x,z:0,w:2.7,d:1.65,giro:-Math.atan((paredEn(x+.35)-paredEn(x-.35))/.70)};
+    const esquinasTraseras=[-1,1].map(lado=>enTarima(tarima,lado*tarima.w/2,-tarima.d/2));
+    tarima.z=Math.max(...esquinasTraseras.map(([px,dz])=>paredEn(px)-dz))+.22;
+    return tarima;
+  });
   function diagonal(signo){
-    const cx=signo*12.88, cz=1.55, angulo=36*Math.PI/180;
-    const dx=2*Math.cos(angulo), dz=signo*2*Math.sin(angulo);
+    const tarima=danza[signo<0?0:1],cx=tarima.x-signo*.90,cz=tarima.z+3.95;
+    const angulo=36*Math.PI/180,dx=2*Math.cos(angulo),dz=signo*2*Math.sin(angulo);
     return {a:[cx-dx,cz-dz],b:[cx+dx,cz+dz],y:6.96,alturaProvisional:true};
   }
   const puentes=[
@@ -33,7 +54,16 @@ const plantaAuditorio = (() => {
   function punto(p,t) {return p.a.map((valor,i)=>valor+t*(p.b[i]-valor));}
   for(const p of puentes){
     const tipos=p.tipos||Array(8).fill('P');
-    p.equipos=tipos.map((tipo,i)=>({tipo,numero:i+1,pos:punto(p,(i+.5)/tipos.length)}));
+    p.equipos=tipos.map((tipo,i)=>{
+      const pos=punto(p,(i+.5)/tipos.length);
+      let objetivo;
+      if(p.tipos){
+        const tarima=danza[p.id==='left'?0:1], fresnel=tipo==='F';
+        const [x,z]=enTarima(tarima,(i<2?1:-1)*tarima.w*(fresnel?.22:.27),fresnel?.06:-.20);
+        objetivo=[x,fresnel?1.85:.55,z];
+      }else objetivo=[pos[0]*.89,1.33,p.id==='back'?-3.48:-3.08];
+      return {tipo,numero:i+1,pos,objetivo};
+    });
   }
   // Centros digitalizados del DUC sobre el ancho interior y el tramo acotado de 12,14 m.
   const filasSala = Array.from({length:5},(_,fila)=>({
@@ -65,9 +95,20 @@ const plantaAuditorio = (() => {
     }
     ramas.push({id:'S'+(sector+1),nombre:'Sala '+['izquierda','central','derecha'][sector],u:2,y:4.66,puntos});
   }
-  const bloques=[[-10.6,2.45,4,6,-.42],[-3.85,1.15,6,7,-.12],[3.85,1.15,6,7,.12],[10.6,2.45,4,6,.42]];
+  // Secciones en abanico, con un bloque continuo frente a la escalera central.
+  // Las imágenes permiten reconstruir el patrón, pero no contar el aforo del salón.
+  const bloques=[[-11.36,1.38,8,9,-.33],[-5.93,.67,9,10,-.115],[0,.59,9,11,0],
+    [5.93,.67,9,10,.115],[11.36,1.38,8,9,.33]];
+  const asientos=[];
+  for(const [cx,cz,columnas,filas,giro] of bloques){
+    const c=Math.cos(giro),s=Math.sin(giro);
+    for(let f=0;f<filas;f++)for(let col=0;col<columnas;col++){
+      const dx=(col-(columnas-1)/2)*.56, dz=f*.82;
+      asientos.push({x:cx+dx*c+dz*s,z:cz-dx*s+dz*c,giro});
+    }
+  }
   return {ramales:ramas,anchoSala,anchoAltar,fondoAltar,frenteAltar,arranqueDerecho,limiteSala,extremoPB,
-    contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,puentes,porId,punto,filasSala,bloques,
+    contorno,izquierda,derecha,fondo,ladoIzq,ladoDer,danza,enTarima,pantallas,paredEn,puentes,porId,punto,filasSala,asientos,
     ingreso:{x:ladoDer,z:3.1,ancho:2},
     sala:{altura:4.66,planoLectura:.75,haz:41,
       posiciones:[[-12,1.1],[12,1.1],[-4.3,1.32],[4.3,1.32],[-5.1,6.65],[5.1,6.65]],

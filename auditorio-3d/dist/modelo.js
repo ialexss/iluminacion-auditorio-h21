@@ -49,7 +49,8 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   // Rear wall and shallow side returns form an open architectural cutaway.
   function wall(a,b,h){
     const dx=b[0]-a[0], dz=b[1]-a[1];
-    box((a[0]+b[0])/2,h/2,(a[1]+b[1])/2,Math.hypot(dx,dz),h,.13,m.wall,-Math.atan2(dz,dx));
+    const exterior=dx===0 && Math.abs(a[0])===plan.ladoDer ? Math.sign(a[0])*.065 : 0;
+    box((a[0]+b[0])/2+exterior,h/2,(a[1]+b[1])/2,Math.hypot(dx,dz),h,.13,m.wall,-Math.atan2(dz,dx));
   }
   function walls(points,height){
     for(let i=1;i<points.length;i++)wall(points[i-1],points[i],height);
@@ -113,7 +114,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     for(let i=0;i<2;i++)box(s*(halfStage+.56-i*.27),.1*(i+1),-3.62,.29,.2*(i+1),1.1,m.fascia);
   }
   const pads=plan.danza.map(({x,z})=>[x,z]);
-  for(const {x,z,w,d} of plan.danza){box(x,.16,z,w,.31,d,m.padEdge);box(x,.327,z,w,.035,d,m.pad)}
+  for(const {x,z,w,d,giro} of plan.danza){box(x,.16,z,w,.31,d,m.padEdge,giro);box(x,.327,z,w,.035,d,m.pad,giro)}
   function screenTexture(){
     const c=document.createElement('canvas');c.width=512;c.height=256;const ctx=c.getContext('2d');
     const grad=ctx.createLinearGradient(0,0,510,250);grad.addColorStop(0,'#bcbcbc');grad.addColorStop(.47,'#909090');grad.addColorStop(1,'#b3b3b3');ctx.fillStyle=grad;ctx.fillRect(0,0,512,256);
@@ -127,10 +128,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     panel.position.set(x+.075*Math.sin(yaw),y,z+.075*Math.cos(yaw));stage.add(panel);
   }
   display(0,4.10,-6.06,4.40,2.30,0);
-  for(const curve of [plan.izquierda,plan.derecha]){
-    const [a,b]=curve, c=[(a[0]+b[0])/2,(a[1]+b[1])/2],yaw=-Math.atan((b[1]-a[1])/(b[0]-a[0]));
-    display(c[0]+.14*Math.sin(yaw),2.45,c[1]+.14*Math.cos(yaw),1.58,.89,yaw);
-  }
+  for(const {x,z,w,h} of plan.pantallas)display(x,2.45,z,w,h,0);
   // Matte faceted scenic banner, below and behind the projection screen.
   const banner=plan.panel, bannerVertices=[], bannerColors=[];
   function facetPoint(col,row){
@@ -150,15 +148,10 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   bannerGeo.setAttribute('color',new T.Float32BufferAttribute(bannerColors,3));bannerGeo.computeVertexNormals();
   stage.add(new T.Mesh(bannerGeo,new T.MeshLambertMaterial({vertexColors:true})));
   rod(v(0,5.01,-2.17),v(0,3.7,-2.17),.035,m.iron);box(0,3.62,-2.17,.56,.21,.37,m.edge);
-  // Audience faces the stage, including the two angled side seating blocks.
-  for(const [cx,cz,cols,rows,angle] of plan.bloques){
-    const cs=Math.cos(angle),sn=Math.sin(angle);
-    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
-      const xx=(col-(cols-1)/2)*.66, x=cx+xx*cs+row*.85*sn,z=cz-xx*sn+row*.85*cs;
-      box(x,.35,z,.51,.13,.43,m.seat,angle);
-      box(x+.188*sn,.59,z+.188*cs,.51,.40,.09,m.seatBack,angle);
-      box(x,.16,z,.14,.28,.18,m.iron,angle);
-    }
+  for(const {x,z,giro} of plan.asientos){
+    box(x,.35,z,.51,.13,.43,m.seat,giro);
+    box(x+.188*Math.sin(giro),.59,z+.188*Math.cos(giro),.51,.40,.09,m.seatBack,giro);
+    box(x,.16,z,.14,.28,.18,m.iron,giro);
   }
   // The lower front chord carries the lamps. The four chords and diagonals
   // distinguish the box trusses from the single pipe carrying the moving heads.
@@ -408,9 +401,8 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   for(const p of plan.puentes){
     const pad=p.id==='left'?plan.danza[0]:p.id==='right'?plan.danza[1]:null;
-    for(const {tipo,numero,pos:[x,z]} of p.equipos){
-      const fresnel=tipo==='F', lateral=(numero%2?1:-1)*.41;
-      const target=pad?[pad.x+lateral,fresnel?1.6:.50,pad.z]:[x*.89,1.33,p.id==='back'?-3.48:-3.08];
+    for(const {tipo,pos:[x,z],objetivo:target} of p.equipos){
+      const fresnel=tipo==='F';
       const color=fresnel?'#ffe2be':pad?'#92baff':p.id==='back'?'#b19aff':'#ffe7cb';
       lamp(p.id,[x,p.y-.32,z],target,color,fresnel?.29:.28,fresnel?100:72,fresnel?'fresnel':'wash',p.y);
     }
@@ -429,14 +421,16 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
   }
   // Future fixtures stay outside the base inventory and the photometric calculation.
   for(const side of [-1,1]){
-    const wallX=side<0?plan.ladoIzq:plan.ladoDer;
-    lamp('ambient',[side*13.05,.24,-2.33],[side*12.95,2.50,-2.60],'#4da7ff',.45,84,'wash');
-    lamp('ambient',[wallX-side*1.35,.24,1.85],[wallX-side*.24,2.78,1.34],'#4da7ff',.48,105,'wash');
-    for(const offset of [3.38,4.02]){
-      const x=side*offset,y=offset<3.5?1.39:1.58;
-      lamp('pixels',[x,y,-6.05],[x,y,-4.90],'#4db8ff',.80,0,'pixel');
+    for(const x of [side*12.85,side*16.14]){
+      const z=plan.paredEn(x);
+      lamp('ambient',[x,.24,z+.49],[x,2.50,z+.09],'#4da7ff',.48,90,'wash');
     }
-    lamp('music',[side*2.47,plan.porId.back.y-.42,plan.porId.back.a[1]],[side*1.48,1.24,-3.05],'#98bbff',.34,82,'moving',plan.porId.back.y);
+    for(const inset of [.30,.99]){
+      const x=banner.x+side*(banner.w/2-inset),y=banner.base+1.14;
+      lamp('pixels',[x,y,banner.z+.33],[x,y,banner.z+1.3],'#4db8ff',.80,0,'pixel');
+    }
+    const po=plan.porId.back,[x,z]=plan.punto(po,side<0?.25:.75);
+    lamp('music',[x,po.y-.42,z],[x*.64,1.24,plan.frenteAltar-1.40],'#98bbff',.34,82,'moving',po.y);
   }
   const houseLamps=[];
   // Shared intensity field on the reading plane. The samples are candela at
@@ -611,7 +605,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       ortho(v(0,6.7,19),v(0,3.8,-3.65),Math.max(4.5,15.6/aspect),aspect,15.72);
     }else if(mode==='left'||mode==='right'){
       const i=mode==='left'?0:1,[x,z]=pads[i],sign=i?-1:1;
-      ortho(v(x+4.12*sign,3.85,z+5.85),v(x,3.7,z+1.2),Math.max(4.5,3.75/aspect),aspect,2.8);
+      ortho(v(x+2.2*sign,5.45,z+10.6),v(x+.55*sign,3.35,z+1.1),Math.max(4.8,4.9/aspect),aspect);
     }else if(mode==='fixture'&&fixtureIndex.has(detailId)){
       const l=fixtureIndex.get(detailId),p=l.source;
       const direction=l.light.target.position.clone().sub(l.light.position).normalize();
@@ -724,7 +718,7 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
       active=Math.max(active,level);
       l.light.visible=level>0&&l.power>0;
       l.indicator.visible=present&&(selectedFixture?l.id===selectedFixture:l.group===marked)&&mode!=='fixture';
-      const tint=l.group==='house'?roomColor:l.group==='ambient'?(state.roomColor||scenic.ambient||roomColor):scenic[l.group]||l.color;
+      const tint=l.group==='house'?roomColor:l.group==='ambient'?(state.roomColor||scenic.ambient||roomColor):(rearDance?scenic.dancePar:null)||scenic[l.group]||l.color;
       const c=new T.Color(neutral?'#ffffff':tint);
       l.light.color.copy(c);l.light.intensity=level*l.power*(l.group==='top'||l.group==='front'?.61:.85);
       l.lensMat.color.copy(c).multiplyScalar(.06+level*1.45);
@@ -775,8 +769,8 @@ function crearAuditorio(host, onPick, onCameraChange, onFirstFrame) {
     else if(group==='top'||group==='back'){mount=plan.porId[group].nombre;rangeX=[-8.95,8.95];}
     else if(group==='moving'){mount='Segunda barra';rangeX=[-7.5,7.5];}
     else if(group==='music'){mount='Barra posterior propuesta';rangeX=[-8.95,8.95];}
-    else if(group==='ambient'){mount='Soporte lateral a piso';rangeX=source.x<0?[-16,-12]:[12,16];rangeZ=[-2.4,2];}
-    else if(group==='pixels'){mount='Base vertical junto al banner';rangeX=source.x<0?[-4.24,-2.9]:[2.9,4.24];rangeZ=[-6.15,-5.8];}
+    else if(group==='ambient'){mount='Soporte lateral a piso';rangeX=[l.home.x-.35,l.home.x+.35];rangeZ=[l.home.z-.22,l.home.z+.3];}
+    else if(group==='pixels'){mount='Base vertical junto al banner';rangeX=[l.home.x-.30,l.home.x+.30];rangeZ=[banner.z+.20,banner.z+.65];}
     else if(group==='house'){mount='Techo de sala';rangeX=[plan.ladoIzq+.16,plan.ladoDer-.16];rangeZ=[-.60,plan.limiteSala];}
     else{
       mount='Piso del escenario';rangeX=[-8.7,8.7];

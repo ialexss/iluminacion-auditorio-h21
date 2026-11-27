@@ -41,16 +41,7 @@ window.Fotometria = (() => {
       [-9.46, 6.55], [-5.8, 6.95], [-1.8, 6.95], [2.2, 6.95], [6.2, 6.95], [9.9, 6.6]
     ].map(([x,z])=>[x*1.50,z*1.26])
   };
-  const seats = [];
-  for (const [x, z, columns, rows, rotation] of plan.bloques) {
-    const cos = Math.cos(rotation), sin = Math.sin(rotation);
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < columns; col++) {
-        const side = (col - (columns - 1) / 2) * .66;
-        seats.push([x + side * cos + row * .85 * sin, z - side * sin + row * .85 * cos]);
-      }
-    }
-  }
+  const seats = plan.asientos.map(({x,z})=>[x,z]);
 
   // Centros de celdas de 5 cm. La región incluye butacas y pasillos desde z = -0,60.
   const step = .05, z0 = -.575;
@@ -65,16 +56,10 @@ window.Fotometria = (() => {
       if ((az > z) !== (bz > z) && x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
     }
     if (!inside) return false;
-    const ala=x<0?plan.izquierda:plan.derecha;
-    if (Math.abs(x)>plan.anchoAltar/2){
-      const i=ala.findIndex(([px])=>Math.abs(px)>=Math.abs(x));
-      if(i>0){
-        const [ax,az]=ala[i-1],[bx,bz]=ala[i];
-        if(z<az+(bz-az)*(x-ax)/(bx-ax))return false;
-      }
-    }
+    if (Math.abs(x)>plan.anchoAltar/2 && z<plan.paredEn(x)) return false;
     for (const pad of plan.danza) {
-      if (Math.abs(x - pad.x) <= pad.w / 2 && Math.abs(z - pad.z) <= pad.d / 2) return false;
+      const dx=x-pad.x,dz=z-pad.z,c=Math.cos(pad.giro),s=Math.sin(pad.giro);
+      if(Math.abs(dx*c-dz*s)<=pad.w/2 && Math.abs(dx*s+dz*c)<=pad.d/2)return false;
     }
     if (Math.abs(x) <= 1.35) {
       for (let stair = 0; stair < 3; stair++) {
